@@ -15,6 +15,9 @@ import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+def callbackFunc(event):
+    print("New element selected")
+
 #Window
 main_window = Tk() #Generates the main window for the UI
 main_window.title("CBRAM cells programmer")
@@ -29,7 +32,7 @@ menubar.add_cascade(label="File", menu=menu1)
 menu1.add_command(label="Save config")
 menu1.add_command(label="Load config")
 menu1.add_separator()
-menu1.add_command(label="Quit")
+menu1.add_command(label="Quit", command=quit)
 
 
 menu2 = Menu(menubar, tearoff=0)
@@ -45,48 +48,50 @@ menu3.add_command(label="Reset Calibration")
 main_window.config(menu=menubar)
 
 #LabelFrame
-labelframe1 = LabelFrame(main_window, text="General Configuration", padx=15, pady=15, bg="gainsboro")
-labelframe1.grid(column=0, columnspan=1, row=0)
+labelframe1 = LabelFrame(main_window, text="General Configuration", padx=25, pady=15, bg="gainsboro")
+labelframe1.grid(column=0, columnspan=2, row=0)
 
-labelframe2 = LabelFrame(main_window, text="Signal Configuration", padx=15, pady=15, bg="gainsboro")
-labelframe2.grid(column=0, columnspan=1, row=1)
+labelframe2 = LabelFrame(main_window, text="Signal Configuration", padx=25, pady=15, bg="gainsboro")
+labelframe2.grid(column=0, columnspan=2, row=1)
 
 #Labels
 label1 = Label(main_window, text="Copyright Grenoble-inp LCIS") #Create a display section
-label1.grid(column=0, row=3)   #Attach the display section to the main window
+label1.grid(column=2, row=3)   #Attach the display section to the main window
 label1.configure(bg="gainsboro")
 
 #Listes déroulantes
-liste1 = Combobox(labelframe1, values=["ligne1", "ligne2", "ligne3"])
+liste1 = Combobox(labelframe1, state="readonly", width=60, values=["ligne1", "ligne2", "ligne3"])
 liste1.grid(column=0, row=0)
 liste1.configure(background="gainsboro")
+liste1.bind("<<ComboboxSelected>>", callbackFunc)
 
-liste2 = Combobox(labelframe1, values=["SET cell in HIGH state", "SET cell in LOW state"])
+liste2 = Combobox(labelframe1, state="readonly", width=60, values=["SET cell in HIGH state", "SET cell in LOW state"])
 liste2.grid(column=0, row=1)
 liste2.configure(background="gainsboro")
 
-liste3 = Combobox(labelframe1, values=["Voltage source", "Current Source"])
+liste3 = Combobox(labelframe1, state="readonly", width=60, values=["Voltage source", "Current Source"])
 liste3.grid(column=0, row=2)
 liste3.configure(background="gainsboro")
 
-liste4 = Combobox(labelframe2, values=["ligne1", "ligne2", "ligne3"])
-liste4.grid(column=0, row=0)
-liste4.configure(background="gainsboro")
+if liste2.current() == 1 :
+    liste4 = Combobox(labelframe2, state="readonly", width=60, values=["ligne1", "ligne2", "ligne3"])
+    liste4.grid(column=0, row=0)
+    liste4.configure(background="gainsboro")
 
-liste5 = Combobox(labelframe2, values=["SET cell in HIGH state", "SET cell in LOW state"])
-liste5.grid(column=0, row=1)
-liste5.configure(background="gainsboro")
+    liste5 = Combobox(labelframe2, state="readonly", width=60, values=["SET cell in HIGH state", "SET cell in LOW state"])
+    liste5.grid(column=0, row=1)
+    liste5.configure(background="gainsboro")
 
-liste6 = Combobox(labelframe2, values=["Voltage source", "Current Source"])
-liste6.grid(column=0, row=2)
-liste6.configure(background="gainsboro")
+    liste6 = Combobox(labelframe2, state="readonly", width=60, values=["Voltage source", "Current Source"])
+    liste6.grid(column=0, row=2)
+    liste6.configure(background="gainsboro")
 
 #Boutons
-button1 = Button(main_window, text="Generate Command Script", command=main_window.quit)
+button1 = Button(main_window, text="Generate Command Script", padx=15, command=callbackFunc)
 button1.grid(column=0, row=2)
 button1.configure(bg="gainsboro")
 
-button2 = Button(main_window, text="Start Sequence", command=main_window.quit)
+button2 = Button(main_window, text="Start Sequence", padx=15, command=main_window.quit)
 button2.grid(column=1, row=2)
 button2.configure(bg="gainsboro")
 
