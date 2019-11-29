@@ -10,6 +10,9 @@ from tkinter import Entry
 from tkinter import LabelFrame
 from tkinter import StringVar
 from tkinter import DoubleVar
+from tkinter import filedialog
+
+from Class import ConfigFile
 
 from tkinter.ttk import Combobox
 
@@ -23,6 +26,7 @@ class Application(Tk):
     def __init__(self):
     #Constructor for  the main window
         Tk.__init__(self)
+        self.configFile = ConfigFile()
         self.__initWidget()
         self.configure(bg="gainsboro")
 
@@ -212,7 +216,6 @@ class Application(Tk):
             pass
 
         self.label1.update_idletasks()
-        print(self.label4_String.get())
 
     def button1CallBack(self):
     #Callback function for button1 event
@@ -224,11 +227,65 @@ class Application(Tk):
 
     def saveConfig(self):
     #Callback function for menu1.saveConfig
-        print("bla")
+        self.configFile.path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("Config files","*.ini"),("all files","*.*")))
+        if self.configFile.path != "":
+            self.configFile.file = open(self.configFile.path, 'w')
+
+            self.configFile.file.write(self.liste1.get() + "\n")
+            self.configFile.file.write(self.liste2.get() + "\n")
+            self.configFile.file.write(self.liste3.get() + "\n")
+            self.configFile.file.write(str(self.entry1_String.get()) + "\n")
+            self.configFile.file.write(str(self.entry2_String.get()) + "\n")
+            self.configFile.file.write(str(self.entry3_String.get()) + "\n")
+            self.configFile.file.write(str(self.entry4_String.get()) + "\n")
+
+            self.configFile.file.close()
 
     def loadConfig(self):
     #Callback function for menu1.loadConfig
-        print("bla")
+        self.configFile.path =  filedialog.askopenfilename(title = "Select file",filetypes = (("Config files","*.ini"),("all files","*.*")))
+        print(self.configFile.path )
+        if self.configFile.path != "":
+            self.configFile.file = open(self.configFile.path, 'r')
+
+            line = self.configFile.file.readline()[:-1]
+            self.liste1.current(0)
+            if line == self.liste1.get():
+                pass    
+            else:
+                self.liste1.current(1)
+                if line == self.liste1.get():
+                    pass
+                else:
+                    self.liste1.current(2)
+                    if line == self.liste1.get():
+                        print("3")
+                        
+            line = self.configFile.file.readline()[:-1]
+            self.liste2.current(0)
+            if line == self.liste2.get():
+                pass
+            else:
+                self.liste2.current(1)
+                if line == self.liste2.get():
+                    pass
+
+            line = self.configFile.file.readline()[:-1]
+            self.liste3.current(0)
+            if line == self.liste3.get():
+                pass
+            else:
+                self.liste3.current(1)
+                if line == self.liste3.get():
+                    pass
+
+            self.entry1_String.set(float(self.configFile.file.readline()[:-1]))
+            self.entry2_String.set(float(self.configFile.file.readline()[:-1]))
+            self.entry3_String.set(float(self.configFile.file.readline()[:-1]))
+            self.entry4_String.set(float(self.configFile.file.readline()[:-1]))
+
+        self.label1.update_idletasks()
+        self.configFile.file.close()
 
     def exportCSV(self):
     #Callback function for menu2.exportCSV
