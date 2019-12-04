@@ -2,27 +2,53 @@
 
 """
 
-from pyvisa import ResourceManager
+import pyvisa
 
-class Instrument(ResourceManager):
+def findInstruments():
+    rm = pyvisa.ResourceManager()
+    return(rm.list_resources())
 
-    def __init__(self):
-        ResourceManager.__init__(self)
+def resistanceMeasurement(ident):
 
+    voltage = 1
+    current = 0.0001
 
-    def initInstrument(self):
-    #Create a ResourceManager object linked to the selected instrument
-        self.open_resource("") #Open the selected instrument and create a handler
-        #print(instrument.query("*IDN?"))
+    if ident == "":
+        return(-1)
+    else:
+        rm = pyvisa.ResourceManager()
+        my_instrument = rm.open_resource(ident)
 
-    def searchInstruments(self):
-    #Search for compatible instruments       
-        self.list_resources() #Returns all visa ressources connected. Linked to combobox1.
+        my_instrument.write('*RST')
+        my_instrument.write('TRAC:CLE "defbuffer1"')
 
-    def generateScript(self):
-    #Generate from View.py arguments
-        print("bla")
-        
+        my_instrument.write('SOUR:FUNC VOLT')
+        my_instrument.write('SOUR:VOLT:ILIM ' + str(current))
 
-test = Instrument()
-test.searchInstruments()
+        my_instrument.write('SENS:FUNC "CURR"')
+        my_instrument.write('SOUR:VOLT ' + str(voltage))
+        my_instrument.write('OUTP ON')
+
+        my_instrument.write('MEAS:VOLT?')
+        volt = float(my_instrument.read())
+
+        my_instrument.write('MEAS:CURR?')
+        amp = float(my_instrument.read())
+
+        if amp != 0:
+            R = volt/amp
+        else:
+            R = -1
+
+        my_instrument.write('OUTP OFF')
+        my_instrument.close()
+
+        return(R)
+
+def generateVoltageWaveform(ident):
+    print('bla')
+
+def generateCurrentWaveform(ident):
+    print('bla')
+
+#'USB0::0x05E6::0x2450::04100639::INSTR'
