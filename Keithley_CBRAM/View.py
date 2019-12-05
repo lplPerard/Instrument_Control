@@ -42,7 +42,7 @@ class Application(Tk):
         self.__initEntries()
         self.__initLabels()
         self.__initButtons()
-        self.__initFigures()
+        self.generatePlotParam()
 
     def __initMenu(self):
     #Barre de menu
@@ -70,29 +70,29 @@ class Application(Tk):
 
     def __initFrames(self):
     #LabelFrames
-        self.labelframe1 = LabelFrame(self, text="General Configuration", padx=25, pady=15, bg="gainsboro")
+        self.labelframe1 = LabelFrame(self, text="General Configuration", padx=15, pady=5, bg="gainsboro")
         self.labelframe1.grid(column=0, columnspan=2, row=0)
 
-        self.labelframe2 = LabelFrame(self, text="Signal Configuration", padx=25, pady=15, bg="gainsboro")
+        self.labelframe2 = LabelFrame(self, text="Signal Configuration", padx=15, pady=5, bg="gainsboro")
         self.labelframe2.grid(column=0, columnspan=2, row=1)
 
-        self.labelframe3 = LabelFrame(self, text="Cell configuration", padx=25, pady=15, bg="gainsboro")
+        self.labelframe3 = LabelFrame(self, text="Cell configuration", padx=15, pady=5, bg="gainsboro")
         self.labelframe3.grid(column=0, columnspan=2, row=2)
         
     def __initCombobox(self):
     #Listes déroulantes
-        self.liste1 = Combobox(self.labelframe1, state="readonly", width=60, values=findInstruments())
+        self.liste1 = Combobox(self.labelframe1, state="readonly", width=30, values=findInstruments())
         self.liste1.grid(column=0, row=0)
         self.liste1.configure(background="gainsboro")
         self.liste1.current(0)
 
-        self.liste2 = Combobox(self.labelframe1, state="readonly", width=60, values=["SET cell in HIGH state", "SET cell in LOW state"])
+        self.liste2 = Combobox(self.labelframe1, state="readonly", width=30, values=["SET cell in HIGH state", "SET cell in LOW state"])
         self.liste2.grid(column=0, row=2)
         self.liste2.configure(background="gainsboro")
         self.liste2.bind("<<ComboboxSelected>>", self.listeCallBack)
         self.liste2.current(0)
 
-        self.liste3 = Combobox(self.labelframe1, state="readonly", width=60, values=["Voltage source", "Current Source"])
+        self.liste3 = Combobox(self.labelframe1, state="readonly", width=30, values=["Voltage source", "Current Source"])
         self.liste3.grid(column=0, row=3)
         self.liste3.configure(background="gainsboro")
         self.liste3.bind("<<ComboboxSelected>>", self.listeCallBack)
@@ -119,30 +119,37 @@ class Application(Tk):
         self.label6_String.set("Current resistance State (Ohm): ")
 
         self.entry1_String = DoubleVar()
+
         self.entry2_String = DoubleVar()
+        self.entry2_String.set(1)
+
         self.entry3_String = DoubleVar()
+        self.entry3_String.set(1)
+
         self.entry4_String = DoubleVar()
+        self.entry4_String.set(1e-3)
+
         self.entry5_String = DoubleVar()
         self.entry6_String = DoubleVar()
 
     def __initEntries(self):
     #Entries
-        self.entry1 = Entry(self.labelframe2, textvariable=self.entry1_String , width=30)
+        self.entry1 = Entry(self.labelframe2, textvariable=self.entry1_String , width=15)
         self.entry1.grid(column=1, row=0)
 
-        self.entry2 = Entry(self.labelframe2, textvariable=self.entry2_String , width=30)
+        self.entry2 = Entry(self.labelframe2, textvariable=self.entry2_String , width=15)
         self.entry2.grid(column=1, row=1)
 
-        self.entry3 = Entry(self.labelframe2, textvariable=self.entry3_String , width=30)
+        self.entry3 = Entry(self.labelframe2, textvariable=self.entry3_String , width=15)
         self.entry3.grid(column=1, row=2)
 
-        self.entry4 = Entry(self.labelframe2, textvariable=self.entry4_String , width=30)
+        self.entry4 = Entry(self.labelframe2, textvariable=self.entry4_String , width=15)
         self.entry4.grid(column=1, row=3)
 
-        self.entry5 = Entry(self.labelframe3, textvariable=self.entry5_String , width=30)
+        self.entry5 = Entry(self.labelframe3, textvariable=self.entry5_String , width=15)
         self.entry5.grid(column=1, row=0)
 
-        self.entry6 = Entry(self.labelframe3, textvariable=self.entry6_String , width=30)
+        self.entry6 = Entry(self.labelframe3, textvariable=self.entry6_String , width=15)
         self.entry6.grid(column=1, row=1)
 
     def __initLabels(self):
@@ -193,46 +200,102 @@ class Application(Tk):
         self.button3.grid(column=1, row=3)
         self.button3.configure(bg="gainsboro")
 
-    def __initFigures(self):
+    def setFigures(self, t, Us, Is, Rs, Ps, Um=0, Im=0, Rm=0, Pm=0):
     #Figures to Canvas
-        DV = self.entry2_String.get() - self.entry1_String.get()
-        if self.entry3_String.get()!=0:
-            T_max = DV / self.entry3_String.get()
+        if Um==0 or Im==0 or Rm == 0 or Pm==0:
+            Um = Um * np.ones(len(t))
+            Im = Im * np.ones(len(t))
+            Rm = Rm * np.ones(len(t))
+            Pm = Pm * np.ones(len(t))
+
+        self.fig = Figure(figsize=(15, 8), dpi=80, facecolor="gainsboro")
+
+        self.axU = self.fig.add_subplot(221)
+        self.axU.set_xlabel("Time (s)")
+        self.axU.set_ylabel("Tension (V)")
+        self.axU.grid(True)
+        self.axU.step(t,Us)
+        self.axU.step(t,Um)
+
+        self.axI = self.fig.add_subplot(222, sharex=self.axU)
+        self.axI.set_xlabel("Time (s)")
+        self.axI.set_ylabel("Current (A)")
+        self.axI.grid(True)
+        self.axI.step(t,Is)
+        self.axI.step(t,Im)
+
+        self.axR = self.fig.add_subplot(223, sharex=self.axU)
+        self.axR.set_xlabel("Time (s)")
+        self.axR.set_ylabel("Resistance (Ohm)")
+        self.axR.set_yscale('log')
+        self.axR.grid(True)
+        self.axR.step(t,Rs)
+        self.axR.step(t,Rm)
+
+        self.axP = self.fig.add_subplot(224, sharex=self.axU)
+        self.axP.set_xlabel("Time (s)")
+        self.axP.set_ylabel("Power (W)")
+        self.axP.set_yscale('log')
+        self.axP.grid(True)
+        self.axP.step(t,Ps)
+        self.axP.step(t,Pm)
+        
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().grid(column=2, row=0, rowspan=3)
+        self.canvas.get_tk_widget().configure(bg="gainsboro")
+
+    def generatePlotParam(self, Um=0, Im=0):
+    #Function to generate values to plot
+        if Um!=0 or Im!=0:
+            print("bla")
+            #Bien penser à soustraire la résistance de compensation !
+
         else:
-            T_max = 1
-        x = np.linspace(0, 0.01, 5)
-        y = 5 * x 
-        fig = Figure(figsize=(21, 12), dpi=80, facecolor="gainsboro")
+            if self.liste2.current()==1 and self.liste3.current()==0:
+                span = self.entry2_String.get() - self.entry1_String.get()
+                T_max = span / self.entry3_String.get()
+                t = np.linspace(0, T_max, T_max/0.01)
+                ramp = span/T_max
 
-        ax1 = fig.add_subplot(221)
-        ax1.plot(x,y)
-        ax1.set_xlabel("Time (s)")
-        ax1.set_ylabel("Tension (V)")
-        ax1.grid(True)
+                Us = ramp * t - self.entry1_String.get()
+                Rs = 1e6 - 990e3*t/T_max
+                Is = Us/Rs        
+                Ps = Us*Is
 
-        ax2 = fig.add_subplot(222, sharex=ax1)
-        ax2.plot(y,x)
-        ax2.set_xlabel("Time (s)")
-        ax2.set_ylabel("Current (A)")
-        ax2.grid(True)
+            elif self.liste2.current()==0 and self.liste3.current()==0:
+                span = - abs(self.entry2_String.get() - self.entry1_String.get())
+                T_max = self.entry3_String.get()
+                t = np.linspace(0, T_max, T_max/0.01)
 
-        ax3 = fig.add_subplot(223, sharex=ax1)
-        ax3.plot(x,y)
-        ax3.set_xlabel("Time (s)")
-        ax3.set_ylabel("Resistance (Ohm)")
-        ax3.grid(True)
+                Us = span * np.ones(int(T_max/0.01))
+                Rs = 10 + 990e3*t/T_max
+                Is = Us/Rs        
+                Ps = Us*Is
 
-        ax4 = fig.add_subplot(224, sharex=ax1)
-        ax4.plot(x,y)
-        ax4.set_xlabel("Time (s)")
-        ax4.set_ylabel("Power (W)")
-        ax4.grid(True)
+            elif self.liste2.current()==1 and self.liste3.current()==1:
+                span = self.entry2_String.get() - self.entry1_String.get()
+                T_max = span / self.entry3_String.get()
+                t = np.linspace(0, T_max, T_max/0.01)
+                ramp = span/T_max
 
-        graph = FigureCanvasTkAgg(fig, master=self)
-        canva2 = graph.get_tk_widget()
-        canva2.grid(column=2, row=0, rowspan=3)
-        canva2.configure(bg="gainsboro")
+                Is = ramp * t - self.entry1_String.get()
+                Rs = 1e6 - 990e3*t/T_max
+                Us = Is*Rs        
+                Ps = Us*Is
 
+            elif self.liste2.current()==0 and self.liste3.current()==1:
+                span = - abs(self.entry2_String.get() - self.entry1_String.get())
+                T_max = self.entry3_String.get()
+                t = np.linspace(0, T_max, T_max/0.01)
+
+                Is = span * np.ones(int(T_max/0.01))
+                Rs = 10 + 990e3*t/T_max
+                Us = Is*Rs        
+                Ps = Us*Is
+
+            self.setFigures(t,Us,Is,Rs,Ps)
+            
     def listeCallBack(self, event=None):
     #Callback function for Combobox event
         if (self.liste2.current() == 1) and (self.liste3.current() == 1):
@@ -272,11 +335,11 @@ class Application(Tk):
     def button1CallBack(self):
     #Callback function for button1 event
         R = resistanceMeasurement(self.liste1.get())
-        if R >= 1000000:
-            self.entry6_String.set(R/1000000)
+        if R >= 1e6:
+            self.entry6_String.set(R/1e6)
             self.label6_String.set("Current resistance State (MOhm): ")
-        elif R >= 1000:
-            self.entry6_String.set(R/1000)
+        elif R >= 1e3:
+            self.entry6_String.set(R/1e3)
             self.label6_String.set("Current resistance State (kOhm): ")
         else:
             self.entry6_String.set(R)
@@ -286,19 +349,20 @@ class Application(Tk):
     def button2CallBack(self):
     #Callback function for button2 event
         self.update_idletasks()
+        self.generatePlotParam()
 
     def button3CallBack(self):
     #Callback function for button3 event
         R = resistanceMeasurement(self.liste1.get())
 
-        if R >= 100000 and self.liste2.current()==0:            
+        if R >= 1e6 and self.liste2.current()==0:            
             showwarning(title="Start Sequence", message="Cell already in High resistance state")
-            self.entry6_String.set(R/1000000)
+            self.entry6_String.set(R/1e6)
             self.label6_String.set("Current resistance State (MOhm): ")
 
-        elif R >= 1000  and self.liste2.current()==0: 
-            answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str('%.2E' %R/1000) + "kOhm\n Do you want to try to increase this resistance ?")
-            self.entry6_String.set(R/1000)
+        elif R >= 1e3  and self.liste2.current()==0: 
+            answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str('%.2E' %R/1e3) + "kOhm\n Do you want to try to increase this resistance ?")
+            self.entry6_String.set(R/1e3)
             self.label6_String.set("Current resistance State (kOhm): ")
 
             if self.liste3.current()==0 and answer==True:
@@ -315,12 +379,12 @@ class Application(Tk):
             else:
                 generateCurrentWaveform
 
-        elif R >= 1000  and self.liste2.current()==1: 
-            if R >= 1000000:
-                self.entry6_String.set(R/1000000)
+        elif R >= 1e3  and self.liste2.current()==1: 
+            if R >= 1e6:
+                self.entry6_String.set(R/1e6)
                 self.label6_String.set("Current resistance State (MOhm): ")
-            elif R >= 1000:
-                self.entry6_String.set(R/1000)
+            elif R >= 1e3:
+                self.entry6_String.set(R/1e3)
                 self.label6_String.set("Current resistance State (kOhm): ")
 
             if self.liste3.current()==1:
@@ -334,8 +398,6 @@ class Application(Tk):
                 generateVoltageWaveform
             elif answer==True:
                 generateCurrentWaveform
-
-
 
     def saveConfig(self):
     #Callback function for menu1.saveConfig
@@ -444,7 +506,6 @@ class Application(Tk):
         if answer:
             self.entry5_String.set(0)
             self.update_idletasks()
-
 
 """This code contains the view for the CBRAM cell programming software
 
