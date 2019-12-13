@@ -29,6 +29,7 @@ class Application(Tk):
     #Constructor for  the main window
         Tk.__init__(self)
 
+        self.state="SINGLE"
         self.configFile = ConfigFile()
         self.__initWidget()
         self.configure(bg="gainsboro")
@@ -55,44 +56,53 @@ class Application(Tk):
         self.menu1.add_separator()
         self.menu1.add_command(label="Quit", command=quit)
 
-
         self.menu2 = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Export", menu=self.menu2)
-        self.menu2.add_command(label="Format .CSV", command=self.exportCSV)
-        self.menu2.add_command(label="Format .txt", command=self.exportTXT)
+        self.menubar.add_cascade(label="Sequence", menu=self.menu2)        
+        self.menu2.add_command(label="Single", command=self.initSingle)
+        self.menu2.add_command(label="Cycling", command=self.initCycling)
+        self.menu2.add_command(label="Stability", command=self.initStability)
 
         self.menu3 = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Calibrate", menu=self.menu3)
         self.menu3.add_command(label="Perform new Calibration", command=self.newCalibration)
         self.menu3.add_command(label="Reset Calibration", command=self.resetCalibration)
 
+        self.menu4 = Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Export", menu=self.menu4)
+        self.menu4.add_command(label="Format .CSV", command=self.exportCSV)
+        self.menu4.add_command(label="Format .txt", command=self.exportTXT)
+
         self.config(menu=self.menubar)
 
     def __initFrames(self):
     #LabelFrames
-        self.labelframe1 = LabelFrame(self, text="General Configuration", padx=15, pady=5, bg="gainsboro")
-        self.labelframe1.grid(column=0, columnspan=2, row=0)
+        self.labelframe_generalConfig = LabelFrame(self, text="General Configuration", padx=15, pady=5, bg="gainsboro")
+        self.labelframe_generalConfig.grid(column=0, columnspan=2, row=0)
 
-        self.labelframe2 = LabelFrame(self, text="Signal Configuration", padx=15, pady=5, bg="gainsboro")
-        self.labelframe2.grid(column=0, columnspan=2, row=1)
+        self.labelframe_singleConfig = LabelFrame(self, text="Signal Configuration", padx=15, pady=5, bg="gainsboro")
+        self.labelframe_singleConfig.grid(column=0, columnspan=2, row=1)
 
-        self.labelframe3 = LabelFrame(self, text="Cell configuration", padx=15, pady=5, bg="gainsboro")
-        self.labelframe3.grid(column=0, columnspan=2, row=2)
+        self.labelframe_cyclingConfig = LabelFrame(self, text="Cycle Test configuration", padx=15, pady=5, bg="gainsboro")
+
+        self.labelframe_stabilityConfig = LabelFrame(self, text="Cycle Test configuration", padx=15, pady=5, bg="gainsboro")
+
+        self.labelframe_cellConfig = LabelFrame(self, text="Cell configuration", padx=15, pady=5, bg="gainsboro")
+        self.labelframe_cellConfig.grid(column=0, columnspan=2, row=2, padx=50)
         
     def __initCombobox(self):
     #Listes déroulantes
-        self.liste1 = Combobox(self.labelframe1, state="readonly", width=30, values=findInstruments())
+        self.liste1 = Combobox(self.labelframe_generalConfig, state="readonly", width=30, values=findInstruments())
         self.liste1.grid(column=0, row=0)
         self.liste1.configure(background="gainsboro")
         self.liste1.current(0)
 
-        self.liste2 = Combobox(self.labelframe1, state="readonly", width=30, values=["SET cell in HIGH state", "SET cell in LOW state"])
+        self.liste2 = Combobox(self.labelframe_generalConfig, state="readonly", width=30, values=["SET cell in HIGH state", "SET cell in LOW state"])
         self.liste2.grid(column=0, row=2)
         self.liste2.configure(background="gainsboro")
         self.liste2.bind("<<ComboboxSelected>>", self.listeCallBack)
         self.liste2.current(0)
 
-        self.liste3 = Combobox(self.labelframe1, state="readonly", width=30, values=["Voltage source", "Current Source"])
+        self.liste3 = Combobox(self.labelframe_generalConfig, state="readonly", width=30, values=["Voltage source", "Current Source"])
         self.liste3.grid(column=0, row=3)
         self.liste3.configure(background="gainsboro")
         self.liste3.bind("<<ComboboxSelected>>", self.listeCallBack)
@@ -100,95 +110,248 @@ class Application(Tk):
 
     def __initStringVars(self):
     #StringVars
-        self.label1_String = StringVar()
-        self.label1_String.set("Start value (V) : ")
+        self.label_String_1 = StringVar()
+        self.label_String_1.set("Start value (V) : ")
         
-        self.label2_String = StringVar()
-        self.label2_String.set("Stop value (V) : ")
+        self.label_String_2 = StringVar()
+        self.label_String_2.set("Stop value (V) : ")
 
-        self.label3_String = StringVar()
-        self.label3_String.set("Pulse Width (s) : ")
+        self.label_String_3 = StringVar()
+        self.label_String_3.set("Pulse Width (s) : ")
 
-        self.label4_String = StringVar()
-        self.label4_String.set("Current compliance (A) : ")
+        self.label_String_4 = StringVar()
+        self.label_String_4.set("Current compliance (A) : ")
 
-        self.label5_String = StringVar()
-        self.label5_String.set("Compensation resistance (Ohm)")
+        self.label_String_5 = StringVar()
+        self.label_String_5.set("Start value (V) : ")
+        
+        self.label_String_6 = StringVar()
+        self.label_String_6.set("Stop value (V) : ")
 
-        self.label6_String = StringVar()
-        self.label6_String.set("Current resistance State (Ohm): ")
+        self.label_String_7 = StringVar()
+        self.label_String_7.set("Pulse Width (s) : ")
 
-        self.entry1_String = DoubleVar()
+        self.label_String_8 = StringVar()
+        self.label_String_8.set("Current compliance (A) : ")
 
-        self.entry2_String = DoubleVar()
-        self.entry2_String.set(1)
+        self.label_String_9 = StringVar()
+        self.label_String_9.set("Compensation resistance (Ohm)")
 
-        self.entry3_String = DoubleVar()
-        self.entry3_String.set(1)
+        self.label_String_10 = StringVar()
+        self.label_String_10.set("Current resistance State (Ohm): ")
 
-        self.entry4_String = DoubleVar()
-        self.entry4_String.set(1e-3)
+        self.entryS_frame1_1 = DoubleVar()
+        self.entryS_frame1_2 = DoubleVar()
+        self.entryS_frame1_2.set(1)
+        self.entryS_frame1_3 = DoubleVar()
+        self.entryS_frame1_3.set(1)
+        self.entryS_frame1_4 = DoubleVar()
+        self.entryS_frame1_4.set(1e-3)
 
-        self.entry5_String = DoubleVar()
-        self.entry6_String = DoubleVar()
+        self.entryS_frame2_1 = DoubleVar()
+        self.entryS_frame2_2 = DoubleVar()
+        self.entryS_frame2_2.set(1)
+        self.entryS_frame2_3 = DoubleVar()
+        self.entryS_frame2_3.set(1)
+        self.entryS_frame2_4 = DoubleVar()
+        self.entryS_frame2_4.set(1e-3)
+        self.entryS_frame2_5 = DoubleVar()
+        self.entryS_frame2_6 = DoubleVar()
+        self.entryS_frame2_6.set(1)
+        self.entryS_frame2_7 = DoubleVar()
+        self.entryS_frame2_7.set(1)
+        self.entryS_frame2_8 = DoubleVar()
+        self.entryS_frame2_8.set(1e-3)
+
+        self.entryS_frame3_1 = DoubleVar()
+        self.entryS_frame3_2 = DoubleVar()
+        self.entryS_frame3_2.set(1)
+        self.entryS_frame3_3 = DoubleVar()
+        self.entryS_frame3_3.set(1)
+        self.entryS_frame3_4 = DoubleVar()
+        self.entryS_frame3_4.set(1e-3)
+        self.entryS_frame3_5 = DoubleVar()
+        self.entryS_frame3_6 = DoubleVar()
+        self.entryS_frame3_6.set(1)
+        self.entryS_frame3_7 = DoubleVar()
+        self.entryS_frame3_7.set(1)
+        self.entryS_frame3_8 = DoubleVar()
+        self.entryS_frame3_8.set(1e-3)
+        self.entryS_frame3_9 = DoubleVar()
+        self.entryS_frame3_9.set(10)
+
+        self.entryS_frame4_1 = DoubleVar()
+        self.entryS_frame4_2 = DoubleVar()
 
     def __initEntries(self):
     #Entries
-        self.entry1 = Entry(self.labelframe2, textvariable=self.entry1_String , width=15)
-        self.entry1.grid(column=1, row=0)
+        entry_frame1_1 = Entry(self.labelframe_singleConfig, textvariable=self.entryS_frame1_1, width=15)
+        entry_frame1_1.grid(column=1, row=0)
+        entry_frame1_2 = Entry(self.labelframe_singleConfig, textvariable=self.entryS_frame1_2, width=15)
+        entry_frame1_2.grid(column=1, row=1)
+        entry_frame1_3 = Entry(self.labelframe_singleConfig, textvariable=self.entryS_frame1_3, width=15)
+        entry_frame1_3.grid(column=1, row=2)
+        entry_frame1_4 = Entry(self.labelframe_singleConfig, textvariable=self.entryS_frame1_4, width=15)
+        entry_frame1_4.grid(column=1, row=3)
 
-        self.entry2 = Entry(self.labelframe2, textvariable=self.entry2_String , width=15)
-        self.entry2.grid(column=1, row=1)
+        entry_frame2_1 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_1, width=15)
+        entry_frame2_1.grid(column=1, row=0)
+        entry_frame2_2 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_2, width=15)
+        entry_frame2_2.grid(column=1, row=1)
+        entry_frame2_3 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_3, width=15)
+        entry_frame2_3.grid(column=1, row=2)
+        entry_frame2_4 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_4, width=15)
+        entry_frame2_4.grid(column=1, row=3)
+        entry_frame2_5 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_5, width=15)
+        entry_frame2_5.grid(column=1, row=5)
+        entry_frame2_6 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_6, width=15)
+        entry_frame2_6.grid(column=1, row=6)
+        entry_frame2_7 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_7, width=15)
+        entry_frame2_7.grid(column=1, row=7)
+        entry_frame2_8 = Entry(self.labelframe_cyclingConfig, textvariable=self.entryS_frame2_8, width=15)
+        entry_frame2_8.grid(column=1, row=8)
 
-        self.entry3 = Entry(self.labelframe2, textvariable=self.entry3_String , width=15)
-        self.entry3.grid(column=1, row=2)
+        entry_frame3_1 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_1, width=15)
+        entry_frame3_1.grid(column=1, row=0)
+        entry_frame3_2 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_2, width=15)
+        entry_frame3_2.grid(column=1, row=1)
+        entry_frame3_3 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_3, width=15)
+        entry_frame3_3.grid(column=1, row=2)
+        entry_frame3_4 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_4, width=15)
+        entry_frame3_4.grid(column=1, row=3)
+        entry_frame3_5 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_5, width=15)
+        entry_frame3_5.grid(column=1, row=5)
+        entry_frame3_6 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_6, width=15)
+        entry_frame3_6.grid(column=1, row=6)
+        entry_frame3_7 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_7, width=15)
+        entry_frame3_7.grid(column=1, row=7)
+        entry_frame3_8 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_8, width=15)
+        entry_frame3_8.grid(column=1, row=8)
+        entry_frame3_9 = Entry(self.labelframe_stabilityConfig, textvariable=self.entryS_frame3_9, width=15)
+        entry_frame3_9.grid(column=1, row=10)
 
-        self.entry4 = Entry(self.labelframe2, textvariable=self.entry4_String , width=15)
-        self.entry4.grid(column=1, row=3)
-
-        self.entry5 = Entry(self.labelframe3, textvariable=self.entry5_String , width=15)
-        self.entry5.grid(column=1, row=0)
-
-        self.entry6 = Entry(self.labelframe3, textvariable=self.entry6_String , width=15)
-        self.entry6.grid(column=1, row=1)
+        entry_frame4_1 = Entry(self.labelframe_cellConfig, textvariable=self.entryS_frame4_1, state= "readonly", width=15)
+        entry_frame4_1.grid(column=1, row=0)
+        entry_frame4_2 = Entry(self.labelframe_cellConfig, textvariable=self.entryS_frame4_2, state= "readonly", width=15)
+        entry_frame4_2.grid(column=1, row=1)
 
     def __initLabels(self):
     #Labels
-        self.label1 = Label(self.labelframe2, textvariable=self.label1_String) #Create a display section
-        self.label1.grid(column=0, row=0)   #Attach the display section to the main window
-        self.label1.configure(bg="gainsboro")
+        label_single_1 = Label(self.labelframe_singleConfig, textvariable=self.label_String_1) #Create a display section
+        label_single_1.grid(column=0, row=0)   #Attach the display section to the main window
+        label_single_1.configure(bg="gainsboro")
 
-        self.label2 = Label(self.labelframe2, textvariable=self.label2_String) #Create a display section
-        self.label2.grid(column=0, row=1)   #Attach the display section to the main window
-        self.label2.configure(bg="gainsboro")
+        label_single_2 = Label(self.labelframe_singleConfig, textvariable=self.label_String_2) #Create a display section
+        label_single_2.grid(column=0, row=1)   #Attach the display section to the main window
+        label_single_2.configure(bg="gainsboro")
 
-        self.label3 = Label(self.labelframe2, textvariable=self.label3_String) #Create a display section
-        self.label3.grid(column=0, row=2)   #Attach the display section to the main window
-        self.label3.configure(bg="gainsboro")
+        label_single_3 = Label(self.labelframe_singleConfig, textvariable=self.label_String_3) #Create a display section
+        label_single_3.grid(column=0, row=2)   #Attach the display section to the main window
+        label_single_3.configure(bg="gainsboro")
 
-        self.label4 = Label(self.labelframe2, textvariable=self.label4_String) #Create a display section
-        self.label4.grid(column=0, row=3)   #Attach the display section to the main window
-        self.label4.configure(bg="gainsboro")
+        label_single_4 = Label(self.labelframe_singleConfig, textvariable=self.label_String_4) #Create a display section
+        label_single_4.grid(column=0, row=3)   #Attach the display section to the main window
+        label_single_4.configure(bg="gainsboro")
 
-        self.label5 = Label(self.labelframe3, textvariable=self.label5_String) #Create a display section
-        self.label5.grid(column=0, row=0)   #Attach the display section to the main window
-        self.label5.configure(bg="gainsboro")
+        label_config_1 = Label(self.labelframe_cellConfig, textvariable=self.label_String_9) #Create a display section
+        label_config_1.grid(column=0, row=0)   #Attach the display section to the main window
+        label_config_1.configure(bg="gainsboro")
 
-        self.label6 = Label(self.labelframe3, textvariable=self.label6_String) #Create a display section
-        self.label6.grid(column=0, row=1)   #Attach the display section to the main window
-        self.label6.configure(bg="gainsboro")
+        label_config_2 = Label(self.labelframe_cellConfig, textvariable=self.label_String_10) #Create a display section
+        label_config_2.grid(column=0, row=1)   #Attach the display section to the main window
+        label_config_2.configure(bg="gainsboro")
 
-        self.copyright = Label(self, text="Copyright Grenoble-inp LCIS") #Create a display section
-        self.copyright.grid(column=2, row=4)   #Attach the display section to the main window
-        self.copyright.configure(bg="gainsboro")
+        label_cycling_1 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_1) #Create a display section
+        label_cycling_1.grid(column=0, row=0)   #Attach the display section to the main window
+        label_cycling_1.configure(bg="gainsboro")
+
+        label_cycling_2 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_2) #Create a display section
+        label_cycling_2.grid(column=0, row=1)   #Attach the display section to the main window
+        label_cycling_2.configure(bg="gainsboro")
+
+        label_cycling_3 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_3) #Create a display section
+        label_cycling_3.grid(column=0, row=2)   #Attach the display section to the main window
+        label_cycling_3.configure(bg="gainsboro")
+
+        label_cycling_4 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_4) #Create a display section
+        label_cycling_4.grid(column=0, row=3)   #Attach the display section to the main window
+        label_cycling_4.configure(bg="gainsboro")
+
+        label0 = Label(self.labelframe_cyclingConfig, text="") #Create a display section
+        label0.grid(column=0, row=4,)   #Attach the display section to the main window
+        label0.configure(bg="gainsboro")
+
+        label_cycling_5 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_5) #Create a display section
+        label_cycling_5.grid(column=0, row=5,)   #Attach the display section to the main window
+        label_cycling_5.configure(bg="gainsboro")
+
+        label_cycling_6 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_6) #Create a display section
+        label_cycling_6.grid(column=0, row=6)   #Attach the display section to the main window
+        label_cycling_6.configure(bg="gainsboro")
+
+        label_cycling_7 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_7) #Create a display section
+        label_cycling_7.grid(column=0, row=7)   #Attach the display section to the main window
+        label_cycling_7.configure(bg="gainsboro")
+
+        label_cycling_8 = Label(self.labelframe_cyclingConfig, textvariable=self.label_String_8) #Create a display section
+        label_cycling_8.grid(column=0, row=8)   #Attach the display section to the main window
+        label_cycling_8.configure(bg="gainsboro")
+
+        copyright = Label(self, text="Copyright Grenoble-inp LCIS") #Create a display section
+        copyright.grid(column=2, row=4)   #Attach the display section to the main window
+        copyright.configure(bg="gainsboro")
+        
+        label_stability_1 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_1) #Create a display section
+        label_stability_1.grid(column=0, row=0)   #Attach the display section to the main window
+        label_stability_1.configure(bg="gainsboro")
+
+        label_stability_2 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_2) #Create a display section
+        label_stability_2.grid(column=0, row=1)   #Attach the display section to the main window
+        label_stability_2.configure(bg="gainsboro")
+
+        label_stability_3 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_3) #Create a display section
+        label_stability_3.grid(column=0, row=2)   #Attach the display section to the main window
+        label_stability_3.configure(bg="gainsboro")
+
+        label_stability_4 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_4) #Create a display section
+        label_stability_4.grid(column=0, row=3)   #Attach the display section to the main window
+        label_stability_4.configure(bg="gainsboro")
+
+        label1 = Label(self.labelframe_stabilityConfig, text="") #Create a display section
+        label1.grid(column=0, row=4,)   #Attach the display section to the main window
+        label1.configure(bg="gainsboro")
+
+        label_stability_5 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_5) #Create a display section
+        label_stability_5.grid(column=0, row=5,)   #Attach the display section to the main window
+        label_stability_5.configure(bg="gainsboro")
+
+        label_stability_6 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_6) #Create a display section
+        label_stability_6.grid(column=0, row=6)   #Attach the display section to the main window
+        label_stability_6.configure(bg="gainsboro")
+
+        label_stability_7 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_7) #Create a display section
+        label_stability_7.grid(column=0, row=7)   #Attach the display section to the main window
+        label_stability_7.configure(bg="gainsboro")
+
+        label_stability_8 = Label(self.labelframe_stabilityConfig, textvariable=self.label_String_8) #Create a display section
+        label_stability_8.grid(column=0, row=8)   #Attach the display section to the main window
+        label_stability_8.configure(bg="gainsboro")
+
+        label2 = Label(self.labelframe_stabilityConfig, text="") #Create a display section
+        label2.grid(column=0, row=9,)   #Attach the display section to the main window
+        label2.configure(bg="gainsboro")
+
+        label_stability_9 = Label(self.labelframe_stabilityConfig, text="Number of cycles") #Create a display section
+        label_stability_9.grid(column=0, row=10)   #Attach the display section to the main window
+        label_stability_9.configure(bg="gainsboro")
 
     def __initButtons(self):
     #Boutons
-        self.button0 = Button(self.labelframe1, text="Actualize", padx=11, command=self.button0CallBack)
+        self.button0 = Button(self.labelframe_generalConfig, text="Actualize", padx=11, command=self.button0CallBack)
         self.button0.grid(column=0, row=1)
         self.button0.configure(bg="gainsboro")
 
-        self.button1 = Button(self.labelframe3, text="Acquire Cell's resistance state", padx=11, command=self.button1CallBack)
+        self.button1 = Button(self.labelframe_cellConfig, text="Acquire Cell's resistance state", padx=11, command=self.button1CallBack)
         self.button1.grid(column=1, row=2)
         self.button1.configure(bg="gainsboro")
 
@@ -200,13 +363,13 @@ class Application(Tk):
         self.button3.grid(column=1, row=3)
         self.button3.configure(bg="gainsboro")
 
-    def setFigures(self, t, Us, Is, Rs, Ps, Um=0, Im=0, Rm=0, Pm=0):
+    def setFigures(self, Um=0, Im=0, Rm=0, Pm=0):
     #Figures to Canvas
         if Um==0 or Im==0 or Rm == 0 or Pm==0:
-            Um = Um * np.ones(len(t))
-            Im = Im * np.ones(len(t))
-            Rm = Rm * np.ones(len(t))
-            Pm = Pm * np.ones(len(t))
+            Um = Um * np.ones(len(self.t))
+            Im = Im * np.ones(len(self.t))
+            Rm = Rm * np.ones(len(self.t))
+            Pm = Pm * np.ones(len(self.t))
 
         self.fig = Figure(figsize=(15, 8), dpi=80, facecolor="gainsboro")
 
@@ -214,31 +377,31 @@ class Application(Tk):
         self.axU.set_xlabel("Time (s)")
         self.axU.set_ylabel("Tension (V)")
         self.axU.grid(True)
-        self.axU.step(t,Us)
-        self.axU.step(t,Um)
+        self.axU.step(self.t,self.Us)
+        self.axU.step(self.t,Um)
 
         self.axI = self.fig.add_subplot(222, sharex=self.axU)
         self.axI.set_xlabel("Time (s)")
         self.axI.set_ylabel("Current (A)")
         self.axI.grid(True)
-        self.axI.step(t,Is)
-        self.axI.step(t,Im)
+        self.axI.step(self.t,self.Is)
+        self.axI.step(self.t,Im)
 
         self.axR = self.fig.add_subplot(223, sharex=self.axU)
         self.axR.set_xlabel("Time (s)")
         self.axR.set_ylabel("Resistance (Ohm)")
         self.axR.set_yscale('log')
         self.axR.grid(True)
-        self.axR.step(t,Rs)
-        self.axR.step(t,Rm)
+        self.axR.step(self.t,self.Rs)
+        self.axR.step(self.t,Rm)
 
         self.axP = self.fig.add_subplot(224, sharex=self.axU)
         self.axP.set_xlabel("Time (s)")
         self.axP.set_ylabel("Power (W)")
         self.axP.set_yscale('log')
         self.axP.grid(True)
-        self.axP.step(t,Ps)
-        self.axP.step(t,Pm)
+        self.axP.step(self.t,self.Ps)
+        self.axP.step(self.t,Pm)
         
         self.canvas = FigureCanvasTkAgg(self.fig, master=self)
         self.canvas.draw()
@@ -253,74 +416,94 @@ class Application(Tk):
 
         else:
             if self.liste2.current()==1 and self.liste3.current()==0:
-                span = self.entry2_String.get() - self.entry1_String.get()
-                T_max = span / self.entry3_String.get()
-                t = np.linspace(0, T_max, T_max/0.01)
+                span = self.entryS_frame1_2.get() - self.entryS_frame1_1.get()
+                T_max = span / self.entryS_frame1_3.get()
+                self.t = np.linspace(0, T_max, T_max/0.01)
                 ramp = span/T_max
 
-                Us = ramp * t - self.entry1_String.get()
-                Rs = 1e6 - 990e3*t/T_max
-                Is = Us/Rs        
-                Ps = Us*Is
+                self.Us = ramp * self.t - self.entryS_frame1_1.get()
+                self.Rs = 1e6 - 990e3*self.t/T_max
+                self.Is = self.Us/self.Rs        
+                self.Ps = self.Us*self.Is
 
             elif self.liste2.current()==0 and self.liste3.current()==0:
-                span = - abs(self.entry2_String.get() - self.entry1_String.get())
-                T_max = self.entry3_String.get()
-                t = np.linspace(0, T_max, T_max/0.01)
+                span = - abs(self.entryS_frame1_2.get() - self.entryS_frame1_1.get())
+                T_max = self.entryS_frame1_3.get()
+                self.t = np.linspace(0, T_max, T_max/0.01)
 
-                Us = span * np.ones(int(T_max/0.01))
-                Rs = 10 + 990e3*t/T_max
-                Is = Us/Rs        
-                Ps = Us*Is
+                self.Us = span * np.ones(int(T_max/0.01))
+                self.Rs = 10 + 990e3*self.t/T_max
+                self.Is = self.Us/self.Rs        
+                self.Ps = self.Us*self.Is
 
             elif self.liste2.current()==1 and self.liste3.current()==1:
-                span = self.entry2_String.get() - self.entry1_String.get()
-                T_max = span / self.entry3_String.get()
-                t = np.linspace(0, T_max, T_max/0.01)
+                span = self.entryS_frame1_2.get() - self.entryS_frame1_1.get()
+                T_max = span / self.entryS_frame1_3.get()
+                self.t = np.linspace(0, T_max, T_max/0.01)
                 ramp = span/T_max
 
-                Is = ramp * t - self.entry1_String.get()
-                Rs = 1e6 - 990e3*t/T_max
-                Us = Is*Rs        
-                Ps = Us*Is
+                self.Is = ramp * sefl.t - self.entryS_frame1_1.get()
+                self.Rs = 1e6 - 990e3*t/T_max
+                self.Us = self.Is*self.Rs        
+                self.Ps = self.Us*self.Is
 
             elif self.liste2.current()==0 and self.liste3.current()==1:
-                span = - abs(self.entry2_String.get() - self.entry1_String.get())
-                T_max = self.entry3_String.get()
-                t = np.linspace(0, T_max, T_max/0.01)
+                span = - abs(self.entryS_frame1_2.get() - self.entryS_frame1_1.get())
+                T_max = self.entryS_frame1_3.get()
+                self.t = np.linspace(0, T_max, T_max/0.01)
 
-                Is = span * np.ones(int(T_max/0.01))
-                Rs = 10 + 990e3*t/T_max
-                Us = Is*Rs        
-                Ps = Us*Is
+                self.Is = span * np.ones(int(T_max/0.01))
+                self.Rs = 10 + 990e3*self.t/T_max
+                self.Us = self.Is*self.Rs        
+                self.Ps = self.Us*Is
 
-            self.setFigures(t,Us,Is,Rs,Ps)
+            self.setFigures()
             
     def listeCallBack(self, event=None):
     #Callback function for Combobox event
         if (self.liste2.current() == 1) and (self.liste3.current() == 1):
-            self.label1_String.set("Start value (A) : ")
-            self.label2_String.set("Stop value (A) : ")
-            self.label3_String.set("Ramp (A/s) : ")
-            self.label4_String.set("Compliance Voltage (V) : ")
+            self.label_String_1.set("Start value (A) : ")
+            self.label_String_2.set("Stop value (A) : ")
+            self.label_String_3.set("Ramp (A/s) : ")
+            self.label_String_4.set("Compliance Voltage (V) : ")
+
+            self.label_String_5.set("Start value (A) : ")
+            self.label_String_6.set("Stop value (A) : ")
+            self.label_String_7.set("Pulse Width (s) : ")
+            self.label_String_8.set("Compliance Voltage (V) : ")
 
         elif (self.liste2.current() == 1) and (self.liste3.current() == 0):
-            self.label1_String.set("Start value (V) : ")
-            self.label2_String.set("Stop value (V) : ")
-            self.label3_String.set("Ramp (V/s) : ")
-            self.label4_String.set("Compliance Current (A) : ")
+            self.label_String_1.set("Start value (V) : ")
+            self.label_String_2.set("Stop value (V) : ")
+            self.label_String_3.set("Ramp (V/s) : ")
+            self.label_String_4.set("Compliance Current (A) : ")
+
+            self.label_String_5.set("Start value (V) : ")
+            self.label_String_6.set("Stop value (V) : ")
+            self.label_String_7.set("Pulse Width (s) : ")
+            self.label_String_8.set("Compliance Current (A) : ")
 
         elif (self.liste2.current() == 0) and (self.liste3.current() == 0):
-            self.label1_String.set("Start value (V) : ")
-            self.label2_String.set("Stop value (V) : ")
-            self.label3_String.set("Pulse Width (s) : ")
-            self.label4_String.set("Compliance Curent (A) : ")
+            self.label_String_1.set("Start value (V) : ")
+            self.label_String_2.set("Stop value (V) : ")
+            self.label_String_3.set("Pulse Width (s) : ")
+            self.label_String_4.set("Compliance Curent (A) : ")
+
+            self.label_String_5.set("Start value (V) : ")
+            self.label_String_6.set("Stop value (V) : ")
+            self.label_String_7.set("Pulse Width (s) : ")
+            self.label_String_8.set("Compliance Current (A) : ")
 
         elif (self.liste2.current() == 0) and (self.liste3.current() == 1):
-            self.label1_String.set("Start value (A) : ")
-            self.label2_String.set("Stop value (A) : ")
-            self.label3_String.set("Pulse Width (s) : ")
-            self.label4_String.set("Compliance Voltage (V) : ")
+            self.label_String_1.set("Start value (A) : ")
+            self.label_String_2.set("Stop value (A) : ")
+            self.label_String_3.set("Pulse Width (s) : ")
+            self.label_String_4.set("Compliance Voltage (V) : ")
+
+            self.label_String_5.set("Start value (A) : ")
+            self.label_String_6.set("Stop value (A) : ")
+            self.label_String_7.set("Pulse Width (s) : ")
+            self.label_String_8.set("Compliance Voltage (V) : ")
 
         else:
             pass
@@ -336,14 +519,14 @@ class Application(Tk):
     #Callback function for button1 event
         R = resistanceMeasurement(self.liste1.get())
         if R >= 1e6:
-            self.entry6_String.set(R/1e6)
-            self.label6_String.set("Current resistance State (MOhm): ")
+            self.entryS_frame4_2.set(R/1e6)
+            self.label_String_10.set("Current resistance State (MOhm): ")
         elif R >= 1e3:
-            self.entry6_String.set(R/1e3)
-            self.label6_String.set("Current resistance State (kOhm): ")
+            self.entryS_frame4_2.set(R/1e3)
+            self.label_String_10.set("Current resistance State (kOhm): ")
         else:
-            self.entry6_String.set(R)
-            self.label6_String.set("Current resistance State (Ohm): ")
+            self.entryS_frame4_2.set(R)
+            self.label_String_10.set("Current resistance State (Ohm): ")
         self.update_idletasks()
 
     def button2CallBack(self):
@@ -353,51 +536,57 @@ class Application(Tk):
 
     def button3CallBack(self):
     #Callback function for button3 event
-        R = resistanceMeasurement(self.liste1.get())
+        self.button2CallBack()
+
+        instr = self.liste1.get()
+        R = resistanceMeasurement(instr)
+        lim = self.entryS_frame1_4.get()
 
         if R >= 1e6 and self.liste2.current()==0:            
             showwarning(title="Start Sequence", message="Cell already in High resistance state")
-            self.entry6_String.set(R/1e6)
-            self.label6_String.set("Current resistance State (MOhm): ")
+            self.entryS_frame4_2.set(R/1e6)
+            self.label_String_10.set("Current resistance State (MOhm): ")
 
         elif R >= 1e3  and self.liste2.current()==0: 
             answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str('%.2E' %R/1e3) + "kOhm\n Do you want to try to increase this resistance ?")
-            self.entry6_String.set(R/1e3)
-            self.label6_String.set("Current resistance State (kOhm): ")
+            self.entryS_frame4_2.set(R/1e3)
+            self.label_String_10.set("Current resistance State (kOhm): ")
 
             if self.liste3.current()==0 and answer==True:
-                generateVoltageWaveform
+                generateVoltageWaveform(instr, self.Us, lim)
             elif answer==True:
-                generateCurrentWaveform
+                generateCurrentWaveform(instr, self.Is, lim)
 
         elif self.liste2.current()==0: 
-            self.entry6_String.set(R)
-            self.label6_String.set("Current resistance State (Ohm): ")
+            self.entryS_frame4_2.set(R)
+            self.label_String_10.set("Current resistance State (Ohm): ")
 
             if self.liste3.current()==0:
-                generateVoltageWaveform
+                generateVoltageWaveform(instr, self.Us, lim)
             else:
-                generateCurrentWaveform
+                generateCurrentWaveform(instr, self.Is, lim)
 
         elif R >= 1e3  and self.liste2.current()==1: 
             if R >= 1e6:
-                self.entry6_String.set(R/1e6)
-                self.label6_String.set("Current resistance State (MOhm): ")
+                self.entryS_frame4_2.set(R/1e6)
+                self.label_String_10.set("Current resistance State (MOhm): ")
             elif R >= 1e3:
-                self.entry6_String.set(R/1e3)
-                self.label6_String.set("Current resistance State (kOhm): ")
+                self.entryS_frame4_2.set(R/1e3)
+                self.label_String_10.set("Current resistance State (kOhm): ")
 
-            if self.liste3.current()==1:
-                generateVoltageWaveform
+            if self.liste3.current()==0:
+                generateVoltageWaveform(instr, self.Us, lim)
             else:
-                generateCurrentWaveform
+                generateCurrentWaveform(instr, self.Is, lim)
                 
         elif self.liste2.current()==1: 
             answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str('%.2E'%R) + "Ohm\n Do you want to try to lower this resistance ?")
+            self.entryS_frame4_2.set(R)
+            self.label_String_10.set("Current resistance State (Ohm): ")
             if self.liste3.current()==0 and answer==True:
-                generateVoltageWaveform
+                generateVoltageWaveform(instr, self.Us, lim)
             elif answer==True:
-                generateCurrentWaveform
+                generateCurrentWaveform(instr, self.Is, lim)
 
     def saveConfig(self):
     #Callback function for menu1.saveConfig
@@ -408,11 +597,11 @@ class Application(Tk):
             self.configFile.file.write(self.liste1.get() + "\n")
             self.configFile.file.write(self.liste2.get() + "\n")
             self.configFile.file.write(self.liste3.get() + "\n")
-            self.configFile.file.write(str(self.entry1_String.get()) + "\n")
-            self.configFile.file.write(str(self.entry2_String.get()) + "\n")
-            self.configFile.file.write(str(self.entry3_String.get()) + "\n")
-            self.configFile.file.write(str(self.entry4_String.get()) + "\n")
-            self.configFile.file.write(str(self.entry5_String.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame1_1.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame1_2.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame1_3.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame1_4.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame4_1.get()) + "\n")
 
             self.configFile.file.close()
 
@@ -423,30 +612,19 @@ class Application(Tk):
         if self.configFile.path != "":
             self.configFile.file = open(self.configFile.path, 'r')
 
+            i=0
             line = self.configFile.file.readline()[:-1]
             self.liste1.current(0)
-            if line == self.liste1.get():
-                pass    
-            else:
-                self.liste1.current(1)
+            while self.liste1.current() != -1:
                 if line == self.liste1.get():
-                    pass
+                    break
                 else:
-                    self.liste1.current(2)
-                    if line == self.liste1.get():
-                        pass
-                    else:
-                        self.liste1.current(3)
-                        if line == self.liste1.get():
-                            pass
-                        else:
-                            self.liste1.current(4)
-                            if line == self.liste1.get():
-                                pass
-                            else:
-                                self.liste1.current(4)
-                                if line == self.liste1.get():
-                                    pass
+                    i+=1
+                    self.liste1.current(i)
+
+            if self.liste1.current() == -1:
+                showerror(title="Load Config", message="Cannot find Desired instrument : " + line)
+
                         
             line = self.configFile.file.readline()[:-1]
             self.liste2.current(0)
@@ -466,15 +644,16 @@ class Application(Tk):
                 if line == self.liste3.get():
                     pass
 
-            self.entry1_String.set(float(self.configFile.file.readline()[:-1]))
-            self.entry2_String.set(float(self.configFile.file.readline()[:-1]))
-            self.entry3_String.set(float(self.configFile.file.readline()[:-1]))
-            self.entry4_String.set(float(self.configFile.file.readline()[:-1]))
-            self.entry5_String.set(float(self.configFile.file.readline()[:-1]))
+            self.entryS_frame1_1.set(float(self.configFile.file.readline()[:-1]))
+            self.entryS_frame1_2.set(float(self.configFile.file.readline()[:-1]))
+            self.entryS_frame1_3.set(float(self.configFile.file.readline()[:-1]))
+            self.entryS_frame1_4.set(float(self.configFile.file.readline()[:-1]))
+            self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
 
         self.update_idletasks()
         self.listeCallBack()
         self.configFile.file.close()
+        self.generatePlotParam()
 
     def exportCSV(self):
     #Callback function for menu2.exportCSV
@@ -490,22 +669,51 @@ class Application(Tk):
         if answer:
             R = resistanceMeasurement(self.liste1.get())
         if R >= 1000000:
-            self.entry5_String.set(R/1000000)
-            self.label5_String.set("Compensation resistance (MOhm)")
+            self.entryS_frame4_1.set(R/1000000)
+            self.label_String_9.set("Compensation resistance (MOhm)")
         elif R >= 1000:
-            self.entry5_String.set(R/1000)
-            self.label5_String.set("Compensation resistance (kOhm)")
+            self.entryS_frame4_1.set(R/1000)
+            self.label_String_9.set("Compensation resistance (kOhm)")
         else:
-            self.entry5_String.set(R)
-            self.label5_String.set("Compensation resistance (Ohm)")
+            self.entryS_frame4_1.set(R)
+            self.label_String_9.set("Compensation resistance (Ohm)")
         self.update_idletasks()
 
     def resetCalibration(self):
     #Callback function for menu3.resetCalibration
         answer = askokcancel(title="Reset Calibration", message="Are you sure you want to reset calibration ?\nThis could impact future measurement")
         if answer:
-            self.entry5_String.set(0)
+            self.entryS_frame4_1.set(0)
             self.update_idletasks()
+
+    def initSingle(self):
+        self.state="SINGLE"
+        self.labelframe_cyclingConfig.grid_forget()
+        self.labelframe_stabilityConfig.grid_forget()
+        self.liste2.config(state='enable')
+        self.labelframe_singleConfig.grid(column=0, columnspan=2, row=1)
+
+    def initCycling(self):
+        self.state="CYCLING"
+
+        self.liste2.current(1)
+        self.liste2.config(state='disabled')
+        self.listeCallBack()
+
+        self.labelframe_singleConfig.grid_forget()
+        self.labelframe_stabilityConfig.grid_forget()
+        self.labelframe_cyclingConfig.grid(column=0, columnspan=2, row=1)
+
+    def initStability(self):
+        self.state="STABILITY"
+
+        self.liste2.current(1)
+        self.liste2.config(state='disabled')
+        self.listeCallBack()
+
+        self.labelframe_singleConfig.grid_forget()
+        self.labelframe_cyclingConfig.grid_forget()
+        self.labelframe_stabilityConfig.grid(column=0, columnspan=2, row=1)
 
 """This code contains the view for the CBRAM cell programming software
 
