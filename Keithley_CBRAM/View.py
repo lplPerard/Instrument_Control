@@ -30,6 +30,8 @@ class Application(Tk):
         Tk.__init__(self)
 
         self.state="SINGLE"
+        self.timeStep = 0.4
+
         self.configFile = ConfigFile()
         self.__initWidget()
         self.configure(bg="gainsboro")
@@ -43,7 +45,7 @@ class Application(Tk):
         self.__initEntries()
         self.__initLabels()
         self.__initButtons()
-        self.generatePlotParam()
+        self.actualizeFigure()
 
     def __initMenu(self):
     #Barre de menu
@@ -140,45 +142,45 @@ class Application(Tk):
         self.label_String_10 = StringVar()
         self.label_String_10.set("Current resistance State (Ohm): ")
 
-        self.entryS_frame1_1 = DoubleVar()
-        self.entryS_frame1_2 = DoubleVar()
+        self.entryS_frame1_1 = DoubleVar() #Start Value
+        self.entryS_frame1_2 = DoubleVar() #Stop Value
         self.entryS_frame1_2.set(1)
-        self.entryS_frame1_3 = DoubleVar()
+        self.entryS_frame1_3 = DoubleVar() #Ramp/Width
         self.entryS_frame1_3.set(1)
         self.entryS_frame1_4 = DoubleVar()
-        self.entryS_frame1_4.set(1e-3)
+        self.entryS_frame1_4.set(1e-3) #Compliance
 
-        self.entryS_frame2_1 = DoubleVar()
-        self.entryS_frame2_2 = DoubleVar()
+        self.entryS_frame2_1 = DoubleVar() #Start Value
+        self.entryS_frame2_2 = DoubleVar() #Stop Value
         self.entryS_frame2_2.set(1)
-        self.entryS_frame2_3 = DoubleVar()
+        self.entryS_frame2_3 = DoubleVar() #Ramp
         self.entryS_frame2_3.set(1)
         self.entryS_frame2_4 = DoubleVar()
-        self.entryS_frame2_4.set(1e-3)
-        self.entryS_frame2_5 = DoubleVar()
-        self.entryS_frame2_6 = DoubleVar()
+        self.entryS_frame2_4.set(1e-3) #Compliance
+        self.entryS_frame2_5 = DoubleVar() #Start Value
+        self.entryS_frame2_6 = DoubleVar() #Stop Value
         self.entryS_frame2_6.set(1)
-        self.entryS_frame2_7 = DoubleVar()
+        self.entryS_frame2_7 = DoubleVar() #Width
         self.entryS_frame2_7.set(1)
         self.entryS_frame2_8 = DoubleVar()
-        self.entryS_frame2_8.set(1e-3)
+        self.entryS_frame2_8.set(1e-3) #Compliance
 
-        self.entryS_frame3_1 = DoubleVar()
-        self.entryS_frame3_2 = DoubleVar()
+        self.entryS_frame3_1 = DoubleVar() #Start Value
+        self.entryS_frame3_2 = DoubleVar() #Stop Value
         self.entryS_frame3_2.set(1)
-        self.entryS_frame3_3 = DoubleVar()
+        self.entryS_frame3_3 = DoubleVar() #Ramp
         self.entryS_frame3_3.set(1)
         self.entryS_frame3_4 = DoubleVar()
-        self.entryS_frame3_4.set(1e-3)
-        self.entryS_frame3_5 = DoubleVar()
-        self.entryS_frame3_6 = DoubleVar()
+        self.entryS_frame3_4.set(1e-3) #Compliance
+        self.entryS_frame3_5 = DoubleVar() #Start Value
+        self.entryS_frame3_6 = DoubleVar() #Stop Value
         self.entryS_frame3_6.set(1)
-        self.entryS_frame3_7 = DoubleVar()
+        self.entryS_frame3_7 = DoubleVar() #Width
         self.entryS_frame3_7.set(1)
         self.entryS_frame3_8 = DoubleVar()
-        self.entryS_frame3_8.set(1e-3)
+        self.entryS_frame3_8.set(1e-3) #Compliance
         self.entryS_frame3_9 = DoubleVar()
-        self.entryS_frame3_9.set(10)
+        self.entryS_frame3_9.set(10) #Cycles
 
         self.entryS_frame4_1 = DoubleVar()
         self.entryS_frame4_2 = DoubleVar()
@@ -363,102 +365,181 @@ class Application(Tk):
         self.button3.grid(column=1, row=3)
         self.button3.configure(bg="gainsboro")
 
-    def setFigures(self, Um=0, Im=0, Rm=0, Pm=0):
+    def setFigures(self, TL=0, TR=0, BL=0, BR=0):
     #Figures to Canvas
-        if Um==0 or Im==0 or Rm == 0 or Pm==0:
-            Um = Um * np.ones(len(self.t))
-            Im = Im * np.ones(len(self.t))
-            Rm = Rm * np.ones(len(self.t))
-            Pm = Pm * np.ones(len(self.t))
+        if TL==0 or TR==0 or BL == 0 or BR==0:
+            TL = TL * np.ones(len(self.t))
+            TR = TR * np.ones(len(self.t))
+            BL = BL * np.ones(len(self.t))
+            BR = BR * np.ones(len(self.t))
 
-        self.fig = Figure(figsize=(15, 8), dpi=80, facecolor="gainsboro")
+        self.fig = Figure(figsize=(16, 9), dpi=70, facecolor="gainsboro")
 
-        self.axU = self.fig.add_subplot(221)
-        self.axU.set_xlabel("Time (s)")
-        self.axU.set_ylabel("Tension (V)")
-        self.axU.grid(True)
-        self.axU.step(self.t,self.Us)
-        self.axU.step(self.t,Um)
+        self.plotTL = self.fig.add_subplot(221)
+        self.plotTL.set_xlabel("Time (s)")
+        self.plotTL.set_ylabel("Tension (V)")
+        self.plotTL.grid(True)
+        self.plotTL.step(self.t,self.TL)
+        self.plotTL.step(self.t,TL)
 
-        self.axI = self.fig.add_subplot(222, sharex=self.axU)
-        self.axI.set_xlabel("Time (s)")
-        self.axI.set_ylabel("Current (A)")
-        self.axI.grid(True)
-        self.axI.step(self.t,self.Is)
-        self.axI.step(self.t,Im)
+        self.plotTR = self.fig.add_subplot(222)
+        self.plotTR.set_xlabel("Time (s)")
+        self.plotTR.set_ylabel("Current (mA)")
+        self.plotTR.grid(True)
+        self.plotTR.step(self.t,self.TR*1000)
+        self.plotTR.step(self.t,TR*1000)
 
-        self.axR = self.fig.add_subplot(223, sharex=self.axU)
-        self.axR.set_xlabel("Time (s)")
-        self.axR.set_ylabel("Resistance (Ohm)")
-        self.axR.set_yscale('log')
-        self.axR.grid(True)
-        self.axR.step(self.t,self.Rs)
-        self.axR.step(self.t,Rm)
+        self.plotBL = self.fig.add_subplot(223)
+        self.plotBL.set_xlabel("Time (s)")
+        self.plotBL.set_ylabel("Resistance (Ohm)")
+        self.plotBL.set_yscale('log')
+        self.plotBL.grid(True)
+        self.plotBL.step(self.t,self.BL)
+        self.plotBL.step(self.t,BL)
 
-        self.axP = self.fig.add_subplot(224, sharex=self.axU)
-        self.axP.set_xlabel("Time (s)")
-        self.axP.set_ylabel("Power (W)")
-        self.axP.set_yscale('log')
-        self.axP.grid(True)
-        self.axP.step(self.t,self.Ps)
-        self.axP.step(self.t,Pm)
+        self.plotBR = self.fig.add_subplot(224)
+        self.plotBR.set_xlabel("Time (s)")
+        self.plotBR.set_ylabel("Power (W)")
+        self.plotBR.set_yscale('log')
+        self.plotBR.grid(True)
+        self.plotBR.step(self.t,self.BR)
+        self.plotBR.step(self.t,BR)
         
         self.canvas = FigureCanvasTkAgg(self.fig, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(column=2, row=0, rowspan=3)
         self.canvas.get_tk_widget().configure(bg="gainsboro")
 
-    def generatePlotParam(self, Um=0, Im=0):
+    def actualizeFigure(self, Um=0, Im=0):
     #Function to generate values to plot
+        if self.state == "SINGLE":
+            self.plotSingleSequence()
+            self.setFigures()
+
+        elif self.state == "CYCLING":
+            self.plotCyclingSequence()
+            self.setFigures()
+
+        elif self.state == "STABILITY":
+            self.plotStabilitySequence()
+            self.setFigures()
+            self.plotBL.set_xlabel("Cycle")
+            self.plotBL.set_ylabel("Resistance")
+            
         if Um!=0 or Im!=0:
             print("bla")
             #Bien penser à soustraire la résistance de compensation !
 
-        else:
-            if self.liste2.current()==1 and self.liste3.current()==0:
-                span = self.entryS_frame1_2.get() - self.entryS_frame1_1.get()
-                T_max = span / self.entryS_frame1_3.get()
-                self.t = np.linspace(0, T_max, T_max/0.01)
-                ramp = span/T_max
+    def plotSingleSequence(self):
+    #Function to generate preview of the sequence as it should be performed by the instrument
+        if self.liste2.current()==1 and self.liste3.current()==0:
+            span = self.entryS_frame1_2.get() - self.entryS_frame1_1.get()
+            T_max = span / self.entryS_frame1_3.get()
+            self.t = np.linspace(0, T_max, T_max/self.timeStep)
+            ramp = span/T_max
 
-                self.Us = ramp * self.t - self.entryS_frame1_1.get()
-                self.Rs = 1e6 - 990e3*self.t/T_max
-                self.Is = self.Us/self.Rs        
-                self.Ps = self.Us*self.Is
+            self.TL = ramp * self.t + self.entryS_frame1_1.get()
+            self.BL = 1e6 - 990e3*self.t/T_max
+            self.TR = self.TL/self.BL        
+            self.BR = self.TL*self.TR
 
-            elif self.liste2.current()==0 and self.liste3.current()==0:
-                span = - abs(self.entryS_frame1_2.get() - self.entryS_frame1_1.get())
-                T_max = self.entryS_frame1_3.get()
-                self.t = np.linspace(0, T_max, T_max/0.01)
+        elif self.liste2.current()==0 and self.liste3.current()==0:
+            span = - abs(self.entryS_frame1_2.get() - self.entryS_frame1_1.get())
+            T_max = self.entryS_frame1_3.get()
+            self.t = np.linspace(0, T_max, T_max/self.timeStep)
 
-                self.Us = span * np.ones(int(T_max/0.01))
-                self.Rs = 10 + 990e3*self.t/T_max
-                self.Is = self.Us/self.Rs        
-                self.Ps = self.Us*self.Is
+            self.TL = span * np.ones(len(self.t)) + self.entryS_frame1_1.get()
+            self.BL = 10 + 990e3*self.t/T_max
+            self.TR = self.TL/self.BL        
+            self.BR = self.TL*self.TR
 
-            elif self.liste2.current()==1 and self.liste3.current()==1:
-                span = self.entryS_frame1_2.get() - self.entryS_frame1_1.get()
-                T_max = span / self.entryS_frame1_3.get()
-                self.t = np.linspace(0, T_max, T_max/0.01)
-                ramp = span/T_max
+        elif self.liste2.current()==1 and self.liste3.current()==1:
+            span = self.entryS_frame1_2.get() - self.entryS_frame1_1.get()
+            T_max = span / self.entryS_frame1_3.get()
+            self.t = np.linspace(0, T_max, T_max/self.timeStep)
+            ramp = span/T_max
 
-                self.Is = ramp * sefl.t - self.entryS_frame1_1.get()
-                self.Rs = 1e6 - 990e3*t/T_max
-                self.Us = self.Is*self.Rs        
-                self.Ps = self.Us*self.Is
+            self.TR = ramp * self.t + self.entryS_frame1_1.get()
+            self.BL = 1e6 - 990e3*t/T_max
+            self.TL = self.TR*self.BL        
+            self.BR = self.TL*self.TR
 
-            elif self.liste2.current()==0 and self.liste3.current()==1:
-                span = - abs(self.entryS_frame1_2.get() - self.entryS_frame1_1.get())
-                T_max = self.entryS_frame1_3.get()
-                self.t = np.linspace(0, T_max, T_max/0.01)
+        elif self.liste2.current()==0 and self.liste3.current()==1:
+            span = - abs(self.entryS_frame1_2.get() - self.entryS_frame1_1.get())
+            T_max = self.entryS_frame1_3.get()
+            self.t = np.linspace(0, T_max, T_max/self.timeStep)
 
-                self.Is = span * np.ones(int(T_max/0.01))
-                self.Rs = 10 + 990e3*self.t/T_max
-                self.Us = self.Is*self.Rs        
-                self.Ps = self.Us*Is
-
-            self.setFigures()
+            self.TR = span * np.ones(len(self.t)) + self.entryS_frame1_1.get()
+            self.BL = 10 + 990e3*self.t/T_max
+            self.TL = self.TR*self.BL        
+            self.BR = self.TL*Is
             
+    def plotCyclingSequence(self):
+    #Function to generate preview of the sequence as it should be performed by the instrument
+        span1 = self.entryS_frame2_2.get() - self.entryS_frame2_1.get()
+        span2 = -abs(self.entryS_frame2_6.get() - self.entryS_frame2_5.get())
+
+        T1 = span1 / self.entryS_frame2_3.get()
+        time1 = np.linspace(0, T1, T1/self.timeStep)
+
+        T2 = self.entryS_frame2_7.get()
+        time2 = np.linspace(0, T2, T2/self.timeStep)
+
+        T_max = 2*(T1+T2)
+        self.t = np.linspace(0, T_max, 2*(len(time1) + len(time2)))
+        ramp = span1/T1
+        
+        if self.liste3.current()==0:
+            self.TL = np.concatenate((ramp * time1 + self.entryS_frame2_1.get(), span2 * np.ones(len(time2)) + self.entryS_frame2_5.get(), ramp * time1 + self.entryS_frame2_1.get(), span2 * np.ones(len(time2)) + self.entryS_frame2_5.get()))
+            self.BL = 10 + 990e3*self.t/T_max
+            self.TR = self.TL/self.BL        
+            self.BR = self.TL*self.TR
+
+        elif self.liste3.current()==1:
+
+            self.TR = np.concatenate((ramp * time1 - self.entryS_frame2_1.get(), span2 * np.ones(len(time2)), ramp * time1 - self.entryS_frame2_1.get(), span2 * np.ones(len(time2))))
+            self.BL = 10 + 990e3*self.t/T_max
+            self.TL = self.TR*self.BL        
+            self.BR = self.TL*self.TR
+
+    def plotStabilitySequence(self):
+    #Function to generate preview of the sequence as it should be performed by the instrument
+        cycles = self.entryS_frame3_9.get()
+        span1 = self.entryS_frame3_2.get() - self.entryS_frame3_1.get()
+        span2 = -abs(self.entryS_frame3_6.get() - self.entryS_frame3_5.get())
+
+        T1 = span1 / self.entryS_frame3_3.get()
+        time1 = np.linspace(0, T1, T1/self.timeStep)
+
+        T2 = self.entryS_frame3_7.get()
+        time2 = np.linspace(0, T2, T2/self.timeStep)
+
+        T_max = cycles * (T1+T2)
+        self.t = np.linspace(0, T_max, cycles*(len(time1) + len(time2)))
+        ramp = span1/T1
+        
+        if self.liste3.current()==0:
+            i=0
+            self.TL = np.concatenate((ramp * time1 + self.entryS_frame2_1.get(), span2 * np.ones(len(time2)) + self.entryS_frame2_5.get()))
+            while(i < cycles - 1):
+                self.TL = np.concatenate((ramp * time1 + self.entryS_frame2_1.get(), span2 * np.ones(len(time2)) + self.entryS_frame2_5.get(), self.TL))
+                i+=1
+            
+            self.BL = 10 + 990e3*self.t/T_max
+            self.TR = self.TL/self.BL        
+            self.BR = self.TL*self.TR
+
+        elif self.liste3.current()==1:
+            i=0
+            self.TR = np.concatenate((ramp * time1 + self.entryS_frame2_1.get(), span2 * np.ones(len(time2)) + self.entryS_frame2_5.get()))
+            while(i < cycles - 1):
+                self.TR = np.concatenate((ramp * time1 + self.entryS_frame2_1.get(), span2 * np.ones(len(time2)) + self.entryS_frame2_5.get(), self.TR))
+                i+=1
+            
+            self.BL = 10 + 990e3*self.t/T_max
+            self.TL = self.TR*self.BL        
+            self.BR = self.TL*self.TR
+
     def listeCallBack(self, event=None):
     #Callback function for Combobox event
         if (self.liste2.current() == 1) and (self.liste3.current() == 1):
@@ -532,12 +613,23 @@ class Application(Tk):
     def button2CallBack(self):
     #Callback function for button2 event
         self.update_idletasks()
-        self.generatePlotParam()
+        self.actualizeFigure()
 
     def button3CallBack(self):
     #Callback function for button3 event
         self.button2CallBack()
 
+        if self.state == "SINGLE":
+            self.generateSingleSequence()
+
+        elif self.state == "CYCLING":
+            self.generateCyclingSequence()
+
+        elif self.state == "STABILITY":
+            self.generateStabilitySequence()       
+
+    def generateSingleSequence(self):
+    #Function to generate the waveform to send to the instrument for a Single sequence
         instr = self.liste1.get()
         R = resistanceMeasurement(instr)
         lim = self.entryS_frame1_4.get()
@@ -553,18 +645,18 @@ class Application(Tk):
             self.label_String_10.set("Current resistance State (kOhm): ")
 
             if self.liste3.current()==0 and answer==True:
-                generateVoltageWaveform(instr, self.Us, lim)
+                generateVoltageWaveform(instr, self.TL, lim)
             elif answer==True:
-                generateCurrentWaveform(instr, self.Is, lim)
+                generateCurrentWaveform(instr, self.TR, lim)
 
         elif self.liste2.current()==0: 
             self.entryS_frame4_2.set(R)
             self.label_String_10.set("Current resistance State (Ohm): ")
 
             if self.liste3.current()==0:
-                generateVoltageWaveform(instr, self.Us, lim)
+                generateVoltageWaveform(instr, self.TL, lim)
             else:
-                generateCurrentWaveform(instr, self.Is, lim)
+                generateCurrentWaveform(instr, self.TR, lim)
 
         elif R >= 1e3  and self.liste2.current()==1: 
             if R >= 1e6:
@@ -575,18 +667,26 @@ class Application(Tk):
                 self.label_String_10.set("Current resistance State (kOhm): ")
 
             if self.liste3.current()==0:
-                generateVoltageWaveform(instr, self.Us, lim)
+                generateVoltageWaveform(instr, self.TL, lim)
             else:
-                generateCurrentWaveform(instr, self.Is, lim)
+                generateCurrentWaveform(instr, self.TR, lim)
                 
         elif self.liste2.current()==1: 
             answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str('%.2E'%R) + "Ohm\n Do you want to try to lower this resistance ?")
             self.entryS_frame4_2.set(R)
             self.label_String_10.set("Current resistance State (Ohm): ")
             if self.liste3.current()==0 and answer==True:
-                generateVoltageWaveform(instr, self.Us, lim)
+                generateVoltageWaveform(instr, self.TL, lim)
             elif answer==True:
-                generateCurrentWaveform(instr, self.Is, lim)
+                generateCurrentWaveform(instr, self.TR, lim)
+
+    def generateCyclingSequence(self):
+    #Function to generate the waveform to send to the instrument for a Cycling sequence
+        print(bla)
+
+    def generateStabilitySequence(self):
+    #Function to generate the waveform to send to the instrument for a Stability sequence
+        print(bla)
 
     def saveConfig(self):
     #Callback function for menu1.saveConfig
@@ -653,7 +753,7 @@ class Application(Tk):
         self.update_idletasks()
         self.listeCallBack()
         self.configFile.file.close()
-        self.generatePlotParam()
+        self.actualizeFigure()
 
     def exportCSV(self):
     #Callback function for menu2.exportCSV
@@ -688,10 +788,15 @@ class Application(Tk):
 
     def initSingle(self):
         self.state="SINGLE"
+        
+        self.liste2.config(state='enable')
+        self.listeCallBack()
+
         self.labelframe_cyclingConfig.grid_forget()
         self.labelframe_stabilityConfig.grid_forget()
-        self.liste2.config(state='enable')
         self.labelframe_singleConfig.grid(column=0, columnspan=2, row=1)
+
+        self.actualizeFigure()
 
     def initCycling(self):
         self.state="CYCLING"
@@ -704,6 +809,8 @@ class Application(Tk):
         self.labelframe_stabilityConfig.grid_forget()
         self.labelframe_cyclingConfig.grid(column=0, columnspan=2, row=1)
 
+        self.actualizeFigure()
+
     def initStability(self):
         self.state="STABILITY"
 
@@ -714,6 +821,8 @@ class Application(Tk):
         self.labelframe_singleConfig.grid_forget()
         self.labelframe_cyclingConfig.grid_forget()
         self.labelframe_stabilityConfig.grid(column=0, columnspan=2, row=1)
+
+        self.actualizeFigure()
 
 """This code contains the view for the CBRAM cell programming software
 
