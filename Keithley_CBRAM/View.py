@@ -373,7 +373,7 @@ class Application(Tk):
             BL = BL * np.ones(len(self.t))
             BR = BR * np.ones(len(self.t))
 
-        self.fig = Figure(figsize=(16, 9), dpi=70, facecolor="gainsboro")
+        self.fig = Figure(figsize=(15, 9), dpi=70, facecolor="gainsboro")
 
         self.plotTL = self.fig.add_subplot(221)
         self.plotTL.set_xlabel("Time (s)")
@@ -460,7 +460,7 @@ class Application(Tk):
             ramp = span/T_max
 
             self.TR = ramp * self.t + self.entryS_frame1_1.get()
-            self.BL = 1e6 - 990e3*t/T_max
+            self.BL = 1e6 - 990e3*self.t/T_max
             self.TL = self.TR*self.BL        
             self.BR = self.TL*self.TR
 
@@ -472,7 +472,7 @@ class Application(Tk):
             self.TR = span * np.ones(len(self.t)) + self.entryS_frame1_1.get()
             self.BL = 10 + 990e3*self.t/T_max
             self.TL = self.TR*self.BL        
-            self.BR = self.TL*Is
+            self.BR = self.TL*self.TR
             
     def plotCyclingSequence(self):
     #Function to generate preview of the sequence as it should be performed by the instrument
@@ -682,26 +682,90 @@ class Application(Tk):
 
     def generateCyclingSequence(self):
     #Function to generate the waveform to send to the instrument for a Cycling sequence
-        print(bla)
+        print("bla")
 
     def generateStabilitySequence(self):
     #Function to generate the waveform to send to the instrument for a Stability sequence
-        print(bla)
+        print("bla")
 
     def saveConfig(self):
     #Callback function for menu1.saveConfig
+            if self.state == "SINGLE":
+                self.saveSingleConfig()
+
+            elif self.state == "CYCLING":
+                self.saveCyclingConfig()
+
+            elif self.state == "STABILITY":
+                self.saveStabilityConfig() 
+
+    def saveSingleConfig(self):
+    #Function to save Single sequence
         self.configFile.path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("Config files","*.ini"),("all files","*.*")))
         if self.configFile.path != "":
             self.configFile.file = open(self.configFile.path, 'w')
 
-            self.configFile.file.write(self.liste1.get() + "\n")
+            self.configFile.file.write(self.state + "\n")  #Save state as line 1
+
+            self.configFile.file.write(self.liste1.get() + "\n") #Save general config
             self.configFile.file.write(self.liste2.get() + "\n")
             self.configFile.file.write(self.liste3.get() + "\n")
-            self.configFile.file.write(str(self.entryS_frame1_1.get()) + "\n")
+
+            self.configFile.file.write(str(self.entryS_frame1_1.get()) + "\n") #Save signal parameters
             self.configFile.file.write(str(self.entryS_frame1_2.get()) + "\n")
             self.configFile.file.write(str(self.entryS_frame1_3.get()) + "\n")
             self.configFile.file.write(str(self.entryS_frame1_4.get()) + "\n")
-            self.configFile.file.write(str(self.entryS_frame4_1.get()) + "\n")
+            
+            self.configFile.file.write(str(self.entryS_frame4_1.get()) + "\n") #Save Compensation resistance
+
+            self.configFile.file.close()
+
+    def saveCyclingConfig(self):
+    #Function to save Cycling Sequence
+        self.configFile.path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("Config files","*.ini"),("all files","*.*")))
+        if self.configFile.path != "":
+            self.configFile.file = open(self.configFile.path, 'w')
+
+            self.configFile.file.write(self.state + "\n")  #Save state as line 1
+
+            self.configFile.file.write(self.liste1.get() + "\n") #Save general config
+            self.configFile.file.write(self.liste3.get() + "\n")
+
+            self.configFile.file.write(str(self.entryS_frame2_1.get()) + "\n") #Save signals parameters
+            self.configFile.file.write(str(self.entryS_frame2_2.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame2_3.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame2_4.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame2_5.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame2_6.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame2_7.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame2_8.get()) + "\n")
+            
+            self.configFile.file.write(str(self.entryS_frame4_1.get()) + "\n") #Save Compensation resistance
+
+            self.configFile.file.close()
+
+    def saveStabilityConfig(self):
+    #Function to save Stability sequence
+        self.configFile.path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("Config files","*.ini"),("all files","*.*")))
+        if self.configFile.path != "":
+            self.configFile.file = open(self.configFile.path, 'w')
+
+            self.configFile.file.write(self.state + "\n")  #Save state as line 1
+
+            self.configFile.file.write(self.liste1.get() + "\n") #Save general config
+            self.configFile.file.write(self.liste3.get() + "\n")
+
+            self.configFile.file.write(str(self.entryS_frame3_1.get()) + "\n") #Save signals parameters
+            self.configFile.file.write(str(self.entryS_frame3_2.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame3_3.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame3_4.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame3_5.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame3_6.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame3_7.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame3_8.get()) + "\n")
+            self.configFile.file.write(str(self.entryS_frame3_9.get()) + "\n") #Save Cycles
+            
+            self.configFile.file.write(str(self.entryS_frame4_1.get()) + "\n") #Save Compensation resistance
 
             self.configFile.file.close()
 
@@ -711,44 +775,148 @@ class Application(Tk):
         print(self.configFile.path )
         if self.configFile.path != "":
             self.configFile.file = open(self.configFile.path, 'r')
+            state = self.configFile.file.readline()[:-1]
 
-            i=0
-            line = self.configFile.file.readline()[:-1]
-            self.liste1.current(0)
-            while self.liste1.current() != -1:
-                if line == self.liste1.get():
-                    break
-                else:
-                    i+=1
-                    self.liste1.current(i)
+            if state == "SINGLE":
+                self.loadSingleConfig()
+                self.initSingle()
 
-            if self.liste1.current() == -1:
-                showerror(title="Load Config", message="Cannot find Desired instrument : " + line)
+            elif state == "CYCLING":
+                self.loadCyclingConfig()
+                self.initCycling
 
-                        
-            line = self.configFile.file.readline()[:-1]
-            self.liste2.current(0)
+            elif state == "STABILITY":
+                self.loadStabilityConfig()
+                self.initStability  
+
+            self.configFile.file.close()
+
+    def loadSingleConfig(self):
+    #Function to load a config for Single sequence
+        i=0
+        line = self.configFile.file.readline()[:-1]
+        self.liste1.current(0)
+        while self.liste1.current() != -1:
+            if line == self.liste1.get():
+                break
+            else:
+                i+=1
+                self.liste1.current(i)
+
+        if self.liste1.current() == -1:
+            showerror(title="Load Config", message="Cannot find Desired instrument : " + line)
+
+                    
+        line = self.configFile.file.readline()[:-1]
+        self.liste2.current(0)
+        if line == self.liste2.get():
+            pass
+        else:
+            self.liste2.current(1)
             if line == self.liste2.get():
                 pass
-            else:
-                self.liste2.current(1)
-                if line == self.liste2.get():
-                    pass
 
-            line = self.configFile.file.readline()[:-1]
-            self.liste3.current(0)
+        line = self.configFile.file.readline()[:-1]
+        self.liste3.current(0)
+        if line == self.liste3.get():
+            pass
+        else:
+            self.liste3.current(1)
             if line == self.liste3.get():
                 pass
-            else:
-                self.liste3.current(1)
-                if line == self.liste3.get():
-                    pass
 
-            self.entryS_frame1_1.set(float(self.configFile.file.readline()[:-1]))
-            self.entryS_frame1_2.set(float(self.configFile.file.readline()[:-1]))
-            self.entryS_frame1_3.set(float(self.configFile.file.readline()[:-1]))
-            self.entryS_frame1_4.set(float(self.configFile.file.readline()[:-1]))
-            self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame1_1.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame1_2.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame1_3.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame1_4.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
+
+        self.update_idletasks()
+        self.listeCallBack()
+        self.configFile.file.close()
+        self.actualizeFigure()
+
+    def loadCyclingConfig(self):
+    #Function to load a config for Single sequence
+        i=0
+        line = self.configFile.file.readline()[:-1]
+        self.liste1.current(0)
+        while self.liste1.current() != -1:
+            if line == self.liste1.get():
+                break
+            else:
+                i+=1
+                self.liste1.current(i)
+
+        if self.liste1.current() == -1:
+            showerror(title="Load Config", message="Cannot find Desired instrument : " + line)
+            self.liste2.current(1)
+            if line == self.liste2.get():
+                pass
+
+        line = self.configFile.file.readline()[:-1]
+        self.liste3.current(0)
+        if line == self.liste3.get():
+            pass
+        else:
+            self.liste3.current(1)
+            if line == self.liste3.get():
+                pass
+
+        self.entryS_frame2_1.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame2_2.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame2_3.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame2_4.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame2_5.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame2_6.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame2_7.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame2_8.set(float(self.configFile.file.readline()[:-1]))
+
+        self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
+
+        self.update_idletasks()
+        self.listeCallBack()
+        self.configFile.file.close()
+        self.actualizeFigure()
+
+    def loadStabilityConfig(self):
+    #Function to load a config for Single sequence
+        i=0
+        line = self.configFile.file.readline()[:-1]
+        self.liste1.current(0)
+        while self.liste1.current() != -1:
+            if line == self.liste1.get():
+                break
+            else:
+                i+=1
+                self.liste1.current(i)
+
+        if self.liste1.current() == -1:
+            showerror(title="Load Config", message="Cannot find Desired instrument : " + line)
+            self.liste2.current(1)
+            if line == self.liste2.get():
+                pass
+
+        line = self.configFile.file.readline()[:-1]
+        self.liste3.current(0)
+        if line == self.liste3.get():
+            pass
+        else:
+            self.liste3.current(1)
+            if line == self.liste3.get():
+                pass
+
+        self.entryS_frame3_1.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_2.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_3.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_4.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_5.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_6.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_7.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_8.set(float(self.configFile.file.readline()[:-1]))
+        self.entryS_frame3_9.set(float(self.configFile.file.readline()[:-1]))
+
+        self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
 
         self.update_idletasks()
         self.listeCallBack()
