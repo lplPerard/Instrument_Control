@@ -3,6 +3,7 @@
 """
 
 from tkinter import Tk
+from tkinter import Toplevel
 from tkinter import Label 
 from tkinter import Menu
 from tkinter import Button
@@ -10,6 +11,7 @@ from tkinter import Entry
 from tkinter import LabelFrame
 from tkinter import StringVar
 from tkinter import DoubleVar
+from tkinter import IntVar
 from tkinter import filedialog
 from tkinter.messagebox import *
 from tkinter.ttk import Combobox
@@ -29,10 +31,10 @@ class Application(Tk):
     #Constructor for  the main window
         Tk.__init__(self)
 
-        self.state="SINGLE"
-        self.timeStep = 0.4
-
         self.configFile = ConfigFile()
+        self.state="SINGLE"
+        self.timeStep = 0.011
+
         self.__initWidget()
         self.configure(bg="gainsboro")
         
@@ -52,9 +54,10 @@ class Application(Tk):
         self.menubar = Menu(self)
 
         self.menu1 = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="File", menu=self.menu1)
+        self.menubar.add_cascade(label="Edit", menu=self.menu1)
         self.menu1.add_command(label="Save config", command=self.saveConfig)
         self.menu1.add_command(label="Load config", command=self.loadConfig)
+        self.menu1.add_command(label="Parameters", command=self.openParam)
         self.menu1.add_separator()
         self.menu1.add_command(label="Quit", command=quit)
 
@@ -179,7 +182,7 @@ class Application(Tk):
         self.entryS_frame3_7.set(1)
         self.entryS_frame3_8 = DoubleVar()
         self.entryS_frame3_8.set(1e-3) #Compliance
-        self.entryS_frame3_9 = DoubleVar()
+        self.entryS_frame3_9 = IntVar()
         self.entryS_frame3_9.set(10) #Cycles
 
         self.entryS_frame4_1 = DoubleVar()
@@ -365,12 +368,15 @@ class Application(Tk):
         self.button3.grid(column=1, row=3)
         self.button3.configure(bg="gainsboro")
 
-    def setFigures(self, TL=0, TR=0, BL=0, BR=0):
+    def setFigures(self, TL=[0], TR=[0], BL=[0], BR=[0]):
     #Figures to Canvas
-        if TL==0 or TR==0 or BL == 0 or BR==0:
+        if len(TL)<2:
             TL = TL * np.ones(len(self.t))
+        if len(TR)<2:
             TR = TR * np.ones(len(self.t))
+        if len(BL)<2:
             BL = BL * np.ones(len(self.t))
+        if len(BR)<2:
             BR = BR * np.ones(len(self.t))
 
         self.fig = Figure(figsize=(15, 9), dpi=70, facecolor="gainsboro")
@@ -440,7 +446,7 @@ class Application(Tk):
 
             self.TL = ramp * self.t + self.entryS_frame1_1.get()
             self.BL = 1e6 - 990e3*self.t/T_max
-            self.TR = self.TL/self.BL        
+            self.TR = self.TL*0       
             self.BR = self.TL*self.TR
 
         elif self.liste2.current()==0 and self.liste3.current()==0:
@@ -450,7 +456,7 @@ class Application(Tk):
 
             self.TL = span * np.ones(len(self.t)) + self.entryS_frame1_1.get()
             self.BL = 10 + 990e3*self.t/T_max
-            self.TR = self.TL/self.BL        
+            self.TR = self.TL*0       
             self.BR = self.TL*self.TR
 
         elif self.liste2.current()==1 and self.liste3.current()==1:
@@ -640,23 +646,25 @@ class Application(Tk):
             self.label_String_10.set("Current resistance State (MOhm): ")
 
         elif R >= 1e3  and self.liste2.current()==0: 
-            answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str('%.2E' %R/1e3) + "kOhm\n Do you want to try to increase this resistance ?")
+            answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str(R/1e3) + "kOhm\n Do you want to try to increase this resistance ?")
             self.entryS_frame4_2.set(R/1e3)
             self.label_String_10.set("Current resistance State (kOhm): ")
 
             if self.liste3.current()==0 and answer==True:
-                generateVoltageWaveform(instr, self.TL, lim)
+                [Um, Im] = generateSingleVoltageWaveform(instr, self.TL, lim)
+                self.setFigures( TL=Um)
             elif answer==True:
-                generateCurrentWaveform(instr, self.TR, lim)
+                generateSingleCurrentWaveform(instr, self.TR, lim)
 
         elif self.liste2.current()==0: 
             self.entryS_frame4_2.set(R)
             self.label_String_10.set("Current resistance State (Ohm): ")
 
             if self.liste3.current()==0:
-                generateVoltageWaveform(instr, self.TL, lim)
+                [Um, Im] = generateSingleVoltageWaveform(instr, self.TL, lim)
+                self.setFigures(TL=Um, TR=Im, BL=Um/Im, BR=Um*Im)
             else:
-                generateCurrentWaveform(instr, self.TR, lim)
+                generateSingleCurrentWaveform(instr, self.TR, lim)
 
         elif R >= 1e3  and self.liste2.current()==1: 
             if R >= 1e6:
@@ -667,26 +675,84 @@ class Application(Tk):
                 self.label_String_10.set("Current resistance State (kOhm): ")
 
             if self.liste3.current()==0:
-                generateVoltageWaveform(instr, self.TL, lim)
+                [Um, Im] = generateSingleVoltageWaveform(instr, self.TL, lim)
+                self.setFigures(TL=Um, TR=Im, BL=Um, BR=Um*Im)
             else:
-                generateCurrentWaveform(instr, self.TR, lim)
+                generateSingleCurrentWaveform(instr, self.TR, lim)
                 
         elif self.liste2.current()==1: 
-            answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str('%.2E'%R) + "Ohm\n Do you want to try to lower this resistance ?")
+            answer = askokcancel(title="Start Sequence", message="Cell currently in middle state R = " + str(R) + "Ohm\n Do you want to try to lower this resistance ?")
             self.entryS_frame4_2.set(R)
             self.label_String_10.set("Current resistance State (Ohm): ")
             if self.liste3.current()==0 and answer==True:
-                generateVoltageWaveform(instr, self.TL, lim)
+                [Um, Im] = generateSingleVoltageWaveform(instr, self.TL, lim)
+                self.setFigures(TL=Um, TR=Im, BL=Um, BR=Um*Im)
             elif answer==True:
-                generateCurrentWaveform(instr, self.TR, lim)
+                generateSingleCurrentWaveform(instr, self.TR, lim)
 
     def generateCyclingSequence(self):
     #Function to generate the waveform to send to the instrument for a Cycling sequence
-        print("bla")
+        instr = self.liste1.get()
+        lim1 = self.entryS_frame2_4.get()
+        lim2 = self.entryS_frame2_8.get()
 
+        span1 = self.entryS_frame2_2.get() - self.entryS_frame2_1.get()
+        span2 = -abs(self.entryS_frame2_6.get() - self.entryS_frame2_5.get())
+
+        T1 = span1 / self.entryS_frame2_3.get()
+        time1 = np.linspace(0, T1, T1/self.timeStep)
+        ramp = span1/T1
+
+        s1 =ramp * time1 + self.entryS_frame2_1.get()
+
+        T2 = self.entryS_frame2_7.get()
+        time2 = np.linspace(0, T2, T2/self.timeStep)
+
+        s2 = span2 * np.ones(len(time2))
+
+        if self.liste3.current()==0:
+            iterations = generateCyclingVoltageWaveform(instr, s1, lim1, s2, lim2)
+
+        elif self.liste3.current()==1: 
+            iterations = generateCyclingCurrentWaveform(instr, s1, lim1, s2, lim2)
+
+        if askyesno(title="Cycling Sequence", message="Cycling Sequence ended after " + str(iterations) + " iterations.\nDo you want to export your result ?"):
+            self.exportCSV()
+        
     def generateStabilitySequence(self):
     #Function to generate the waveform to send to the instrument for a Stability sequence
-        print("bla")
+        instr = self.liste1.get()
+        R = resistanceMeasurement(instr)
+
+        lim1 = self.entryS_frame3_4.get()
+        lim2 = self.entryS_frame3_8.get()
+
+        cycles = self.entryS_frame3_9.get()
+        span1 = self.entryS_frame3_2.get() - self.entryS_frame3_1.get()
+        span2 = -abs(self.entryS_frame3_6.get() - self.entryS_frame3_5.get())
+
+        T1 = span1 / self.entryS_frame3_3.get()
+        time1 = np.linspace(0, T1, T1/self.timeStep)
+        ramp = span1/T1
+
+        s1 =ramp * time1 + self.entryS_frame2_1.get()
+
+        T2 = self.entryS_frame3_7.get()
+        time2 = np.linspace(0, T2, T2/self.timeStep)
+
+        s2 = span2 * np.ones(len(time2))
+
+        if R >= 1e5 and self.liste3.current()==0:
+            generateStabilityVoltageWaveform(instr, s1, lim1, s2, lim2, cycles)
+
+        elif R >= 1e5 and self.liste3.current()==1: 
+            generateStabilityCurrentWaveform(instr, s2, lim2, s1, lim1, cycles)
+
+        elif self.liste3.current()==0:
+            generateStabilityVoltageWaveform(instr, s2, lim2, s1, lim1, cycles)
+        
+        elif self.liste3.current()==1:
+            generateStabilityCurrentWaveform(instr, s2, lim2, s1, lim1, cycles)
 
     def saveConfig(self):
     #Callback function for menu1.saveConfig
@@ -778,16 +844,16 @@ class Application(Tk):
             state = self.configFile.file.readline()[:-1]
 
             if state == "SINGLE":
-                self.loadSingleConfig()
                 self.initSingle()
+                self.loadSingleConfig()
 
             elif state == "CYCLING":
+                self.initCycling()
                 self.loadCyclingConfig()
-                self.initCycling
 
             elif state == "STABILITY":
-                self.loadStabilityConfig()
-                self.initStability  
+                self.initStability() 
+                self.loadStabilityConfig() 
 
             self.configFile.file.close()
 
@@ -832,8 +898,6 @@ class Application(Tk):
         self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
 
         self.update_idletasks()
-        self.listeCallBack()
-        self.configFile.file.close()
         self.actualizeFigure()
 
     def loadCyclingConfig(self):
@@ -875,8 +939,6 @@ class Application(Tk):
         self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
 
         self.update_idletasks()
-        self.listeCallBack()
-        self.configFile.file.close()
         self.actualizeFigure()
 
     def loadStabilityConfig(self):
@@ -919,9 +981,11 @@ class Application(Tk):
         self.entryS_frame4_1.set(float(self.configFile.file.readline()[:-1]))
 
         self.update_idletasks()
-        self.listeCallBack()
-        self.configFile.file.close()
         self.actualizeFigure()
+
+    def openParam(self):
+        window = Toplevel()
+        window.title('Parameters')
 
     def exportCSV(self):
     #Callback function for menu2.exportCSV
