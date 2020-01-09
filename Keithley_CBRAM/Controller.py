@@ -90,41 +90,41 @@ def generateSingleVoltageWaveform(ident, Us, Ilim):
 
     return(Um, Im)
     
-def generateSingleCurrentWaveform(ident, Is, Vlim):
+def generateSingleCurrentWaveform(ident, Is, Vlim):  
     rm = pyvisa.ResourceManager()
     my_instrument = rm.open_resource(ident)
 
     my_instrument.write('*RST')
     my_instrument.write('TRAC:CLE "defbuffer1"')
 
-    my_instrument.write('SOUR:FUNC CURR')
-    my_instrument.write('SOUR:CURR ' + str(0))
-    my_instrument.write('SOUR:CURR:ILIM ' + str(Vlim))
-    my_instrument.write('SOUR:CURR:READ:BACK OFF')
+    my_instrument.write('SOUR:FUNC VOLT')
+    my_instrument.write('SOUR:VOLT ' + str(0))
+    my_instrument.write('SOUR:VOLT:ILIM ' + str(Ilim))
+    my_instrument.write('SOUR:VOLT:READ:BACK OFF')
 
-    my_instrument.write('SENS:FUNC "CURR"')
-    my_instrument.write('SENS:CURR:AZER OFF')
-    my_instrument.write('SENS:CURR:NPLC 0.01')
-
-    my_instrument.write('SENS:VOLT:RANG ' + str(Ilim))
+    my_instrument.write('SENS:FUNC "VOLT"')
     my_instrument.write('SENS:VOLT:AZER OFF')
     my_instrument.write('SENS:VOLT:NPLC 0.01')
+
+    my_instrument.write('SENS:CURR:RANG ' + str(Ilim))
+    my_instrument.write('SENS:CURR:AZER OFF')
+    my_instrument.write('SENS:CURR:NPLC 0.01')
     my_instrument.write('OUTP ON')
 
     i = 0
     Um = 0*Us
     Im = 0*Us
     while i < len(Us):
-        my_instrument.write('SOUR:CURR ' + str(Is[i]))
+        my_instrument.write('SOUR:VOLT ' + str(Us[i]))
         my_instrument.flush(mask=pyvisa.constants.VI_WRITE_BUF)
-
-        my_instrument.write('MEAS:CURR?')
-        my_instrument.flush(mask=pyvisa.constants.VI_WRITE_BUF)
-        Im[i] = float(my_instrument.read())
 
         my_instrument.write('MEAS:VOLT?')
         my_instrument.flush(mask=pyvisa.constants.VI_WRITE_BUF)
         Um[i] = float(my_instrument.read())
+
+        my_instrument.write('MEAS:CURR?')
+        my_instrument.flush(mask=pyvisa.constants.VI_WRITE_BUF)
+        Im[i] = float(my_instrument.read())
 
         i+=1
     
@@ -136,9 +136,9 @@ def generateSingleCurrentWaveform(ident, Is, Vlim):
 def generateCyclingVoltageWaveform(ident, signal1, lim1, signal2, lim2):
     iteration = 0
     j = 0
-    R = ones(1)
-    Um = ones(1)
-    Im = ones(1)
+    Rm = []
+    Um = []
+    Im = []
     nbTry = 0
 
     R = resistanceMeasurement(ident)
@@ -153,9 +153,9 @@ def generateCyclingVoltageWaveform(ident, signal1, lim1, signal2, lim2):
 
         if state == "HIGH":
             [U, I] = generateSingleVoltageWaveform(ident, signal1, lim1)
-            Um[j] = U
-            Im[j] = I
-            R[j] = resistanceMeasurement(ident)
+            Um.append(U)
+            Im.append(I)
+            Rm.append(resistanceMeasurement(ident))
 
             if R > 100:
                 nbTry += 1
@@ -168,9 +168,9 @@ def generateCyclingVoltageWaveform(ident, signal1, lim1, signal2, lim2):
 
         elif state == "LOW":
             [U, I] = generateSingleVoltageWaveform(ident, signal2, lim2)            
-            Um[j] = U
-            Im[j] = I
-            R[j] = resistanceMeasurement(ident)
+            Um.append(U)
+            Im.append(I)
+            Rm.append(resistanceMeasurement(ident))
 
             if R < 1e4:
                 nbTry += 1
@@ -182,7 +182,7 @@ def generateCyclingVoltageWaveform(ident, signal1, lim1, signal2, lim2):
                 nbTry = 0
                 
 
-    return(iteration, R, Um, Im)
+    return(iteration, Rm, Um, Im)
         
 def generateCyclingCurrentWaveform(ident, signal1, lim1, signal2, lim2):
     iteration = 0
