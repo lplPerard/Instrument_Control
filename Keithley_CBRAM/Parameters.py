@@ -54,5 +54,8 @@ class Parameters():
         self.powerunit = "mW"
         self.resistanceUnit = "Ohm"
 
+        self.Graph_bgColor = "white"
+        self.Graph_showCompliance = True
+
         self.bgColor = "gainsboro"
         self.textColor = "black"
