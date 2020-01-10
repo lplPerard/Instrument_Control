@@ -99,23 +99,23 @@ def generateSingleCurrentWaveform(ident, Is, Vlim):
 
     my_instrument.write('SOUR:FUNC VOLT')
     my_instrument.write('SOUR:VOLT ' + str(0))
-    my_instrument.write('SOUR:VOLT:ILIM ' + str(Ilim))
+    my_instrument.write('SOUR:VOLT:ILIM ' + str(Vlim))
     my_instrument.write('SOUR:VOLT:READ:BACK OFF')
 
     my_instrument.write('SENS:FUNC "VOLT"')
     my_instrument.write('SENS:VOLT:AZER OFF')
     my_instrument.write('SENS:VOLT:NPLC 0.01')
 
-    my_instrument.write('SENS:CURR:RANG ' + str(Ilim))
+    my_instrument.write('SENS:CURR:RANG ' + str(Vlim))
     my_instrument.write('SENS:CURR:AZER OFF')
     my_instrument.write('SENS:CURR:NPLC 0.01')
     my_instrument.write('OUTP ON')
 
     i = 0
-    Um = 0*Us
-    Im = 0*Us
-    while i < len(Us):
-        my_instrument.write('SOUR:VOLT ' + str(Us[i]))
+    Um = 0*Is
+    Im = 0*Is
+    while i < len(Is):
+        my_instrument.write('SOUR:VOLT ' + str(Is[i]))
         my_instrument.flush(mask=pyvisa.constants.VI_WRITE_BUF)
 
         my_instrument.write('MEAS:VOLT?')
@@ -236,7 +236,6 @@ def generateCyclingCurrentWaveform(ident, signal1, lim1, signal2, lim2):
     return(iteration, R, Um, Im)
 
 def generateStabilityVoltageWaveform(ident, signal1, lim1, signal2, lim2, cycles):
-    nbTry = 0
     rm = pyvisa.ResourceManager()
     my_instrument = rm.open_resource(ident)
 

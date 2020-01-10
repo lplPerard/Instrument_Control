@@ -8,10 +8,11 @@ Details :
 File description : Class container for the application's view
 
 """
-from Sequence import Sequence_view
+from Single import Single_view
 from Parameters import Parameters
 
 from tkinter import Tk   
+from tkinter import Label
 from tkinter import Menu 
 
 class View(Tk, Parameters):
@@ -23,81 +24,81 @@ class View(Tk, Parameters):
     #Constructor for the View class
         Tk.__init__(self)
         Parameters.__init__(self)
+        
+        self.singleSequence = Single_view(self)
 
-        self.__initView()
+        self.__initWidgets()
+        self.__actualizeView()
+
+    def __initWidgets(self):
+    #This method is used to encapsulate the creation of sequences and menues
         self.__initMenu()
-        
-        self.configure(bg=self.bgColor)
 
-    def __initView(self):
-    #This method permits to create/actualize the view parameters
-        
-        self.configure(bg=self.bgColor)
-
+        self.copyright = Label(self, text="Copyright grenoble-inp LCIS")
+        self.copyright.grid(column=0, row=1)
 
     def __initMenu(self):
-    #Barre de menu
+    #This method generates a Menu bar which give access to the diffent software's tools
         self.menubar = Menu(self)
 
         self.menu1 = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="General", menu=self.menu1)
-        self.menu1.add_command(label="Save config", command=self.__saveConfig)
-        self.menu1.add_command(label="Load config", command=self.__loadConfig)
-        self.menu1.add_command(label="Parameters", command=self.__parameters)
+        self.menubar.add_cascade(label="Configuration", menu=self.menu1)
+        self.menu1.add_command(label="Save", command=self.menu1_save_callBack)
+        self.menu1.add_command(label="Load", command=self.menu1_load_callBack)
         self.menu1.add_separator()
         self.menu1.add_command(label="Quit", command=quit)
 
         self.menu2 = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Sequence", menu=self.menu2)        
-        self.menu2.add_command(label="Single", command=self.__initSingle)
-        self.menu2.add_command(label="Cycling", command=self.__initCycling)
-        self.menu2.add_command(label="Stability", command=self.__initStability)        
-        self.menu2.add_command(label="I/V Curve", command=self.__initIV)
-        self.menu2.add_command(label="Intermediate Value", command=self.__initIntermediate)        
+        self.menu2.add_command(label="Single", command=self.menu2_Single_callBack)
+        self.menu2.add_command(label="Cycling", command=self.menu2_Cycling_callBack)
+        self.menu2.add_command(label="Stability", command=self.menu2_Stability_callBack)        
+        self.menu2.add_command(label="I/V Curve", command=self.menu2_IV_callBack)
+        self.menu2.add_command(label="Intermediate Value", command=self.menu2_Intermediate_callBack)        
 
         self.menu3 = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Export", menu=self.menu3)
-        self.menu3.add_command(label="Format .CSV", command=self.__exportCSV)
-        self.menu3.add_command(label="Format .txt", command=self.__exportTXT)
+        self.menu3.add_command(label="Format .CSV", command=self.menu3_exportCSV_callBack)
+        self.menu3.add_command(label="Format .txt", command=self.menu3_exportTxt_callBack)
 
         self.config(menu=self.menubar)
 
-    def __saveConfig(self):
+    def menu1_save_callBack(self):
     #Callback function for save config menu1 option
-        print('bla')
+        print('save')
 
-    def __loadConfig(self):
+    def menu1_load_callBack(self):
     #Callback function for load config menu1 option
-        print('bla')
+        print('load')
 
-    def __parameters(self):
-    #Callback function for parameters menu1 option
-        print('bla')
-
-    def __initSingle(self):
+    def menu2_Single_callBack(self):
     #Callback function for Single menu2 option
-        print('bla')
+        print('Single')
 
-    def __initCycling(self):
+    def menu2_Cycling_callBack(self):
     #Callback function for Cycling menu2 option
-        print('bla')
+        print('Cycling')
 
-    def __initStability(self):
+    def menu2_Stability_callBack(self):
     #Callback function for Stability menu2 option
-        print('bla')
+        print('Stability')
 
-    def __initIV(self):
+    def menu2_IV_callBack(self):
     #Callback function for I/V menu2 option
-        print('bla')
+        print('IV')
 
-    def __initIntermediate(self):
+    def menu2_Intermediate_callBack(self):
     #Callback function for Intermediate menu2 option
-        print('bla')
+        print('Intermediate')
 
-    def __exportCSV(self):
+    def menu3_exportCSV_callBack(self):
     #Callback function for Format .CSV menu3 option
         print('bla')
 
-    def __exportTXT(self):
+    def menu3_exportTxt_callBack(self):
     #Callback function for Format .txt menu3 option
         print('bla')
+        
+    def __actualizeView(self):
+    #This method permits to create/actualize the view parameters        
+        self.configure(bg=self.bgColor)
