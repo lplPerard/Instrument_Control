@@ -36,7 +36,7 @@ class Graph(Parameters):
 
     def __initFigure(self):
     #This method creates the canva for the Graph
-        self.fig = Figure(figsize=(10, 6), dpi=50, facecolor=self.Graph_bgColor)
+        self.fig = Figure(figsize=(10, 6), dpi=self.Graph_size, facecolor=self.Graph_bgColor)
 
         self.plot = self.fig.add_subplot(111)
 
@@ -45,7 +45,7 @@ class Graph(Parameters):
         self.canvas.get_tk_widget().grid(column=0, row=0)
         #self.canvas.get_tk_widget().configure(bg="gainsboro")
 
-    def addGraph(self, x="", y="", xlabel="", ylabel="", title="", xlog=True, ylog=True, grid=True):
+    def addGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xlog=True, ylog=True, grid=True):
     #This method is called to add data to be plotted on self.fig    
         self.plot.step(x,y)
         self.plot.set_xlabel(xlabel)

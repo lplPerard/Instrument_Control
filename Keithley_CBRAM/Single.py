@@ -35,7 +35,6 @@ class Single_view(Sequence_view):
         Sequence_view.__init__(self, root)
         self.state = "SINGLE"
         self.model = Single_Model()
-        self.initFrame(text="Single Sequence", bg=self.bgColor)
 
         self.__initWidgets()
 
@@ -46,7 +45,7 @@ class Single_view(Sequence_view):
         self.__initCombobox()
         self.__initEntries()
 
-        self.button_startSequence.grid(column=0, columnspan=2, row=6)
+        self.button_startSequence.grid(column=0, columnspan=2, row=6, rowspan=2)
 
         self.Graph = [Graph(self.frame, "Voltage"), Graph(self.frame, "Current"), Graph(self.frame, "Resistance"), Graph(self.frame, "Power")]
         self.Graph[0].frame.grid(column=2, row=0, rowspan=10)
@@ -68,6 +67,12 @@ class Single_view(Sequence_view):
         self.stringVar_compliance = StringVar()
         self.stringVar_compliance.set(self.sense + " compliance : ")
 
+        self.stringVar_CBRAM_ident = StringVar()
+        self.stringVar_CBRAM_ident.set("CU600NF600AL600n0000")
+
+        self.stringVar_CBRAM_resistance = StringVar()
+        self.stringVar_CBRAM_resistance.set(" CBRAM cell ident : ")
+
         self.doubleVar_startValue = DoubleVar()
         self.doubleVar_startValue.set(0)
 
@@ -79,10 +84,13 @@ class Single_view(Sequence_view):
 
         self.doubleVar_compliance = DoubleVar()
         self.doubleVar_compliance.set(1e-4)
+
+        self.doubleVar_CBRAM_resistance = DoubleVar()
+        self.doubleVar_CBRAM_resistance.set(1e6)
         
     def __initLabels(self):
     #This methods instanciates all the Labels displayed in the Single testbench GUI
-        self.label_description = Label(self.frame, text="This test bench provides signal configuration to program a CBRAM cell.\n", padx=10, pady=20)
+        self.label_description = Label(self.frame, text="This test bench provides signal configuration to\nprogram a CBRAM cell.\n", padx=10, pady=20)
         self.label_description.configure(bg=self.bgColor, fg=self.textColor)
         self.label_description.grid(column=0, columnspan=2, row=0)
 
@@ -101,6 +109,14 @@ class Single_view(Sequence_view):
         self.label_compliance = Label(self.frame, textvariable=self.stringVar_compliance)
         self.label_compliance.configure(bg=self.bgColor, fg=self.textColor)
         self.label_compliance.grid(column=0, row=5)
+
+        self.label_CBRAM_ident = Label(self.frame, text="CBRAM cell's identifier : ")
+        self.label_CBRAM_ident.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_CBRAM_ident.grid(column=0, row=8)
+
+        self.label_CBRAM_resistance = Label(self.frame, textvariable=self.stringVar_CBRAM_resistance)
+        self.label_CBRAM_resistance.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_CBRAM_resistance.grid(column=0, row=9)
 
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Single testbench GUI
@@ -132,6 +148,12 @@ class Single_view(Sequence_view):
         self.entry_compliance = Entry(self.frame, textvariable=self.doubleVar_compliance, width=15)
         self.entry_compliance.grid(column=1, row=5)
 
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=15)
+        self.entry_CBRAM_ident.grid(column=1, row=8)
+
+        self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=15)
+        self.entry_CBRAM_resistance.grid(column=1, row=9)
+
     def button_startSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
         self.model.generateSequence(self.combo_aimingState.current(), self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get(), self.doubleVar_compliance.get())
@@ -158,4 +180,9 @@ class Single_Model(Sequence_model):
             self.compliance = compliance
                   
         elif combo_aimingState == 1:
-            print('bla')
+            span = -abs(stopValue - startValue)
+            T_max = param
+
+            self.time = np.linspace(0, T_max, T_max/self.stepDelay)
+            self.signal = span * np.ones(len(self.time)) + startValue
+            self.compliance = compliance

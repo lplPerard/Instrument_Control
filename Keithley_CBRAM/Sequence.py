@@ -37,10 +37,10 @@ class Sequence_view(Parameters):
     #This method is a callBack funtion for button_startSequence
         print('Not implemented yet')
 
-    def initFrame(self, text="", padx=15, pady=15, bg=""):
+    def initFrame(self, text="",column=0, columnspan=1, row=0, rowspan=1, padx=15, pady=15, bg=""):
     #This method generates the Frame's parameters for the sequence
         self.frame.configure(text=text, padx=padx, pady=pady, bg=bg)
-        self.frame.grid(column=0, row=0)
+        self.frame.grid(column=column, columnspan=columnspan, row=row, rowspan=rowspan)
 
 class Sequence_model(Parameters):
     """Class containing the model for a typical testbench.

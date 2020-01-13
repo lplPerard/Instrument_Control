@@ -9,7 +9,9 @@ File description : Class container for the application's view
 
 """
 from Single import Single_view
+
 from Parameters import Parameters
+from Parameters_view import Parameters_view
 
 from tkinter import Tk   
 from tkinter import Label
@@ -25,7 +27,10 @@ class View(Tk, Parameters):
         Tk.__init__(self)
         Parameters.__init__(self)
         
+        self.parameters_view = Parameters_view(self)
+        self.parameters_view.frame.grid(column=1, row=0)
         self.singleSequence = Single_view(self)
+        self.singleSequence.initFrame(text="Single Sequence", column=0,row=0, rowspan=10, bg=self.bgColor)
 
         self.__initWidgets()
         self.__actualizeView()
@@ -34,8 +39,8 @@ class View(Tk, Parameters):
     #This method is used to encapsulate the creation of sequences and menues
         self.__initMenu()
 
-        self.copyright = Label(self, text="Copyright grenoble-inp LCIS")
-        self.copyright.grid(column=0, row=1)
+        self.copyright = Label(self, text="Copyright grenoble-inp LCIS", bg=self.bgColor)
+        self.copyright.grid(column=0, row=11)
 
     def __initMenu(self):
     #This method generates a Menu bar which give access to the diffent software's tools
@@ -45,6 +50,7 @@ class View(Tk, Parameters):
         self.menubar.add_cascade(label="Configuration", menu=self.menu1)
         self.menu1.add_command(label="Save", command=self.menu1_save_callBack)
         self.menu1.add_command(label="Load", command=self.menu1_load_callBack)
+        self.menu1.add_command(label="Parameters", command=self.menu1_parameters_callBack)        
         self.menu1.add_separator()
         self.menu1.add_command(label="Quit", command=quit)
 
@@ -70,6 +76,11 @@ class View(Tk, Parameters):
     def menu1_load_callBack(self):
     #Callback function for load config menu1 option
         print('load')
+
+    def menu1_parameters_callBack(self):
+    #Callback function for load config menu1 option
+        print(self.parameters_view.frame.grid_size())
+        self.parameters_view.frame.grid_forget()
 
     def menu2_Single_callBack(self):
     #Callback function for Single menu2 option

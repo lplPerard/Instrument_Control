@@ -56,6 +56,7 @@ class Parameters():
 
         self.Graph_bgColor = "white"
         self.Graph_showCompliance = True
+        self.Graph_size = 45
 
         self.bgColor = "gainsboro"
         self.textColor = "black"
