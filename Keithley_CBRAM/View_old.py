@@ -18,7 +18,7 @@ from tkinter.ttk import Combobox
 
 from Class import ConfigFile
 
-from Controller import *
+from Controller_old import *
 
 import numpy as np
 

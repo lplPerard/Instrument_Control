@@ -8,16 +8,18 @@ Details :
 File description : Class container for the application's view
 
 """
-from Single import Single_view
-
+from Single import Single
 from Parameters import Parameters
-from Parameters_view import Parameters_view
+
+from Resource import Resource
+from Controller import Controller
+
 
 from tkinter import Tk   
 from tkinter import Label
 from tkinter import Menu 
 
-class View(Tk, Parameters):
+class View(Tk):
     """Class containing the GUI for the CBRAM software according to the MCV model.
 
     """
@@ -25,12 +27,13 @@ class View(Tk, Parameters):
     def __init__(self):
     #Constructor for the View class
         Tk.__init__(self)
-        Parameters.__init__(self)
+
+        self.resource = Resource()
         
-        self.parameters_view = Parameters_view(self)
-        self.parameters_view.frame.grid(column=1, row=0)
-        self.singleSequence = Single_view(self)
-        self.singleSequence.initFrame(text="Single Sequence", column=0,row=0, rowspan=10, bg=self.bgColor)
+        self.parameters = Parameters(self, self.resource)
+        self.parameters.frame.grid(column=1, row=0)
+        self.singleSequence = Single(self, self.resource)
+        self.singleSequence.initFrame(text="Single Sequence", column=0,row=0, rowspan=10, bg=self.resource.bgColor)
 
         self.__initWidgets()
         self.__actualizeView()
@@ -39,7 +42,7 @@ class View(Tk, Parameters):
     #This method is used to encapsulate the creation of sequences and menues
         self.__initMenu()
 
-        self.copyright = Label(self, text="Copyright grenoble-inp LCIS", bg=self.bgColor)
+        self.copyright = Label(self, text="Copyright grenoble-inp LCIS", bg=self.resource.bgColor)
         self.copyright.grid(column=0, row=11)
 
     def __initMenu(self):
@@ -79,8 +82,13 @@ class View(Tk, Parameters):
 
     def menu1_parameters_callBack(self):
     #Callback function for load config menu1 option
-        print(self.parameters_view.frame.grid_size())
-        self.parameters_view.frame.grid_forget()
+        if self.parameters.show == True:
+            self.parameters.frame.grid_forget()
+            self.parameters.show = False
+
+        elif self.parameters.show == False:
+            self.parameters.frame.grid(column=1, row=0)
+            self.parameters.show = True
 
     def menu2_Single_callBack(self):
     #Callback function for Single menu2 option
@@ -112,4 +120,4 @@ class View(Tk, Parameters):
         
     def __actualizeView(self):
     #This method permits to create/actualize the view parameters        
-        self.configure(bg=self.bgColor)
+        self.configure(bg=self.resource.bgColor)

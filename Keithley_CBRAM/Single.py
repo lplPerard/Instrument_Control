@@ -9,8 +9,7 @@ File description : Class container for the Single test bench. Single Sequence al
 
 """
 
-from Sequence import Sequence_view
-from Sequence import Sequence_model
+from Sequence import Sequence
 
 from Graph import Graph
 
@@ -21,20 +20,15 @@ from tkinter import IntVar
 from tkinter import Entry
 from tkinter.ttk import Combobox
 
-import numpy as np
-
-from Controller import generateSingleVoltageWaveform
-
-class Single_view(Sequence_view):
-    """Class containing the Single_view testbench.
+class Single(Sequence):
+    """Class containing the Single testbench.
 
     """
 
-    def __init__(self, root):
-    #Constructor for the Single_view class
-        Sequence_view.__init__(self, root)
+    def __init__(self, root, resource):
+    #Constructor for the Single class
+        Sequence.__init__(self, root, resource)
         self.state = "SINGLE"
-        self.model = Single_Model()
 
         self.__initWidgets()
 
@@ -45,9 +39,10 @@ class Single_view(Sequence_view):
         self.__initCombobox()
         self.__initEntries()
 
-        self.button_startSequence.grid(column=0, columnspan=2, row=6, rowspan=2)
+        self.button_visualizeSequence.grid(column=0, row=6, rowspan=2, padx=10, pady=5)
+        self.button_startSequence.grid(column=1, row=6, rowspan=2, padx=10, pady=5)
 
-        self.Graph = [Graph(self.frame, "Voltage"), Graph(self.frame, "Current"), Graph(self.frame, "Resistance"), Graph(self.frame, "Power")]
+        self.Graph = [Graph(self.frame, self.resource, "Voltage"), Graph(self.frame, self.resource, "Current"), Graph(self.frame, self.resource, "Resistance"), Graph(self.frame, self.resource, "Power")]
         self.Graph[0].frame.grid(column=2, row=0, rowspan=10)
         self.Graph[1].frame.grid(column=3, row=0, rowspan=10)
         self.Graph[2].frame.grid(column=2, row=10, rowspan=10)
@@ -65,13 +60,13 @@ class Single_view(Sequence_view):
         self.stringVar_param.set("Ramp : ")
 
         self.stringVar_compliance = StringVar()
-        self.stringVar_compliance.set(self.sense + " compliance : ")
+        self.stringVar_compliance.set(self.resource.sense + " compliance : ")
 
         self.stringVar_CBRAM_ident = StringVar()
         self.stringVar_CBRAM_ident.set("CU600NF600AL600n0000")
 
         self.stringVar_CBRAM_resistance = StringVar()
-        self.stringVar_CBRAM_resistance.set(" CBRAM cell ident : ")
+        self.stringVar_CBRAM_resistance.set(" CBRAM cell's resistance : ")
 
         self.doubleVar_startValue = DoubleVar()
         self.doubleVar_startValue.set(0)
@@ -91,38 +86,38 @@ class Single_view(Sequence_view):
     def __initLabels(self):
     #This methods instanciates all the Labels displayed in the Single testbench GUI
         self.label_description = Label(self.frame, text="This test bench provides signal configuration to\nprogram a CBRAM cell.\n", padx=10, pady=20)
-        self.label_description.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_description.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_description.grid(column=0, columnspan=2, row=0)
 
         self.label_startValue = Label(self.frame, textvariable=self.stringVar_startValue)
-        self.label_startValue.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_startValue.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_startValue.grid(column=0, row=2)
 
         self.label_stopValue = Label(self.frame, textvariable=self.stringVar_stopValue)
-        self.label_stopValue.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_stopValue.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_stopValue.grid(column=0, row=3)
 
         self.label_param = Label(self.frame, textvariable=self.stringVar_param)
-        self.label_param.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_param.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_param.grid(column=0, row=4)
 
         self.label_compliance = Label(self.frame, textvariable=self.stringVar_compliance)
-        self.label_compliance.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_compliance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_compliance.grid(column=0, row=5)
 
         self.label_CBRAM_ident = Label(self.frame, text="CBRAM cell's identifier : ")
-        self.label_CBRAM_ident.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_CBRAM_ident.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_CBRAM_ident.grid(column=0, row=8)
 
         self.label_CBRAM_resistance = Label(self.frame, textvariable=self.stringVar_CBRAM_resistance)
-        self.label_CBRAM_resistance.configure(bg=self.bgColor, fg=self.textColor)
+        self.label_CBRAM_resistance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_CBRAM_resistance.grid(column=0, row=9)
 
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Single testbench GUI
         self.combo_aimingState = Combobox(self.frame, state="readonly", width=30, values=["SET cell in LOW state", "SET cell in HIGH state"])
         self.combo_aimingState.bind("<<ComboboxSelected>>", self.combo_aimingState_callback)
-        self.combo_aimingState.configure(background=self.bgColor)
+        self.combo_aimingState.configure(background=self.resource.bgColor)
         self.combo_aimingState.grid(column=0, columnspan=2, row=1)
         self.combo_aimingState.current(0)
 
@@ -136,53 +131,34 @@ class Single_view(Sequence_view):
 
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the Single testbench GUI
-        self.entry_startValue = Entry(self.frame, textvariable=self.doubleVar_startValue, width=15)
-        self.entry_startValue.grid(column=1, row=2)
+        self.entry_startValue = Entry(self.frame, textvariable=self.doubleVar_startValue, width=12)
+        self.entry_startValue.grid(column=1, row=2, pady=self.resource.pady)
 
-        self.entry_stopValue = Entry(self.frame, textvariable=self.doubleVar_stopValue, width=15)
-        self.entry_stopValue.grid(column=1, row=3)
+        self.entry_stopValue = Entry(self.frame, textvariable=self.doubleVar_stopValue, width=12)
+        self.entry_stopValue.grid(column=1, row=3, pady=self.resource.pady)
 
-        self.entry_param = Entry(self.frame, textvariable=self.doubleVar_param, width=15)
-        self.entry_param.grid(column=1, row=4)
+        self.entry_param = Entry(self.frame, textvariable=self.doubleVar_param, width=12)
+        self.entry_param.grid(column=1, row=4, pady=self.resource.pady)
 
-        self.entry_compliance = Entry(self.frame, textvariable=self.doubleVar_compliance, width=15)
-        self.entry_compliance.grid(column=1, row=5)
+        self.entry_compliance = Entry(self.frame, textvariable=self.doubleVar_compliance, width=12)
+        self.entry_compliance.grid(column=1, row=5, pady=self.resource.pady)
 
-        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=15)
-        self.entry_CBRAM_ident.grid(column=1, row=8)
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=20)
+        self.entry_CBRAM_ident.grid(column=1, row=8, pady=self.resource.pady)
 
-        self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=15)
-        self.entry_CBRAM_resistance.grid(column=1, row=9)
+        self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12)
+        self.entry_CBRAM_resistance.grid(column=1, row=9, pady=self.resource.pady)
 
     def button_startSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        self.model.generateSequence(self.combo_aimingState.current(), self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get(), self.doubleVar_compliance.get())
+        self.button_visualizeSequence_callBack()
+        self.controller.service.generateSingleVoltageWaveform(self.signal, self.compliance)
+        
+    def button_visualizeSequence_callBack(self):
+    #This method is a callBack funtion for button_startSequence
+        [self.time, self.signal] = self.controller.generateSingleSequence(self.combo_aimingState.current(), self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get())
+        self.compliance = self.doubleVar_compliance.get()
+                
         self.Graph[0].clearGraph()
-        self.Graph[0].addGraph(x=self.model.time, xlabel="time", y=self.model.signal, ylabel=self.source)
-
-class Single_Model(Sequence_model):
-    """Class containing the Single_model testbench.
-
-    """
-
-    def __init__(self):
-    #Constructor for the Single_model class
-        Sequence_model.__init__(self)
-
-    def generateSequence(self, combo_aimingState, startValue, stopValue, param, compliance):
-    #This method override parent's method. It generates the single sequence based on parameters extracted from the view
-        if combo_aimingState == 0:
-            span = stopValue - startValue
-            T_max = span / param
-
-            self.time = np.linspace(0, T_max, T_max/self.stepDelay)
-            self.signal = param * self.time - startValue
-            self.compliance = compliance
-                  
-        elif combo_aimingState == 1:
-            span = -abs(stopValue - startValue)
-            T_max = param
-
-            self.time = np.linspace(0, T_max, T_max/self.stepDelay)
-            self.signal = span * np.ones(len(self.time)) + startValue
-            self.compliance = compliance
+        self.Graph[0].addGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source)
+   

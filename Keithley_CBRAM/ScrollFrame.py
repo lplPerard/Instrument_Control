@@ -9,7 +9,7 @@ File description : Class container for a Scrollable Frame. This widget is used t
 
 
 """
-from Parameters import Parameters
+from Resource import Resource
 
 import tkinter as tk
 from tkinter import LabelFrame
@@ -21,7 +21,7 @@ class ScrollFrame(Parameters):
 
     def __init__(self, root):
     #Constructor for the ScrollFrame class.
-        Parameters.__init__(self)
+        Resource.__init__(self)
 
         self.frame = LabelFrame(root)        
         self.scrollbar = tk.Scrollbar(self.frame, orient=tk.VERTICAL)        
