@@ -10,6 +10,8 @@ File description : Class container for Sequence. Sequence is the superclass for 
 """
 
 from Controller import Controller
+from Service import Service
+from Results import Results
 from CBRAM import CBRAM
 
 from tkinter import LabelFrame
@@ -26,22 +28,28 @@ class Sequence():
         self.signal = []
         self.time = []
         self.compliance = 0
+        self.cell = CBRAM()
+        self.results = Results()
 
         self.resource = resource
-        self.controller = Controller()
+        self.controller = Controller(resource)
+        self.service = Service(resource)
+
         self.frame = LabelFrame(root)
         self.button_startSequence = Button(self.frame, text="Start Sequence", command=self.button_startSequence_callBack, padx=5, pady=10)
-        self.button_visualizeSequence = Button(self.frame, text="Visualize Sequence", command=self.button_visualizeSequence_callBack, padx=5, pady=10)
-
-        self.cell = CBRAM()
-
+        self.button_actualizeSequence = Button(self.frame, text="Actualize Sequence", command=self.button_actualizeSequence_callBack, padx=5, pady=10)
+        self.button_measureResistance = Button(self.frame, text="Measure", command=self.button_measureResistance_callBack, padx=5, pady=10)
         self.Graph = [] #Graph list containing all the figures linked to the test bench
 
     def button_startSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
         print('Not implemented yet')
 
-    def button_visualizeSequence_callBack(self):
+    def button_actualizeSequence_callBack(self):
+    #This method is a callBack funtion for button_startSequence
+        print('Not implemented yet')
+
+    def button_measureResistance_callBack(self):
     #This method is a callBack funtion for button_startSequence
         print('Not implemented yet')
 

@@ -10,31 +10,65 @@ File description : Class container for Service.
 """
 import pyvisa
 
-from Resource import Resource
-
 import numpy as np
 
-class Service(Resource):
+class Service():
     """Class containing the Service for the CBRAM software
 
     """
 
-    def __init__(self):
+    def __init__(self, resource):
     #Constructor for the Model class
-        Resource.__init__(self)
+        self.resource = resource
 
         self.resourceManager = pyvisa.ResourceManager()
         self.findInstruments()
-        self.instr = ""
 
     def findInstruments(self):
     #This method actualize le list of instruments connected to the computer
         self.instrList = self.resourceManager.list_resources()
 
+    def measureResistance(self):
+    #This method measure the resistance using a 2 wire resistance measurement set-up. It shouldn't be used to precisely measure low-resistance states
+
+        voltage = 2.1
+        current = 10e-6
+
+        self.instr = self.resourceManager.open_resource(self.resource.deviceAdress)
+
+        self.instr.write('*RST')
+        self.instr.write('TRAC:CLE "defbuffer1"')
+
+        self.instr.write('SOUR:FUNC CURR')
+        self.instr.write('SOUR:CURR:VLIM ' + str(voltage))
+        self.instr.write('SOUR:VOLT:READ:BACK ON')
+
+        self.instr.write('SENS:FUNC "VOLT"')
+        self.instr.write('SENS:VOLT:AZER ON')
+        self.instr.write('SENS:VOLT:NPLC 0.01')
+
+        self.instr.write('SOUR:CURR ' + str(current))
+        self.instr.write('OUTP ON')
+
+        self.instr.write('MEAS:CURR?')
+        curr = float(self.instr.read())
+
+        self.instr.write('MEAS:VOLT?')
+        volt = float(self.instr.read())
+
+        if curr != 0:
+            R = volt/curr
+        else:
+            R = -1
+
+        self.instr.write('OUTP OFF')
+        self.instr.close()
+
+        return(R)
+
     def generateSingleVoltageWaveform(self, Us, Ilim):
     #This method generates a voltage waveform according to given parameter Us
-        print(self.deviceAdress)
-        self.instr = self.resourceManager.open_resource(self.deviceAdress)
+        self.instr = self.resourceManager.open_resource(self.resource.deviceAdress)
 
         self.instr.write('*RST')
         self.instr.write('TRAC:CLE "defbuffer1"')

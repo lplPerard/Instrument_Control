@@ -14,7 +14,6 @@ from Parameters import Parameters
 from Resource import Resource
 from Controller import Controller
 
-
 from tkinter import Tk   
 from tkinter import Label
 from tkinter import Menu 
@@ -29,6 +28,7 @@ class View(Tk):
         Tk.__init__(self)
 
         self.resource = Resource()
+        self.controller = Controller(self.resource)
         
         self.parameters = Parameters(self, self.resource)
         self.parameters.frame.grid(column=1, row=0)
@@ -66,9 +66,9 @@ class View(Tk):
         self.menu2.add_command(label="Intermediate Value", command=self.menu2_Intermediate_callBack)        
 
         self.menu3 = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Export", menu=self.menu3)
-        self.menu3.add_command(label="Format .CSV", command=self.menu3_exportCSV_callBack)
-        self.menu3.add_command(label="Format .txt", command=self.menu3_exportTxt_callBack)
+        self.menubar.add_cascade(label="Results", menu=self.menu3)
+        self.menu3.add_command(label="Export", command=self.menu3_export_callBack)
+        self.menu3.add_command(label="Import", command=self.menu3_import_callBack)
 
         self.config(menu=self.menubar)
 
@@ -110,13 +110,14 @@ class View(Tk):
     #Callback function for Intermediate menu2 option
         print('Intermediate')
 
-    def menu3_exportCSV_callBack(self):
+    def menu3_export_callBack(self):
     #Callback function for Format .CSV menu3 option
-        print('bla')
+        self.controller.serialize(self.singleSequence.results)
 
-    def menu3_exportTxt_callBack(self):
+    def menu3_import_callBack(self):
     #Callback function for Format .txt menu3 option
-        print('bla')
+        self.singleSequence.results = self.controller.load()
+        self.singleSequence.printResult()
         
     def __actualizeView(self):
     #This method permits to create/actualize the view parameters        

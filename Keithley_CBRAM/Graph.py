@@ -23,7 +23,7 @@ class Graph():
 
     def __init__(self, root, resource, name):
     #Constructor for the Graph superclass
-        self.controller = Controller()
+        self.controller = Controller(resource)
 
         self.resource = resource
         
@@ -38,7 +38,7 @@ class Graph():
 
     def __initFigure(self):
     #This method creates the canva for the Graph
-        self.fig = Figure(figsize=(5, 4), dpi=self.resource.Graph_size, facecolor=self.resource.bgColor)
+        self.fig = Figure(figsize=(9, 6), dpi=self.resource.Graph_size, facecolor=self.resource.bgColor)
 
         self.plot = self.fig.add_subplot(111)
         self.plot.set_facecolor(self.resource.Graph_bgColor)
@@ -48,13 +48,17 @@ class Graph():
         self.canvas.get_tk_widget().grid(column=0, row=0)
         self.canvas.draw()
 
-    def addGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xlog=True, ylog=True, grid=True):
+    def addGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
     #This method is called to add data to be plotted on self.fig    
-        self.plot.step(x,y)
+        self.plot.step(x,y, color=color)
+
         self.plot.set_xlabel(xlabel)
+        self.plot.set_xscale(xscale)
+
         self.plot.set_ylabel(ylabel)
-        self.plot.grid(self.resource.Graph_grid)
-        print(self.resource.Graph_grid)
+        self.plot.set_yscale(yscale)
+
+        self.plot.grid(grid)
 
         self.canvas.draw()
 

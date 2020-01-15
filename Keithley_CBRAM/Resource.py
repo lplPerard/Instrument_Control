@@ -46,7 +46,8 @@ class Resource():
     #Constructor for the Parameters superclass
 
         #SMUParameters
-        self.stepDelay = 0.011
+        self.stepDelay = 0.0093
+        self.NPLC= 0.01
         self.source = "VOLT"
         self.sense = "CURR"
 
@@ -54,17 +55,17 @@ class Resource():
         self.deviceAdress = ""
         self.bgColor = "gainsboro"
         self.textColor = "black"
-        self.timeUnit = "s"
-        self.voltUnit = "V"
-        self.currUnit = "mA"
-        self.powerunit = "mW"
-        self.resistanceUnit = "Ohm"
+        self.timeCoeff = 1
+        self.voltCoeff = 1
+        self.currCoeff = 1e-3
+        self.powerCoeff = 1e-3
+        self.resistanceCoeff = 1
 
         #graphParameters
         self.Graph_bgColor = "black"
         self.Graph_grid = True
         self.Graph_compliance = True
-        self.Graph_size = 90
+        self.Graph_size = 60
 
         #Non editable parameters
 
