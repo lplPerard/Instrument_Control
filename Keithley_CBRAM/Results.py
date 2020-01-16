@@ -8,7 +8,7 @@ Details :
 File description : Class container for Results. Results is a class containing data coming back from the SMU.
 
 """
-
+from CBRAM import CBRAM
 
 class Results():
     """Class containing data coming back from the SMU.
@@ -23,3 +23,4 @@ class Results():
         self.signal_1 = []
         self.signal_2 = []
         self.resistance = []
+        self.cell = CBRAM()

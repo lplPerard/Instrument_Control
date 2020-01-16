@@ -5,13 +5,14 @@ Version : 0.0
 Details : 
     - 2020/01/09 Software creation 
 
-File description : Class container for the Single test bench. Single Sequence allow to modify the state of a CBRAM cell once.
+File description : Class container for the Cycling test bench. Cycling Sequence intend to determinate the maximum number of cycles a CBRAM cell can execute.
 
 """
 
 from Sequence import Sequence
 
 from Graph import Graph
+from MultiLayer_Graph import Multilayer_Graph
 
 from tkinter import Label
 from tkinter import StringVar
@@ -22,15 +23,15 @@ from tkinter.ttk import Combobox
 
 from numpy import ones
 
-class Single(Sequence):
-    """Class containing the Single testbench.
+class Cycling(Sequence):
+    """Class containing the Cycling testbench.
 
     """
 
     def __init__(self, root, resource):
     #Constructor for the Single class
         Sequence.__init__(self, root, resource)
-        self.state = "SINGLE"
+        self.state = "CYCLING"
 
         self.__initWidgets()
         self.button_actualizeSequence_callBack()
@@ -46,7 +47,7 @@ class Single(Sequence):
         self.button_startSequence.grid(column=1, row=6, rowspan=2, padx=10, pady=5)
         self.button_measureResistance.grid(column=1, row=10, rowspan=1, padx=10, pady=5)
 
-        self.Graph = [Graph(self.frame, self.resource, "Voltage"), Graph(self.frame, self.resource, "Current"), Graph(self.frame, self.resource, "Resistance"), Graph(self.frame, self.resource, "Power")]
+        self.Graph = [Multilayer_Graph(self.frame, self.resource, "Voltage"), Multilayer_Graph(self.frame, self.resource, "Current"), Multilayer_Graph(self.frame, self.resource, "Resistance"), Multilayer_Graph(self.frame, self.resource, "Power")]
         self.Graph[0].frame.grid(column=2, row=0, rowspan=10)
         self.Graph[1].frame.grid(column=3, row=0, rowspan=10)
         self.Graph[2].frame.grid(column=2, row=10, rowspan=10)
@@ -152,23 +153,19 @@ class Single(Sequence):
         self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=22)
         self.entry_CBRAM_ident.grid(column=1, row=8, pady=self.resource.pady)
 
-        self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12, state="readonly")
+        self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12)
         self.entry_CBRAM_resistance.grid(column=1, row=9, pady=self.resource.pady)
 
     def button_startSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
         self.button_actualizeSequence_callBack()
+        self.button_measureResistance_callBack()
 
-        self.results.cell.ident = self.stringVar_CBRAM_ident.get()
         [self.results.signal_1, self.results.signal_2] = self.service.generateSingleVoltageWaveform(self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.compliance)
 
-        if self.results.signal_1==[-1] and self.results.signal_2==[-1]:
-            print("to be completed")
+        self.button_measureResistance_callBack()
 
-        else:
-            self.results.cell.resistance = self.button_measureResistance_callBack()       
-
-            self.printResult()
+        self.printResult()
         
     def button_actualizeSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
@@ -189,7 +186,6 @@ class Single(Sequence):
     #This method is a callBack funtion for button_startSequence
         R = self.service.measureResistance()
         self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
-        return(R)
 
     def printResult(self):
     #This method add results to Graphs

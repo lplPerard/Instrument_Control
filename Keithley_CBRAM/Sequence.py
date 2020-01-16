@@ -12,7 +12,6 @@ File description : Class container for Sequence. Sequence is the superclass for 
 from Controller import Controller
 from Service import Service
 from Results import Results
-from CBRAM import CBRAM
 
 from tkinter import LabelFrame
 from tkinter import Button
@@ -28,7 +27,6 @@ class Sequence():
         self.signal = []
         self.time = []
         self.compliance = 0
-        self.cell = CBRAM()
         self.results = Results()
 
         self.resource = resource
@@ -57,3 +55,7 @@ class Sequence():
     #This method generates the Frame's parameters for the sequence
         self.frame.configure(text=text, padx=padx, pady=pady, bg=bg)
         self.frame.grid(column=column, columnspan=columnspan, row=row, rowspan=rowspan)
+        
+    def clearFrame(self):
+    #This method delete the Sequence's frame from the grid
+        self.frame.grid_forget()

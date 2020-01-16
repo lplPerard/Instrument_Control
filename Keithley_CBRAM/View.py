@@ -9,6 +9,7 @@ File description : Class container for the application's view
 
 """
 from Single import Single
+from Cycling import Cycling
 from Parameters import Parameters
 
 from Resource import Resource
@@ -32,8 +33,9 @@ class View(Tk):
         
         self.parameters = Parameters(self, self.resource)
         self.parameters.frame.grid(column=1, row=0)
-        self.singleSequence = Single(self, self.resource)
-        self.singleSequence.initFrame(text="Single Sequence", column=0,row=0, rowspan=10, bg=self.resource.bgColor)
+
+        self.sequence = Single(self, self.resource)
+        self.sequence.initFrame(text="Single Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
         self.__initWidgets()
         self.__actualizeView()
@@ -92,11 +94,15 @@ class View(Tk):
 
     def menu2_Single_callBack(self):
     #Callback function for Single menu2 option
-        print('Single')
+        self.sequence.clearFrame()
+        self.sequence = Single(self, self.resource)
+        self.sequence.initFrame(text="Single Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
     def menu2_Cycling_callBack(self):
     #Callback function for Cycling menu2 option
-        print('Cycling')
+        self.sequence.clearFrame()
+        self.sequence = Cycling(self, self.resource)
+        self.sequence.initFrame(text="Cycling Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
     def menu2_Stability_callBack(self):
     #Callback function for Stability menu2 option
@@ -112,12 +118,12 @@ class View(Tk):
 
     def menu3_export_callBack(self):
     #Callback function for Format .CSV menu3 option
-        self.controller.serialize(self.singleSequence.results)
+        self.controller.serialize(self.sequence.results)
 
     def menu3_import_callBack(self):
     #Callback function for Format .txt menu3 option
-        self.singleSequence.results = self.controller.load()
-        self.singleSequence.printResult()
+        self.sequence.results = self.controller.load()
+        self.sequence.printResult()
         
     def __actualizeView(self):
     #This method permits to create/actualize the view parameters        

@@ -71,3 +71,4 @@ class Resource():
 
         self.pady=2
         self.padx=5
+        self.state="SINGLE"

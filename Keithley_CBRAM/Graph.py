@@ -45,7 +45,7 @@ class Graph():
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
         self.canvas.get_tk_widget().configure(bg=self.resource.Graph_bgColor)
-        self.canvas.get_tk_widget().grid(column=0, row=0)
+        self.canvas.get_tk_widget().grid(column=0, columnspan=10, row=0)
         self.canvas.draw()
 
     def addGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
