@@ -50,7 +50,7 @@ class Graph():
 
     def addGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
     #This method is called to add data to be plotted on self.fig    
-        self.plot.step(x,y, color=color)
+        self.plot.step(x, y, color=color)
 
         self.plot.set_xlabel(xlabel)
         self.plot.set_xscale(xscale)

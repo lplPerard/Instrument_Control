@@ -19,7 +19,7 @@ class Results():
     #Constructor for the CBRAM class
 
         self.iteration = 0
-        self.nbTry = 0
+        self.nbTry = []
         self.signal_1 = []
         self.signal_2 = []
         self.resistance = []

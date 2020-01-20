@@ -113,8 +113,8 @@ class Parameters():
 
     def button_SMUParam_adress_callBack(self):
     #Callback method for button_SMUParam_adress
-        self.controller.service.findInstruments()
-        self.combo_SMUParam_adress.configure(values=self.controller.service.instrList)
+        self.service.findInstruments()
+        self.combo_SMUParam_adress.configure(values=self.service.instrList)
 
     def __initVars(self):
     #This methods instanciates all the Vars used by widgets in the Parameters_view GUI
@@ -122,7 +122,7 @@ class Parameters():
         self.doubleVar_SMUParam_NPLC.set(0.01)
 
         self.doubleVar_SMUParam_stepDelay = DoubleVar()
-        self.doubleVar_SMUParam_stepDelay.set(0.011)
+        self.doubleVar_SMUParam_stepDelay.set(0.0093)
 
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Parameters_view GUI

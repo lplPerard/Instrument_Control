@@ -162,17 +162,18 @@ class Single(Sequence):
         self.results.cell.ident = self.stringVar_CBRAM_ident.get()
         [self.results.signal_1, self.results.signal_2] = self.service.generateSingleVoltageWaveform(self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.compliance)
 
-        if self.results.signal_1==[-1] and self.results.signal_2==[-1]:
-            print("to be completed")
+        self.results.cell.resistance = self.button_measureResistance_callBack()       
 
-        else:
-            self.results.cell.resistance = self.button_measureResistance_callBack()       
-
-            self.printResult()
+        self.printResult()
         
     def button_actualizeSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        [self.time, self.signal] = self.controller.generateSingleSequence(self.combo_aimingState.current(), self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get())
+        if self.combo_aimingState.current() == 0:
+            [self.time, self.signal] = self.controller.generateRampSequence(self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get())
+        
+        elif self.combo_aimingState.current() == 1:
+            [self.time, self.signal] = self.controller.generatePulseSequence(self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get())
+                    
         self.compliance = self.doubleVar_compliance.get()
                         
         self.Graph[0].clearGraph()
@@ -193,7 +194,6 @@ class Single(Sequence):
 
     def printResult(self):
     #This method add results to Graphs
-
         self.Graph[0].addGraph(x=self.time, xlabel="time", y=self.results.signal_1/self.resource.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
         self.Graph[1].addGraph(x=self.time, xlabel="time", y=self.results.signal_2/self.resource.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
         self.Graph[2].addGraph(x=self.time, xlabel="time", y=(self.results.signal_1/self.results.signal_2)/self.resource.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)

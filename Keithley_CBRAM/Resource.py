@@ -69,6 +69,6 @@ class Resource():
 
         #Non editable parameters
 
-        self.pady=2
-        self.padx=5
+        self.pady=3
+        self.padx=3
         self.state="SINGLE"

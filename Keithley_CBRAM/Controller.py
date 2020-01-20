@@ -13,6 +13,7 @@ from tkinter import filedialog
 
 from numpy import ones
 from numpy import linspace
+from numpy import concatenate
 
 import pickle
 
@@ -25,23 +26,33 @@ class Controller():
     #Constructor for the Model class
         self.resource = resource
 
-    def generateSingleSequence(self, combo_aimingState, startValue, stopValue, param):
+    def generateRampSequence(self, ramp_startValue, ramp_stopValue, ramp_param):
     #This method override parent's method. It generates the single sequence based on parameters extracted from the view
-        if combo_aimingState == 0:
-            span = stopValue - startValue
-            T_max = span / param
+        ramp_span = ramp_stopValue - ramp_startValue
+        ramp_T_max = ramp_span / ramp_param
 
-            time = linspace(0, T_max, T_max/self.resource.stepDelay)
-            signal = param * time - startValue
-                              
-        elif combo_aimingState == 1:
-            span = -abs(stopValue - startValue)
-            T_max = param
+        ramp_time = linspace(0, ramp_T_max, ramp_T_max/self.resource.stepDelay)
+        ramp_signal = ramp_param * ramp_time - ramp_startValue
 
-            time = linspace(0, T_max, T_max/self.resource.stepDelay)
-            signal = span * ones(len(time)) + startValue
+        return(ramp_time, ramp_signal)
+
+    def generatePulseSequence(self, pulse_startValue, pulse_stopValue, pulse_param):
+    #This method override parent's method. It generates the single sequence based on parameters extracted from the view
+        pulse_span = -abs(pulse_stopValue - pulse_startValue)
+        pulse_T_max = pulse_param
+
+        pulse_time = linspace(0, pulse_T_max, pulse_T_max/self.resource.stepDelay)
+        pulse_signal = pulse_span * ones(len(pulse_time)) + pulse_startValue
             
-        return(time, signal)
+        return(pulse_time, pulse_signal)
+
+    def generateMixedSequence(self, pulse_time, pulse_signal, ramp_time, ramp_signal):
+    #This method override parent's method. It generates the single sequence based on parameters extracted from the view
+        total_T_max = ramp_time[-1] + pulse_time[-1]
+        total_time = linspace(0, total_T_max, len(ramp_time) + len(pulse_time))
+        total_signal = concatenate((pulse_signal, ramp_signal))
+            
+        return(total_time, total_signal)
 
     def serialize(self, object):
     #This method serialize an object result and write it into the specified file
