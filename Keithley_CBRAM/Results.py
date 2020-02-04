@@ -8,7 +8,6 @@ Details :
 File description : Class container for Results. Results is a class containing data coming back from the SMU.
 
 """
-from CBRAM import CBRAM
 
 class Results():
     """Class containing data coming back from the SMU.
@@ -18,9 +17,34 @@ class Results():
     def __init__(self):
     #Constructor for the CBRAM class
 
+        self.source = "VOLT"
+        self.sense = "CURR"
+        self.stepDelay = 0.0093
+        self.NPLC= 0.01
+        self.voltCoeff = 1
+        self.currCoeff = 1e-3
+        self.powerCoeff = 1e-3
+        self.resistanceCoeff = 1
+        
+        self.R_low_lim = 1e2
+        self.R_high_lim = 1e3
+        self.nbTry = 5
+
+        self.ramp_start_value = 0
+        self.ramp_stop_value = 0
+        self.ramp_param = 0
+        self.ramp_compliance = 0
+
+        self.pulse_start_value = 0
+        self.pulse_stop_value = 0
+        self.pulse_param = 0
+        self.pulse_compliance = 0
+
+        self.cell_ident = ""
+        self.cell_resistance = 0
+
         self.iteration = 0
         self.nbTry = []
         self.signal_1 = []
         self.signal_2 = []
         self.resistance = []
-        self.cell = CBRAM()

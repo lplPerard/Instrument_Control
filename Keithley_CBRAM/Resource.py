@@ -55,20 +55,28 @@ class Resource():
         self.deviceAdress = ""
         self.bgColor = "gainsboro"
         self.textColor = "black"
+
         self.timeCoeff = 1
         self.voltCoeff = 1
         self.currCoeff = 1e-3
         self.powerCoeff = 1e-3
         self.resistanceCoeff = 1
 
+        self.autoExport = True
+        self.exportPath = 'Y:\Résultats\CBRAM'
+
         #graphParameters
-        self.Graph_bgColor = "black"
+        self.Graph_bgColor = "white"
         self.Graph_grid = True
         self.Graph_compliance = True
         self.Graph_size = 60
 
-        #Non editable parameters
+        #Sequence parameters
+        self.R_low_lim = 600
+        self.R_high_lim = 1000
+        self.nbTry = 5
 
-        self.pady=3
-        self.padx=3
+        #Non editable parameters
+        self.pady=4
+        self.padx=4
         self.state="SINGLE"

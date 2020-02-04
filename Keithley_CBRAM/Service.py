@@ -107,4 +107,60 @@ class Service():
         self.instr.write('OUTP OFF')
         self.instr.close()
 
-        return(Um, Im)
+        return(Um.tolist(), Im.tolist())
+
+    def generateCyclingVoltageWaveform(self, signal1, lim1, signal2, lim2):
+        iteration = 1
+        nbTry = 1
+        nbTry_return = [1]
+        Rm = []
+        Um = []
+        Im = []
+
+        R = self.measureResistance()
+        if R > self.resource.R_high_lim:
+            state = "HIGH"
+        else:
+            state = "LOW"
+
+        while nbTry <= self.resource.nbTry:
+            print(state)
+
+            if state == "HIGH":
+                [U, I] = self.generateSingleVoltageWaveform(signal1, lim1)
+                Um.append(U)
+                Im.append(I)
+                R = self.measureResistance()
+                Rm.append(R)
+
+                if R > self.resource.R_low_lim:
+                    state = "HIGH"
+                    nbTry += 1
+                    nbTry_return.append(nbTry)
+
+                else:
+                    state = "LOW"
+                    nbTry = 1
+                    nbTry_return.append(nbTry)
+
+            elif state == "LOW":
+                [U, I] = self.generateSingleVoltageWaveform(signal2, lim2)            
+                Um.append(U)
+                Im.append(I)
+                R = self.measureResistance()
+                Rm.append(R)
+
+                if R < self.resource.R_high_lim:
+                    state = "LOW"
+                    nbTry += 1
+                    nbTry_return.append(nbTry)
+
+                else:
+                    state = "HIGH"
+                    nbTry = 1
+                    nbTry_return.append(nbTry)
+                    
+            iteration+=1
+            print(R)
+
+        return(iteration, nbTry_return[:-1], Rm, Um, Im)

@@ -15,6 +15,8 @@ from tkinter import Label
 from tkinter import Entry
 from tkinter.ttk import Combobox
 
+from numpy import linspace
+
 class Multilayer_Graph(Graph):
     """Class containing a multilayer Graph.
 
@@ -26,12 +28,14 @@ class Multilayer_Graph(Graph):
 
         self.__initVars()
         self.__initLabels()
-        self.__initCombobox()
         self.__initEntries()
 
     def __initVars(self):
+        self.intVar_iteration = IntVar()
+        self.intVar_iteration.set(1)
+
         self.intVar_nbTry = IntVar()
-        self.intVar_nbTry.set(0)
+        self.intVar_nbTry.set(1)
 
     def __initLabels(self):
     #This method creates all Labels widgets for Multilayer Graph
@@ -43,23 +47,15 @@ class Multilayer_Graph(Graph):
         self.label_nbTry.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_nbTry.grid(column=2, row=1)
 
-    def __initCombobox(self):
-    #This method creates all Combobox widget for Multilayer Graph
-        self.combo_iteration = Combobox(self.frame, state="readonly", values=[1, 2, 3, 4])
-        self.combo_iteration.bind("<<ComboboxSelected>>", self.combo_iteration_callback)
-        self.combo_iteration.configure(background=self.resource.bgColor)
-        self.combo_iteration.grid(column=1, row=1)
-        self.combo_iteration.current(0)
-
-    def combo_iteration_callback(self):
-    #Callback method for combo_iteration
-        print('bla')
-
     def __initEntries(self):
     #This method creates all Combobox widget for Multilayer Graph
+        self.entry_iteration = Entry(self.frame, textvariable = self.intVar_iteration, state="readonly", width=4)
+        self.entry_iteration.grid(column=1, row=1)
+
         self.entry_nbTry = Entry(self.frame, textvariable = self.intVar_nbTry, state="readonly", width=4)
         self.entry_nbTry.grid(column=3, row=1)
 
-    def setIteration(self, iteration):
+    def setIteration(self, iteration, nbTry):
     #Method to modify combo_iteration values
-        self.combo_iteration.configure(values=iteration)
+        self.intVar_iteration.set(iteration)
+        self.intVar_nbTry.set(nbTry)

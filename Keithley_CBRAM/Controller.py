@@ -16,6 +16,7 @@ from numpy import linspace
 from numpy import concatenate
 
 import pickle
+import json
 
 class Controller():
     """Class containing the Controller for the CBRAM software
@@ -56,20 +57,40 @@ class Controller():
 
     def serialize(self, object):
     #This method serialize an object result and write it into the specified file
-        path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("config files","*.ini"),("results files","*.result"),("all files","*.*")))
+        path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("all files","*.*"), ("Binary results files","*.result"), ("Text results files","*.txt")))
         if path != "":
-            File = open(path, 'wb')
-            pickle.dump(object, File, pickle.HIGHEST_PROTOCOL)
+            File_pickle = open(path + ".pickle", 'wb')
+            pickle.dump(object, File_pickle, pickle.HIGHEST_PROTOCOL)   
+            File_pickle.close()
 
-            File.close()
+            File_json  = open(path + ".txt", 'w')       
+            json.dump(object.__dict__, File_json, indent=4)
+
+            File_json.close()
+
+    def autoSerialize(self, object, path):
+    #This method serialize an object result and write it into teh resultat directory
+        if path != "":
+            File_pickle = open(path + ".pickle", 'wb')
+            pickle.dump(object, File_pickle, pickle.HIGHEST_PROTOCOL) 
+            File_pickle.close()  
+
+            File_json  = open(path + ".txt", 'w')       
+            json.dump(object.__dict__, File_json, indent=4)
+
+            File_json.close()
         
-
     def load(self):
     #This method import a serialized object result into the software
-        path =  filedialog.askopenfilename(title = "Select file",filetypes = (("config files","*.ini"),("results files","*.result"),("all files","*.*")))
+        path =  filedialog.askopenfilename(title = "Select file",filetypes = (("all files","*.*"), ("Binary results files","*.pickle"), ("Text results files","*.txt")))
         if path != "":
             File = open(path, 'rb')
             object = pickle.load(File)
             File.close()
 
-            return(object)
+            if path.find('SINGLE') != -1:
+                state = 'SINGLE'
+            elif path.find('CYCLING') != -1:
+                state = 'CYCLING'
+
+            return(state, object)

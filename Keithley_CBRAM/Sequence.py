@@ -8,6 +8,9 @@ Details :
 File description : Class container for Sequence. Sequence is the superclass for the different test bench.
 
 """
+import os
+
+from datetime import date
 
 from Controller import Controller
 from Service import Service
@@ -59,3 +62,118 @@ class Sequence():
     def clearFrame(self):
     #This method delete the Sequence's frame from the grid
         self.frame.grid_forget()
+
+    def param2result(self):
+    #This method saves current parameters in result attribute
+        self.results.source = self.resource.source
+        self.results.sense = self.resource.sense
+        self.results.stepDelay = self.resource.stepDelay
+        self.results.NPLC = self.resource.NPLC
+        self.results.voltCoeff = self.resource.voltCoeff
+        self.results.currCoeff = self.resource.currCoeff
+        self.results.powerCoeff = self.resource.powerCoeff
+        self.results.resistanceCoeff = self.resource.resistanceCoeff
+        
+        self.R_low_lim = self.resource.R_low_lim
+        self.R_high_lim = self.resource.R_high_lim
+        self.nbTry = self.resource.nbTry
+
+    def autoExport(self):
+    #This method is used to automatically export results if needed
+        if self.resource.autoExport == True:
+            today = str(date.today())
+            path = self.resource.exportPath + "\\" + self.results.cell_ident[-9:-6]
+
+            if os.path.isdir(path) == True:
+                path = path + "\\" + self.state
+                if os.path.isdir(path) == True:
+                    path = path + "\\" + today 
+                    if os.path.isdir(path) == True:
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5:] + "_" + today + "_"
+
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+
+                    elif os.path.isdir(path) == False:
+                        os.mkdir(path)
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5:] + "_" + today + "_"
+
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+
+                elif os.path.isdir(path) == False:                    
+                    os.mkdir(path)
+                    path = path + "\\" + today 
+                    if os.path.isdir(path) == True:
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5:] + "_" + today + "_"
+
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+
+                    elif os.path.isdir(path) == False:
+                        os.mkdir(path)
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5] + "_" + today + "_"
+
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+            
+            elif os.path.isdir(path) == False:
+                os.mkdir(path)
+                path = path + "\\" + self.state
+                if os.path.isdir(path) == True:
+                    path = path + "\\" + today 
+                    if os.path.isdir(path) == True:
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5:] + "_" + today + "_"
+
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+
+                    elif os.path.isdir(path) == False:
+                        os.mkdir(path)
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5:] + "_" + today + "_"
+
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+
+                elif os.path.isdir(path) == False:                    
+                    os.mkdir(path)
+                    path = path + "\\" + today 
+                    if os.path.isdir(path) == True:
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5:] + "_" + today + "_"
+
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+
+                    elif os.path.isdir(path) == False:
+                        os.mkdir(path)
+                        path = path + "\\" + self.state + "_" + self.results.cell_ident[-5] + "_" + today + "_"
+                        i=1
+                        while os.path.isfile(path + str(i) + ".pickle") == True:
+                            i+=1
+
+                        self.controller.autoSerialize(self.results, path + str(i))
+            
+        
+        elif self.resource.autoExport == False:
+            pass

@@ -10,7 +10,10 @@ File description : Class container for Graph. Graph is the superclass for the di
 """
 
 from Controller import Controller
+
+from tkinter import filedialog
 from tkinter import LabelFrame
+from tkinter import Button
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -29,6 +32,18 @@ class Graph():
         
         self.__initFrame(root, text=name)
         self.__initFigure()
+        
+        self.button_saveGraph = Button(self.frame, text="Save Graph", command=self.button_saveGraph_callBack, padx=5, pady=10)
+        self.button_saveGraph.grid(column=4, columnspan=2, row=1, padx=self.resource.padx, pady=self.resource.pady)
+
+    def button_saveGraph_callBack(self):
+    #Callback method for button saveJPG
+        path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("all files","*.*"), (".jpg file","*.jpg"), (".png file","*.png"), (".pdf file","*.pdf")))
+        if path != "":
+            File = open(path, 'wb')
+            self.fig.savefig(path)
+
+            File.close()
 
     def __initFrame(self, root, text="", padx=0, pady=0):
     #This method generates the Frame's parameters for the sequence

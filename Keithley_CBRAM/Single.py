@@ -21,6 +21,8 @@ from tkinter import Entry
 from tkinter.ttk import Combobox
 
 from numpy import ones
+from numpy import linspace
+from numpy import asarray
 
 class Single(Sequence):
     """Class containing the Single testbench.
@@ -67,7 +69,7 @@ class Single(Sequence):
         self.stringVar_compliance.set(self.resource.sense + " compliance : ")
 
         self.stringVar_CBRAM_ident = StringVar()
-        self.stringVar_CBRAM_ident.set("CU:XXX:NF:XXX:AL:XXX:n:0000")
+        self.stringVar_CBRAM_ident.set("600:1000:600:cell:00x00")
 
         self.stringVar_CBRAM_resistance = StringVar()
         self.stringVar_CBRAM_resistance.set(" CBRAM cell's resistance : ")
@@ -76,13 +78,13 @@ class Single(Sequence):
         self.doubleVar_startValue.set(0)
 
         self.doubleVar_stopValue = DoubleVar()
-        self.doubleVar_stopValue.set(20)
+        self.doubleVar_stopValue.set(15)
 
         self.doubleVar_param = DoubleVar()
-        self.doubleVar_param.set(50)
+        self.doubleVar_param.set(1)
 
         self.doubleVar_compliance = DoubleVar()
-        self.doubleVar_compliance.set(1e-1)
+        self.doubleVar_compliance.set(0.5)
 
         self.doubleVar_CBRAM_resistance = DoubleVar()
         self.doubleVar_CBRAM_resistance.set(1e6)
@@ -129,9 +131,17 @@ class Single(Sequence):
     #This method is called when an action is made on combo_aimingState
         if self.combo_aimingState.current() == 0:
             self.stringVar_param.set("Ramp : ")
+            self.doubleVar_startValue.set(0)
+            self.doubleVar_stopValue.set(15)
+            self.doubleVar_param.set(3)
+            self.doubleVar_compliance.set(0.5)
 
         elif self.combo_aimingState.current() == 1:
             self.stringVar_param.set("Pulse width : ")
+            self.doubleVar_startValue.set(0)
+            self.doubleVar_stopValue.set(20)
+            self.doubleVar_param.set(1)
+            self.doubleVar_compliance.set(150)
 
         self.button_actualizeSequence_callBack()
 
@@ -149,8 +159,8 @@ class Single(Sequence):
         self.entry_compliance = Entry(self.frame, textvariable=self.doubleVar_compliance, width=12)
         self.entry_compliance.grid(column=1, row=5, pady=self.resource.pady)
 
-        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=22)
-        self.entry_CBRAM_ident.grid(column=1, row=8, pady=self.resource.pady)
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=25)
+        self.entry_CBRAM_ident.grid(column=1, row=8, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12, state="readonly")
         self.entry_CBRAM_resistance.grid(column=1, row=9, pady=self.resource.pady)
@@ -159,22 +169,28 @@ class Single(Sequence):
     #This method is a callBack funtion for button_startSequence
         self.button_actualizeSequence_callBack()
 
-        self.results.cell.ident = self.stringVar_CBRAM_ident.get()
-        [self.results.signal_1, self.results.signal_2] = self.service.generateSingleVoltageWaveform(self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.compliance)
+        [self.results.signal_1, self.results.signal_2] = self.service.generateSingleVoltageWaveform(self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.results.ramp_compliance)
 
-        self.results.cell.resistance = self.button_measureResistance_callBack()       
+        self.results.cell_resistance = self.button_measureResistance_callBack()       
 
         self.printResult()
+        self.param2result()
+        self.autoExport()
         
     def button_actualizeSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
+        self.results.cell_ident = self.stringVar_CBRAM_ident.get()
+
+        self.results.ramp_start_value = self.doubleVar_startValue.get()
+        self.results.ramp_stop_value = self.doubleVar_stopValue.get()
+        self.results.ramp_param = self.doubleVar_param.get()                    
+        self.results.ramp_compliance = self.doubleVar_compliance.get()
+
         if self.combo_aimingState.current() == 0:
             [self.time, self.signal] = self.controller.generateRampSequence(self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get())
         
         elif self.combo_aimingState.current() == 1:
             [self.time, self.signal] = self.controller.generatePulseSequence(self.doubleVar_startValue.get(), self.doubleVar_stopValue.get(), self.doubleVar_param.get())
-                    
-        self.compliance = self.doubleVar_compliance.get()
                         
         self.Graph[0].clearGraph()
         self.Graph[1].clearGraph()
@@ -182,9 +198,15 @@ class Single(Sequence):
         self.Graph[3].clearGraph()
 
         if self.resource.Graph_compliance == True:
-            self.Graph[1].addGraph(x=self.time, y=self.compliance*ones(len(self.time)), color="red", grid=self.resource.Graph_grid)
+            self.Graph[1].addGraph(x=self.time, y=self.results.ramp_compliance*ones(len(self.time)), color="red", grid=self.resource.Graph_grid)            
+            self.Graph[1].addGraph(x=self.time, y=-1*self.results.ramp_compliance*ones(len(self.time)), color="red", grid=self.resource.Graph_grid)
+        
+        elif self.resource.Graph_compliance == False:
+            self.Graph[1].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
 
         self.Graph[0].addGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid)
+        self.Graph[2].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
+        self.Graph[3].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
         
     def button_measureResistance_callBack(self):
     #This method is a callBack funtion for button_startSequence
@@ -194,10 +216,22 @@ class Single(Sequence):
 
     def printResult(self):
     #This method add results to Graphs
-        self.Graph[0].addGraph(x=self.time, xlabel="time", y=self.results.signal_1/self.resource.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[1].addGraph(x=self.time, xlabel="time", y=self.results.signal_2/self.resource.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[2].addGraph(x=self.time, xlabel="time", y=(self.results.signal_1/self.results.signal_2)/self.resource.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
-        self.Graph[3].addGraph(x=self.time, xlabel="time", y=(self.results.signal_1*self.results.signal_2)/self.resource.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
+        self.doubleVar_startValue.set(self.results.ramp_start_value)
+        self.doubleVar_stopValue.set(self.results.ramp_stop_value)
+        self.doubleVar_param.set(self.results.ramp_param)
+        self.doubleVar_compliance.set(self.results.ramp_compliance)
+
+        self.stringVar_CBRAM_ident.set(self.results.cell_ident)
+        self.doubleVar_CBRAM_resistance.set(self.results.cell_resistance)
+
+        self.button_actualizeSequence_callBack()
+
+        time = linspace(0, len(self.results.signal_1)*self.resource.stepDelay, len(self.results.signal_1))
+
+        self.Graph[0].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_1)/self.resource.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[1].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_2)/self.resource.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[2].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)/self.results.signal_2)/self.resource.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[3].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)*self.results.signal_2)/self.resource.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
 
 
    

@@ -122,7 +122,14 @@ class View(Tk):
 
     def menu3_import_callBack(self):
     #Callback function for Format .txt menu3 option
-        self.sequence.results = self.controller.load()
+        [state, results] = self.controller.load()
+
+        if state == 'SINGLE':
+            self.menu2_Single_callBack()
+        elif state == 'CYCLING':
+            self.menu2_Cycling_callBack()
+
+        self.sequence.results = results
         self.sequence.printResult()
         
     def __actualizeView(self):
