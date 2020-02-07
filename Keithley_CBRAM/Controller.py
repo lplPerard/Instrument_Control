@@ -82,7 +82,7 @@ class Controller():
         
     def load(self):
     #This method import a serialized object result into the software
-        path =  filedialog.askopenfilename(title = "Select file",filetypes = (("all files","*.*"), ("Binary results files","*.pickle"), ("Text results files","*.txt")))
+        path =  filedialog.askopenfilename(title = "Select file",filetypes = (("Binary results files","*.pickle"), ("Text results files","*.txt"), ("all files","*.*")))
         if path != "":
             File = open(path, 'rb')
             object = pickle.load(File)

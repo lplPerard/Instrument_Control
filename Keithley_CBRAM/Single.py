@@ -216,6 +216,20 @@ class Single(Sequence):
 
     def printResult(self):
     #This method add results to Graphs
+        self.Graph[0].clearGraph()
+        self.Graph[1].clearGraph()
+        self.Graph[2].clearGraph()
+        self.Graph[3].clearGraph()
+        
+        time = linspace(0, len(self.results.signal_1)*self.resource.stepDelay, len(self.results.signal_1))
+
+        self.Graph[0].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_1)/self.resource.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[1].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_2)/self.resource.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[2].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)/self.results.signal_2)/self.resource.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[3].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)*self.results.signal_2)/self.resource.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
+
+    def loadResults(self):
+    #This methods load results in the different widgets  
         self.doubleVar_startValue.set(self.results.ramp_start_value)
         self.doubleVar_stopValue.set(self.results.ramp_stop_value)
         self.doubleVar_param.set(self.results.ramp_param)
@@ -224,14 +238,7 @@ class Single(Sequence):
         self.stringVar_CBRAM_ident.set(self.results.cell_ident)
         self.doubleVar_CBRAM_resistance.set(self.results.cell_resistance)
 
-        self.button_actualizeSequence_callBack()
-
-        time = linspace(0, len(self.results.signal_1)*self.resource.stepDelay, len(self.results.signal_1))
-
-        self.Graph[0].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_1)/self.resource.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[1].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_2)/self.resource.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[2].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)/self.results.signal_2)/self.resource.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
-        self.Graph[3].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)*self.results.signal_2)/self.resource.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
+        self.printResult()
 
 
    

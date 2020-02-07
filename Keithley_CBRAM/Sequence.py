@@ -74,9 +74,9 @@ class Sequence():
         self.results.powerCoeff = self.resource.powerCoeff
         self.results.resistanceCoeff = self.resource.resistanceCoeff
         
-        self.R_low_lim = self.resource.R_low_lim
-        self.R_high_lim = self.resource.R_high_lim
-        self.nbTry = self.resource.nbTry
+        self.results.R_low_lim = self.resource.R_low_lim
+        self.results.R_high_lim = self.resource.R_high_lim
+        self.results.nbTry_max = self.resource.nbTry
 
     def autoExport(self):
     #This method is used to automatically export results if needed

@@ -130,7 +130,8 @@ class View(Tk):
             self.menu2_Cycling_callBack()
 
         self.sequence.results = results
-        self.sequence.printResult()
+        self.parameters.update(results)
+        self.sequence.loadResults()
         
     def __actualizeView(self):
     #This method permits to create/actualize the view parameters        

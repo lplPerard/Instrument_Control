@@ -31,31 +31,31 @@ class Multilayer_Graph(Graph):
         self.__initEntries()
 
     def __initVars(self):
-        self.intVar_iteration = IntVar()
-        self.intVar_iteration.set(1)
+        self.intVar_iterationFrom = IntVar()
+        self.intVar_iterationFrom.set(1)
 
-        self.intVar_nbTry = IntVar()
-        self.intVar_nbTry.set(1)
+        self.intVar_iterationTo = IntVar()
+        self.intVar_iterationTo.set(1)
 
     def __initLabels(self):
     #This method creates all Labels widgets for Multilayer Graph
-        self.label_iteration = Label(self.frame, text="Iteration : ")
-        self.label_iteration.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_iteration.grid(column=0, row=1)
+        self.label_iterationFrom = Label(self.frame, text="Iteration from : ")
+        self.label_iterationFrom.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_iterationFrom.grid(column=0, row=1)
 
-        self.label_nbTry = Label(self.frame, text="nbTry : ")
-        self.label_nbTry.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_nbTry.grid(column=2, row=1)
+        self.label_iterationTo = Label(self.frame, text="Iteration to : ")
+        self.label_iterationTo.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_iterationTo.grid(column=2, row=1)
 
     def __initEntries(self):
     #This method creates all Combobox widget for Multilayer Graph
-        self.entry_iteration = Entry(self.frame, textvariable = self.intVar_iteration, state="readonly", width=4)
-        self.entry_iteration.grid(column=1, row=1)
+        self.entry_iterationFrom = Entry(self.frame, textvariable = self.intVar_iterationFrom, state="readonly", width=4)
+        self.entry_iterationFrom.grid(column=1, row=1)
 
-        self.entry_nbTry = Entry(self.frame, textvariable = self.intVar_nbTry, state="readonly", width=4)
-        self.entry_nbTry.grid(column=3, row=1)
+        self.entry_iterationTo = Entry(self.frame, textvariable = self.intVar_iterationTo, state="readonly", width=4)
+        self.entry_iterationTo.grid(column=3, row=1)
 
-    def setIteration(self, iteration, nbTry):
+    def setIteration(self, iterationFrom, iterationTo):
     #Method to modify combo_iteration values
-        self.intVar_iteration.set(iteration)
-        self.intVar_nbTry.set(nbTry)
+        self.intVar_iterationFrom.set(iterationFrom)
+        self.intVar_iterationTo.set(iterationTo)

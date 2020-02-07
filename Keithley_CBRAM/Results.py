@@ -28,7 +28,7 @@ class Results():
         
         self.R_low_lim = 1e2
         self.R_high_lim = 1e3
-        self.nbTry = 5
+        self.nbTry_max = 5
 
         self.ramp_start_value = 0
         self.ramp_stop_value = 0

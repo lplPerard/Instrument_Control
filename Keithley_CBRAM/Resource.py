@@ -69,7 +69,7 @@ class Resource():
         self.Graph_bgColor = "white"
         self.Graph_grid = True
         self.Graph_compliance = True
-        self.Graph_size = 60
+        self.Graph_size = 65
 
         #Sequence parameters
         self.R_low_lim = 600
