@@ -12,7 +12,7 @@ from Single import Single
 from Cycling import Cycling
 from Parameters import Parameters
 
-from Resource import Resource
+from Resources import Resource
 from Controller import Controller
 
 from tkinter import Tk   
@@ -55,9 +55,7 @@ class View(Tk):
         self.menubar.add_cascade(label="Configuration", menu=self.menu1)
         self.menu1.add_command(label="Save", command=self.menu1_save_callBack)
         self.menu1.add_command(label="Load", command=self.menu1_load_callBack)
-        self.menu1.add_command(label="Parameters", command=self.menu1_parameters_callBack)        
-        self.menu1.add_separator()
-        self.menu1.add_command(label="Quit", command=quit)
+        self.menu1.add_command(label="Parameters", command=self.menu1_parameters_callBack)
 
         self.menu2 = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Sequence", menu=self.menu2)        

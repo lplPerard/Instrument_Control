@@ -26,7 +26,10 @@ class Service():
 
     def findInstruments(self):
     #This method actualize le list of instruments connected to the computer
-        self.instrList = self.resourceManager.list_resources()
+        try:
+            self.instrList = self.resourceManager.list_resources()
+        except:
+            self.instrList =[]
 
     def measureResistance(self):
     #This method measure the resistance using a 2 wire resistance measurement set-up. It shouldn't be used to precisely measure low-resistance states
