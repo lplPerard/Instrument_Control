@@ -1,9 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
 
 File description : Class container for the Single test bench. Single Sequence allow to modify the state of a CBRAM cell once.
 
@@ -14,6 +11,8 @@ from Sequence import Sequence
 from Graph import Graph
 
 from tkinter import Label
+from tkinter import LabelFrame
+from tkinter import Button
 from tkinter import StringVar
 from tkinter import DoubleVar
 from tkinter import IntVar
@@ -39,20 +38,54 @@ class Single(Sequence):
 
     def __initWidgets(self):
     #The method creates/actualize all the Widgets displayed in the Single sequence frame
+        self.__initGraphs()
+        self.__initLabelFrames()
+        self.__initButtons()
         self.__initVars()
         self.__initLabels()
         self.__initCombobox()
         self.__initEntries()
 
-        self.button_actualizeSequence.grid(column=0, row=6, rowspan=2, padx=10, pady=5)
-        self.button_startSequence.grid(column=1, row=6, rowspan=2, padx=10, pady=5)
-        self.button_measureResistance.grid(column=1, row=10, rowspan=1, padx=10, pady=5)
+        
+    def __initGraphs(self):
+    #This method instancitaes all the Graphs used by the Cycling test bench GUI
+        self.Graph = [Graph(self.frame, self.resource, "Voltage"), Graph(self.frame, self.resource, "Current"), Graph(self.frame, self.resource, "Resistance"), Graph(self.frame, self.resource, "Power"), Graph(self.frame, self.resource, "IV Curve")]
+       
+        self.graph_TL = self.Graph[0]
+        self.graph_TR = self.Graph[1]
+        self.graph_BL = self.Graph[2]
+        self.graph_BR = self.Graph[3]
 
-        self.Graph = [Graph(self.frame, self.resource, "Voltage"), Graph(self.frame, self.resource, "Current"), Graph(self.frame, self.resource, "Resistance"), Graph(self.frame, self.resource, "Power")]
-        self.Graph[0].frame.grid(column=2, row=0, rowspan=10)
-        self.Graph[1].frame.grid(column=3, row=0, rowspan=10)
-        self.Graph[2].frame.grid(column=2, row=10, rowspan=10)
-        self.Graph[3].frame.grid(column=3, row=10, rowspan=10)
+        self.Graph[4].frame.grid_forget()
+
+        self.graph_TL.frame.grid(column=2, row=0, rowspan=10)
+        self.graph_TR.frame.grid(column=3, row=0, rowspan=10)
+        self.graph_BL.frame.grid(column=2, row=10, rowspan=10)
+        self.graph_BR.frame.grid(column=3, row=10, rowspan=10)
+
+    def __initLabelFrames(self):
+    #This method instanciates all the LabelFrames used in the Cycling test bench GUI
+        self.labelFrame_signal = LabelFrame(self.frame, text="Signal")
+        self.labelFrame_signal.configure(bg=self.resource.bgColor)
+        self.labelFrame_signal.grid(column=0, columnspan=2, row=1, rowspan=6, padx=self.resource.padx, pady=self.resource.pady)
+
+        self.labelFrame_graph = LabelFrame(self.frame, text="Graphs")
+        self.labelFrame_graph.configure(bg=self.resource.bgColor)
+        self.labelFrame_graph.grid(column=0, columnspan=2, row=11, padx=self.resource.padx, pady=self.resource.pady)
+        
+    def __initButtons(self):
+    #This method instanciates all the buttons used by the Cycling test bench GUI
+        self.button_graph_actualizeGraphs = Button(self.labelFrame_graph, text="Actualize Graphs", command=self.button_graph_actualizeGraphs_callBack, padx=5, pady=10)
+        self.button_graph_actualizeGraphs.grid(column=1, columnspan=2, row=6, padx=self.resource.padx, pady=self.resource.pady)
+
+        self.button_actualizeSequence.grid(column=0, row=7, padx=10, pady=5)
+        self.button_startSequence.grid(column=1, row=7, padx=10, pady=5)
+        self.button_measureResistance.grid(column=1, row=10, rowspan=1, padx=10, pady=5)
+        
+    def button_graph_actualizeGraphs_callBack(self):
+    #Callback method for actualizeGraphs buttons
+        self.button_actualizeSequence_callBack()
+        self.combo_graph_callback()
 
     def __initVars(self):
     #This methods instanciates all the Vars used by widgets in the Single test bench GUI
@@ -69,7 +102,7 @@ class Single(Sequence):
         self.stringVar_compliance.set(self.resource.sense + " compliance : ")
 
         self.stringVar_CBRAM_ident = StringVar()
-        self.stringVar_CBRAM_ident.set("600:1000:600:cell:00x00")
+        self.stringVar_CBRAM_ident.set("600:1000:600:ddmmyyss:00x00")
 
         self.stringVar_CBRAM_resistance = StringVar()
         self.stringVar_CBRAM_resistance.set(" CBRAM cell's resistance : ")
@@ -95,21 +128,21 @@ class Single(Sequence):
         self.label_description.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_description.grid(column=0, columnspan=2, row=0)
 
-        self.label_startValue = Label(self.frame, textvariable=self.stringVar_startValue)
+        self.label_startValue = Label(self.labelFrame_signal, textvariable=self.stringVar_startValue)
         self.label_startValue.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_startValue.grid(column=0, row=2)
+        self.label_startValue.grid(column=0, row=1)
 
-        self.label_stopValue = Label(self.frame, textvariable=self.stringVar_stopValue)
+        self.label_stopValue = Label(self.labelFrame_signal, textvariable=self.stringVar_stopValue)
         self.label_stopValue.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_stopValue.grid(column=0, row=3)
+        self.label_stopValue.grid(column=0, row=2)
 
-        self.label_param = Label(self.frame, textvariable=self.stringVar_param)
+        self.label_param = Label(self.labelFrame_signal, textvariable=self.stringVar_param)
         self.label_param.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_param.grid(column=0, row=4)
+        self.label_param.grid(column=0, row=3)
 
-        self.label_compliance = Label(self.frame, textvariable=self.stringVar_compliance)
+        self.label_compliance = Label(self.labelFrame_signal, textvariable=self.stringVar_compliance)
         self.label_compliance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_compliance.grid(column=0, row=5)
+        self.label_compliance.grid(column=0, row=4)
 
         self.label_CBRAM_ident = Label(self.frame, text="CBRAM cell's identifier : ")
         self.label_CBRAM_ident.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
@@ -119,13 +152,53 @@ class Single(Sequence):
         self.label_CBRAM_resistance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_CBRAM_resistance.grid(column=0, row=9)
 
+        self.label_graph_graph1 = Label(self.labelFrame_graph, text="Graph1 : ")
+        self.label_graph_graph1.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_graph_graph1.grid(column=0, row=0)
+
+        self.label_graph_graph2 = Label(self.labelFrame_graph, text="Graph2 : ")
+        self.label_graph_graph2.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_graph_graph2.grid(column=0, row=1)
+
+        self.label_graph_graph3 = Label(self.labelFrame_graph, text="Graph3 : ")
+        self.label_graph_graph3.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_graph_graph3.grid(column=0, row=2)
+
+        self.label_graph_graph4 = Label(self.labelFrame_graph, text="Graph4 : ")
+        self.label_graph_graph4.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_graph_graph4.grid(column=0, row=3)
+
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Single testbench GUI
-        self.combo_aimingState = Combobox(self.frame, state="readonly", width=30, values=["SET cell in LOW state", "SET cell in HIGH state"])
+        self.combo_aimingState = Combobox(self.labelFrame_signal, state="readonly", width=30, values=["Ramp", "Pulse"])
         self.combo_aimingState.bind("<<ComboboxSelected>>", self.combo_aimingState_callback)
         self.combo_aimingState.configure(background=self.resource.bgColor)
-        self.combo_aimingState.grid(column=0, columnspan=2, row=1)
+        self.combo_aimingState.grid(column=0, columnspan=2, row=0, padx=3*self.resource.padx, pady=self.resource.pady)
         self.combo_aimingState.current(0)
+
+        self.combo_graph1 = Combobox(self.labelFrame_graph, state="readonly", width=18, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "I/V curve"])
+        self.combo_graph1.bind("<<ComboboxSelected>>", self.combo_graph_callback)
+        self.combo_graph1.configure(background=self.resource.bgColor)
+        self.combo_graph1.grid(column=1, row=0, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
+        self.combo_graph1.current(0)
+
+        self.combo_graph2 = Combobox(self.labelFrame_graph, state="readonly", width=18, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "I/V curve"])
+        self.combo_graph2.bind("<<ComboboxSelected>>", self.combo_graph_callback)
+        self.combo_graph2.configure(background=self.resource.bgColor)
+        self.combo_graph2.grid(column=1, row=1, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
+        self.combo_graph2.current(1)
+
+        self.combo_graph3 = Combobox(self.labelFrame_graph, state="readonly", width=18, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "I/V curve"])
+        self.combo_graph3.bind("<<ComboboxSelected>>", self.combo_graph_callback)
+        self.combo_graph3.configure(background=self.resource.bgColor)
+        self.combo_graph3.grid(column=1, row=2, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
+        self.combo_graph3.current(2)
+
+        self.combo_graph4 = Combobox(self.labelFrame_graph, state="readonly", width=18, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "I/V curve"])
+        self.combo_graph4.bind("<<ComboboxSelected>>", self.combo_graph_callback)
+        self.combo_graph4.configure(background=self.resource.bgColor)
+        self.combo_graph4.grid(column=1, row=3, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
+        self.combo_graph4.current(3)
 
     def combo_aimingState_callback(self, args=[]):
     #This method is called when an action is made on combo_aimingState
@@ -145,21 +218,40 @@ class Single(Sequence):
 
         self.button_actualizeSequence_callBack()
 
+    def combo_graph_callback(self, args=[]):
+    #This method is called when an action is made on combo_aimingState
+        self.graph_TL.frame.grid_forget()
+        self.graph_TR.frame.grid_forget()
+        self.graph_BL.frame.grid_forget()
+        self.graph_BR.frame.grid_forget()
+
+        self.graph_TL = self.Graph[self.combo_graph1.current()]
+        self.graph_TR = self.Graph[self.combo_graph2.current()]
+        self.graph_BL = self.Graph[self.combo_graph3.current()]
+        self.graph_BR = self.Graph[self.combo_graph4.current()]
+
+        self.graph_TL.frame.grid(column=2, row=0, rowspan=10)
+        self.graph_TR.frame.grid(column=3, row=0, rowspan=10)
+        self.graph_BL.frame.grid(column=2, row=10, rowspan=10)
+        self.graph_BR.frame.grid(column=3, row=10, rowspan=10)
+
+        self.printResult()
+
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the Single testbench GUI
-        self.entry_startValue = Entry(self.frame, textvariable=self.doubleVar_startValue, width=12)
-        self.entry_startValue.grid(column=1, row=2, pady=self.resource.pady)
+        self.entry_startValue = Entry(self.labelFrame_signal, textvariable=self.doubleVar_startValue, width=12)
+        self.entry_startValue.grid(column=1, row=1, pady=self.resource.pady)
 
-        self.entry_stopValue = Entry(self.frame, textvariable=self.doubleVar_stopValue, width=12)
-        self.entry_stopValue.grid(column=1, row=3, pady=self.resource.pady)
+        self.entry_stopValue = Entry(self.labelFrame_signal, textvariable=self.doubleVar_stopValue, width=12)
+        self.entry_stopValue.grid(column=1, row=2, pady=self.resource.pady)
 
-        self.entry_param = Entry(self.frame, textvariable=self.doubleVar_param, width=12)
-        self.entry_param.grid(column=1, row=4, pady=self.resource.pady)
+        self.entry_param = Entry(self.labelFrame_signal, textvariable=self.doubleVar_param, width=12)
+        self.entry_param.grid(column=1, row=3, pady=self.resource.pady)
 
-        self.entry_compliance = Entry(self.frame, textvariable=self.doubleVar_compliance, width=12)
-        self.entry_compliance.grid(column=1, row=5, pady=self.resource.pady)
+        self.entry_compliance = Entry(self.labelFrame_signal, textvariable=self.doubleVar_compliance, width=12)
+        self.entry_compliance.grid(column=1, row=4, pady=self.resource.pady)
 
-        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=25)
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=30)
         self.entry_CBRAM_ident.grid(column=1, row=8, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12, state="readonly")
@@ -198,15 +290,15 @@ class Single(Sequence):
         self.Graph[3].clearGraph()
 
         if self.resource.Graph_compliance == True:
-            self.Graph[1].addGraph(x=self.time, y=self.results.ramp_compliance*ones(len(self.time)), color="red", grid=self.resource.Graph_grid)            
-            self.Graph[1].addGraph(x=self.time, y=-1*self.results.ramp_compliance*ones(len(self.time)), color="red", grid=self.resource.Graph_grid)
+            self.Graph[1].addStepGraph(x=self.time, y=self.results.ramp_compliance*ones(len(self.time)), color="red", grid=self.resource.Graph_grid)            
+            self.Graph[1].addStepGraph(x=self.time, y=-1*self.results.ramp_compliance*ones(len(self.time)), color="red", grid=self.resource.Graph_grid)
         
         elif self.resource.Graph_compliance == False:
-            self.Graph[1].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
+            self.Graph[1].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
 
-        self.Graph[0].addGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid)
-        self.Graph[2].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
-        self.Graph[3].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
+        self.Graph[0].addStepGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid)
+        self.Graph[2].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
+        self.Graph[3].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
         
     def button_measureResistance_callBack(self):
     #This method is a callBack funtion for button_startSequence
@@ -223,10 +315,11 @@ class Single(Sequence):
         
         time = linspace(0, len(self.results.signal_1)*self.resource.stepDelay, len(self.results.signal_1))
 
-        self.Graph[0].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_1)/self.resource.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[1].addGraph(x=time, xlabel="time", y=asarray(self.results.signal_2)/self.resource.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[2].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)/self.results.signal_2)/self.resource.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
-        self.Graph[3].addGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)*self.results.signal_2)/self.resource.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[0].addStepGraph(x=time, xlabel="time", y=asarray(self.results.signal_1)/self.resource.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[1].addStepGraph(x=time, xlabel="time", y=asarray(self.results.signal_2)/self.resource.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[2].addLinGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)/self.results.signal_2)/self.resource.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[3].addStepGraph(x=time, xlabel="time", y=(asarray(self.results.signal_1)*self.results.signal_2)/self.resource.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[4].addLinGraph(x=asarray(self.results.signal_1)/self.resource.voltCoeff, xlabel="Voltage", y=asarray(self.results.signal_2)/self.resource.currCoeff, ylabel="Current", color="orange", grid=self.resource.Graph_grid)
 
     def loadResults(self):
     #This methods load results in the different widgets  

@@ -1,9 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
 
 File description : Class container for Results. Results is a class containing data coming back from the SMU.
 

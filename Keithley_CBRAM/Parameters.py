@@ -1,9 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
 
 File description : Class container for Parameters_view. This class creates a frame to give access to a GUI of all parameters.
 
@@ -55,13 +52,13 @@ class Parameters():
         self.labelFrame_generalParams.grid(column=0, row=0)
 
         self.labelFrame_SMUParams = LabelFrame(self.frame, text="SMU Parameters", bg=self.resource.bgColor)
-        self.labelFrame_SMUParams.grid(column=0, row=1)
+        self.labelFrame_SMUParams.grid(column=0, row=2)
 
         self.labelFrame_graphParams = LabelFrame(self.frame, text="Graphs Parameters", bg=self.resource.bgColor)
-        self.labelFrame_graphParams.grid(column=0, row=2)
+        self.labelFrame_graphParams.grid(column=0, row=4)
 
         self.labelFrame_sequenceParams = LabelFrame(self.frame, text="Sequence Parameters", bg=self.resource.bgColor)
-        self.labelFrame_sequenceParams.grid(column=0, row=3)
+        self.labelFrame_sequenceParams.grid(column=0, row=6)
 
     def __initLabels(self):
     #This methods instanciates all the Labels displayed in the Parameters_view GUI
@@ -344,7 +341,7 @@ class Parameters():
 
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the parameters_view GUI
-        self.entry_generalParam_exportPath = Entry(self.labelFrame_generalParams, textvariable=self.stringVar_generalParam_exportPath, width=15)
+        self.entry_generalParam_exportPath = Entry(self.labelFrame_generalParams, textvariable=self.stringVar_generalParam_exportPath, width=25)
         self.entry_generalParam_exportPath.bind("<Return>", self.entry_generalParam_exportPath_callback)
         self.entry_generalParam_exportPath.grid(column=1, row=6, padx=self.resource.padx, pady=self.resource.pady)
 

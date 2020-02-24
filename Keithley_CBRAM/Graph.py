@@ -1,10 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
-
 File description : Class container for Graph. Graph is the superclass for the different figures displayed by the software.
 
 """
@@ -63,9 +59,23 @@ class Graph():
         self.canvas.get_tk_widget().grid(column=0, columnspan=10, row=0)
         self.canvas.draw()
 
-    def addGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
+    def addStepGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
     #This method is called to add data to be plotted on self.fig    
         self.plot.step(x, y, color=color)
+
+        self.plot.set_xlabel(xlabel)
+        self.plot.set_xscale(xscale)
+
+        self.plot.set_ylabel(ylabel)
+        self.plot.set_yscale(yscale)
+
+        self.plot.grid(grid)
+
+        self.canvas.draw()
+        
+    def addLinGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
+    #This method is called to add data to be plotted on self.fig    
+        self.plot.plot(x, y, color=color)
 
         self.plot.set_xlabel(xlabel)
         self.plot.set_xscale(xscale)

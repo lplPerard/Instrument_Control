@@ -1,9 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
 
 File description : Class container for the application's view
 
@@ -36,6 +33,7 @@ class View(Tk):
 
         self.sequence = Single(self, self.resource)
         self.sequence.initFrame(text="Single Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
+        self.resizable(False, False)
 
         self.__initWidgets()
         self.__actualizeView()
@@ -60,8 +58,7 @@ class View(Tk):
         self.menu2 = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Sequence", menu=self.menu2)        
         self.menu2.add_command(label="Single", command=self.menu2_Single_callBack)
-        self.menu2.add_command(label="Cycling", command=self.menu2_Cycling_callBack)
-        self.menu2.add_command(label="Stability", command=self.menu2_Stability_callBack)        
+        self.menu2.add_command(label="Cycling", command=self.menu2_Cycling_callBack)     
         self.menu2.add_command(label="I/V Curve", command=self.menu2_IV_callBack)
         self.menu2.add_command(label="Intermediate Value", command=self.menu2_Intermediate_callBack)        
 

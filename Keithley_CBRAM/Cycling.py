@@ -1,10 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
-
 File description : Class container for the Cycling test bench. Cycling Sequence intend to determinate the maximum number of cycles a CBRAM cell can execute.
 
 """
@@ -136,15 +132,15 @@ class Cycling(Sequence):
 
         if self.resource.Graph_compliance == True:
             self.compliance = concatenate((self.ramp_compliance*ones(len(self.ramp_time)),self.pulse_compliance*ones(len(self.pulse_time))))
-            self.Graph[1].addGraph(x=self.time, y=self.compliance, color="red", grid=self.resource.Graph_grid)
-            self.Graph[1].addGraph(x=self.time, y=-1*self.compliance, color="red", grid=self.resource.Graph_grid)
+            self.Graph[1].addStepGraph(x=self.time, y=self.compliance, color="red", grid=self.resource.Graph_grid)
+            self.Graph[1].addStepGraph(x=self.time, y=-1*self.compliance, color="red", grid=self.resource.Graph_grid)
         
         elif self.resource.Graph_compliance == False:
-            self.Graph[1].addGraph(x=[], y=[], grid=self.resource.Graph_grid)
+            self.Graph[1].addStepGraph(x=[], y=[], grid=self.resource.Graph_grid)
 
-        self.Graph[0].addGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid)
-        self.Graph[2].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
-        self.Graph[3].addGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
+        self.Graph[0].addStepGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid)
+        self.Graph[2].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
+        self.Graph[3].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid)
         
     def button_measureResistance_callBack(self):
     #This method is a callBack funtion for button_startSequence
@@ -179,7 +175,7 @@ class Cycling(Sequence):
         self.doubleVar_pulse_compliance.set(150)
 
         self.stringVar_CBRAM_ident = StringVar()
-        self.stringVar_CBRAM_ident.set("600:1000:600:cell:00x00")
+        self.stringVar_CBRAM_ident.set("600:1000:600:ddmmyyss:00x00")
 
         self.doubleVar_CBRAM_resistance = DoubleVar()
         self.doubleVar_CBRAM_resistance.set(1e6)
@@ -339,7 +335,7 @@ class Cycling(Sequence):
         self.entry_pulse_compliance = Entry(self.labelFrame_pulse, textvariable=self.doubleVar_pulse_compliance, width=12)
         self.entry_pulse_compliance.grid(column=1, row=3, padx=self.resource.padx, pady=self.resource.pady)
 
-        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=20)
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=30)
         self.entry_CBRAM_ident.grid(column=1, row=4, pady=self.resource.pady, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12)
@@ -373,10 +369,10 @@ class Cycling(Sequence):
         length = len(source)   
         time = linspace(0, length*self.resource.stepDelay, length)
 
-        self.Graph[0].addGraph(x=time, xlabel="time", y=source / self.results.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[1].addGraph(x=time, xlabel="time", y=sense / self.results.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[2].addGraph(x=time, xlabel="time", y=resistance / self.results.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
-        self.Graph[3].addGraph(x=time, xlabel="time", y=power / self.results.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[0].addStepGraph(x=time, xlabel="time", y=source / self.results.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[1].addStepGraph(x=time, xlabel="time", y=sense / self.results.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
+        self.Graph[2].addLinGraph(x=time, xlabel="time", y=resistance / self.results.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[3].addStepGraph(x=time, xlabel="time", y=power / self.results.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
         
         resistance = [x/self.resource.resistanceCoeff for x in self.results.resistance]
         

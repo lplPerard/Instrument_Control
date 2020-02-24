@@ -1,9 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
 
 File description : Class container for Service.
 
@@ -20,54 +17,43 @@ class Service():
     def __init__(self, resource):
     #Constructor for the Model class
         self.resource = resource
+        self.instrList = ["null"]
 
-        self.resourceManager = pyvisa.ResourceManager()
-        self.findInstruments()
+        try:
+            self.resourceManager = pyvisa.ResourceManager()
+            self.findInstruments()
+
+        except:
+            pass
 
     def findInstruments(self):
     #This method actualize le list of instruments connected to the computer
         try:
             self.instrList = self.resourceManager.list_resources()
         except:
-            self.instrList =[]
+            self.instrList = []
 
     def measureResistance(self):
-    #This method measure the resistance using a 2 wire resistance measurement set-up. It shouldn't be used to precisely measure low-resistance states
-
-        voltage = 2.1
-        current = 10e-6
-
+    #This method measure the resistance using a 4 wire resistance measurement set-up.
         self.instr = self.resourceManager.open_resource(self.resource.deviceAdress)
 
         self.instr.write('*RST')
         self.instr.write('TRAC:CLE "defbuffer1"')
 
-        self.instr.write('SOUR:FUNC CURR')
-        self.instr.write('SOUR:CURR:VLIM ' + str(voltage))
-        self.instr.write('SOUR:VOLT:READ:BACK ON')
-
-        self.instr.write('SENS:FUNC "VOLT"')
-        self.instr.write('SENS:VOLT:AZER ON')
-        self.instr.write('SENS:VOLT:NPLC 0.01')
-
-        self.instr.write('SOUR:CURR ' + str(current))
+        self.instr.write('SENS:FUNC "RES"')
+        self.instr.write('SENS:RES:RANG:AUTO ON')
+        self.instr.write('SENS:RES:OCOM ON')
+        self.instr.write('SENS:RES:RSEN ON')
+        
         self.instr.write('OUTP ON')
 
-        self.instr.write('MEAS:CURR?')
-        curr = float(self.instr.read())
-
-        self.instr.write('MEAS:VOLT?')
-        volt = float(self.instr.read())
-
-        if curr != 0:
-            R = volt/curr
-        else:
-            R = -1
+        self.instr.write('MEAS:RES?')
+        R = float(self.instr.read())
 
         self.instr.write('OUTP OFF')
         self.instr.close()
 
-        return(R)
+        return(abs(R))
 
     def generateSingleVoltageWaveform(self, Us, Ilim):
     #This method generates a voltage waveform according to given parameter Us
@@ -130,11 +116,20 @@ class Service():
             print(state)
 
             if state == "HIGH":
-                [U, I] = self.generateSingleVoltageWaveform(signal1, lim1)
-                Um.append(U)
-                Im.append(I)
-                R = self.measureResistance()
-                Rm.append(R)
+                if nbTry == self.resource.nbTry - 1:
+                    print("Reset tried")
+                    [U, I] = self.generateSingleVoltageWaveform(signal2, lim2/10)            
+                    Um.append(U)
+                    Im.append(I)
+                    R = self.measureResistance()
+                    Rm.append(R)
+
+                else:
+                    [U, I] = self.generateSingleVoltageWaveform(signal1, lim1)
+                    Um.append(U)
+                    Im.append(I)
+                    R = self.measureResistance()
+                    Rm.append(R)
 
                 if R > self.resource.R_low_lim:
                     state = "HIGH"
@@ -147,7 +142,7 @@ class Service():
                     nbTry_return.append(nbTry)
 
             elif state == "LOW":
-                [U, I] = self.generateSingleVoltageWaveform(signal2, lim2)            
+                [U, I] = self.generateSingleVoltageWaveform(signal2, lim2 + (nbTry-1)*lim2/3)            
                 Um.append(U)
                 Im.append(I)
                 R = self.measureResistance()

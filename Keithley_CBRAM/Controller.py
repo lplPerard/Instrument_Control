@@ -30,7 +30,7 @@ class Controller():
     def generateRampSequence(self, ramp_startValue, ramp_stopValue, ramp_param):
     #This method override parent's method. It generates the single sequence based on parameters extracted from the view
         ramp_span = ramp_stopValue - ramp_startValue
-        ramp_T_max = ramp_span / ramp_param
+        ramp_T_max = ramp_span / abs(ramp_param)
 
         ramp_time = linspace(0, ramp_T_max, ramp_T_max/self.resource.stepDelay)
         ramp_signal = ramp_param * ramp_time - ramp_startValue

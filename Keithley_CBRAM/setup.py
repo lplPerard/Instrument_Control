@@ -14,7 +14,7 @@ executables = [
 ]
 
 setup(name='CBRAM testbench',
-      version='0.2',
+      version='1.0',
       description='Testbench to evaluate CBRAM cells for RF switche applications',
       executables=executables
       )

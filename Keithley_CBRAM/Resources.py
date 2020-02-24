@@ -1,9 +1,6 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 0.0
-Details : 
-    - 2020/01/09 Software creation 
 
 File description : Class container for Parameters. Parameters is the superclass containing all the parameters of the CBRAM software application.
 Parameters are stored in a specific configuration file.
@@ -63,7 +60,7 @@ class Resource():
         self.resistanceCoeff = 1
 
         self.autoExport = True
-        self.exportPath = 'Y:\Résultats\CBRAM'
+        self.exportPath = 'C:\\Users\\perardl\\Desktop\\OneDrive\\Resultats\\CBRAM'
 
         #graphParameters
         self.Graph_bgColor = "white"
