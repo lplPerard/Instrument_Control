@@ -7,9 +7,9 @@ File description : Class container for the Cycling test bench. Cycling Sequence 
 
 from Sequence import Sequence
 
-from Graph import Graph
-from MultiLayer_Graph import Multilayer_Graph
-from Histogram_Graph import Histogram_Graph
+from Graphs import Graph
+from Graphs.MultiLayer_Graph import Multilayer_Graph
+from Graphs.Histogram_Graph import Histogram_Graph
 
 from tkinter import Button
 from tkinter import LabelFrame
@@ -25,14 +25,14 @@ from numpy import linspace
 from numpy import concatenate
 from numpy import asarray
 
-class Cycling(Sequence):
+class Cycling(Sequence.Sequence):
     """Class containing the Cycling testbench.
 
     """
 
     def __init__(self, root, resource):
     #Constructor for the Single class
-        Sequence.__init__(self, root, resource)
+        Sequence.Sequence.__init__(self, root, resource)
         self.state = "CYCLING"
 
         self.__initWidgets()

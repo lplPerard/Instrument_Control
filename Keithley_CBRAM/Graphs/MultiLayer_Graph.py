@@ -4,7 +4,7 @@ Developped by : Luc PERARD
 File description : Class container for Multilayer Graph.
 
 """
-from Graph import Graph
+from Graphs.Graph import Graph
 
 from tkinter import IntVar
 from tkinter import Label

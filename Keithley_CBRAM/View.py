@@ -5,8 +5,9 @@ Developped by : Luc PERARD
 File description : Class container for the application's view
 
 """
-from Single import Single
-from Cycling import Cycling
+from Sequence.Single import Single
+from Sequence.Cycling import Cycling
+from Sequence.IV import IV
 from Parameters import Parameters
 
 from Resources import Resource
@@ -33,7 +34,6 @@ class View(Tk):
 
         self.sequence = Single(self, self.resource)
         self.sequence.initFrame(text="Single Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
-        self.resizable(False, False)
 
         self.__initWidgets()
         self.__actualizeView()
@@ -99,13 +99,11 @@ class View(Tk):
         self.sequence = Cycling(self, self.resource)
         self.sequence.initFrame(text="Cycling Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
-    def menu2_Stability_callBack(self):
-    #Callback function for Stability menu2 option
-        print('Stability')
-
     def menu2_IV_callBack(self):
     #Callback function for I/V menu2 option
-        print('IV')
+        self.sequence.clearFrame()
+        self.sequence = IV(self, self.resource)
+        self.sequence.initFrame(text="IV Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
     def menu2_Intermediate_callBack(self):
     #Callback function for Intermediate menu2 option
@@ -123,6 +121,8 @@ class View(Tk):
             self.menu2_Single_callBack()
         elif state == 'CYCLING':
             self.menu2_Cycling_callBack()
+        elif state == 'IV':
+            self.menu2_IV_callBack()
 
         self.sequence.results = results
         self.parameters.update(results)

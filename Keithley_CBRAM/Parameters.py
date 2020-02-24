@@ -16,7 +16,7 @@ from tkinter import Button
 from tkinter.ttk import Combobox
 
 from Controller import Controller
-from Service import Service
+from VISA.Service import Service
 
 class Parameters():
     """Class containing a GUI for Parameters attributes

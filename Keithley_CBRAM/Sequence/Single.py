@@ -6,9 +6,9 @@ File description : Class container for the Single test bench. Single Sequence al
 
 """
 
-from Sequence import Sequence
+from Sequence.Sequence import Sequence
 
-from Graph import Graph
+from Graphs.Graph import Graph
 
 from tkinter import Label
 from tkinter import LabelFrame

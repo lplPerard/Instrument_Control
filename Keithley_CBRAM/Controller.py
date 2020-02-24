@@ -47,6 +47,21 @@ class Controller():
             
         return(pulse_time, pulse_signal)
 
+    def generateTriangularSequence(self, peakValue, ramp):
+    #This method generates the IV sequence based on parameters extracted from the view
+        ramp_T_max = peakValue / abs(ramp)
+
+        ramp_time = linspace(0, ramp_T_max, ramp_T_max/self.resource.stepDelay)
+        signal=[]
+        
+        signal = (ramp * ramp_time)
+        signal = concatenate((signal, peakValue - ramp * ramp_time))  
+        signal = concatenate((signal, -ramp * ramp_time))
+        signal = concatenate((signal, -peakValue  + ramp * ramp_time))
+
+        time = linspace(0, 4*ramp_T_max, len(signal))
+        return(time, signal)
+
     def generateMixedSequence(self, pulse_time, pulse_signal, ramp_time, ramp_signal):
     #This method override parent's method. It generates the single sequence based on parameters extracted from the view
         total_T_max = ramp_time[-1] + pulse_time[-1]

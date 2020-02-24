@@ -10,7 +10,7 @@ import os
 from datetime import date
 
 from Controller import Controller
-from Service import Service
+from VISA.Service import Service
 from Results import Results
 
 from tkinter import LabelFrame
