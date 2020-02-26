@@ -43,7 +43,7 @@ class Resource():
     #Constructor for the Parameters superclass
 
         #SMUParameters
-        self.stepDelay = 0.0093
+        self.stepDelay = 0.0116
         self.NPLC= 0.01
         self.source = "VOLT"
         self.sense = "CURR"

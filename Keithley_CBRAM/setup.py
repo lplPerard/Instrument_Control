@@ -9,12 +9,15 @@ base = None
 if sys.platform == 'win32':
     base = 'Win32GUI'
 
+includefiles = ['Release_note.txt', 'README.txt', 'NIVISA_19.5.exe']
+
 executables = [
     Executable('CBRAM_Software.py', base=base, icon='icon.ico')
 ]
 
 setup(name='CBRAM testbench',
       version='1.0',
-      description='Testbench to evaluate CBRAM cells for RF switche applications',
+      author='LPStudio',
+      options = {'build_exe': {'include_files':includefiles}},    
       executables=executables
       )

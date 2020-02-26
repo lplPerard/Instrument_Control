@@ -107,5 +107,7 @@ class Controller():
                 state = 'SINGLE'
             elif path.find('CYCLING') != -1:
                 state = 'CYCLING'
+            elif path.find('IV') != -1:
+                state = 'IV'
 
             return(state, object)

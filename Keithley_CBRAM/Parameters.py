@@ -16,7 +16,7 @@ from tkinter import Button
 from tkinter.ttk import Combobox
 
 from Controller import Controller
-from VISA.Service import Service
+from Service import Service
 
 class Parameters():
     """Class containing a GUI for Parameters attributes
@@ -193,7 +193,7 @@ class Parameters():
         self.combo_SMUParam_connectionMode.grid(column=1, row=0, pady=self.resource.pady)
         self.combo_SMUParam_connectionMode.current(0)
 
-        self.combo_SMUParam_adress = Combobox(self.labelFrame_SMUParams, state="readonly", values=self.service.instrList,width=15)
+        self.combo_SMUParam_adress = Combobox(self.labelFrame_SMUParams, state="readonly", values=self.service.instrList,width=25)
         self.combo_SMUParam_adress.bind("<<ComboboxSelected>>", self.combo_SMUParam_adress_callback)
         self.combo_SMUParam_adress.configure(background=self.resource.bgColor)
         self.combo_SMUParam_adress.grid(column=1, row=1, pady=self.resource.pady)
@@ -341,7 +341,7 @@ class Parameters():
 
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the parameters_view GUI
-        self.entry_generalParam_exportPath = Entry(self.labelFrame_generalParams, textvariable=self.stringVar_generalParam_exportPath, width=25)
+        self.entry_generalParam_exportPath = Entry(self.labelFrame_generalParams, textvariable=self.stringVar_generalParam_exportPath, width=30)
         self.entry_generalParam_exportPath.bind("<Return>", self.entry_generalParam_exportPath_callback)
         self.entry_generalParam_exportPath.grid(column=1, row=6, padx=self.resource.padx, pady=self.resource.pady)
 

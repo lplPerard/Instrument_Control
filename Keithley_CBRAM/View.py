@@ -5,9 +5,9 @@ Developped by : Luc PERARD
 File description : Class container for the application's view
 
 """
-from Sequence.Single import Single
-from Sequence.Cycling import Cycling
-from Sequence.IV import IV
+from Single import Single
+from Cycling import Cycling
+from IV import IV
 from Parameters import Parameters
 
 from Resources import Resource
