@@ -1,6 +1,6 @@
 import cv2
 
-cam = cv2.VideoCapture(0+cv2.CAP_DSHOW)
+cam = cv2.VideoCapture(-1)
 
 retval, frame = cam.read()
 
