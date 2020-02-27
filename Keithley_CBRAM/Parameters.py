@@ -285,21 +285,10 @@ class Parameters():
 
         elif self.combo_generalParam_powerUnit.get() == "nW":
             self.resource.powerCoeff = 1e-9
-        if self.combo_generalParam_resistanceUnit.get() == "MOhm":
-            self.resource.resistanceCoeff = 1e6
-
-        elif self.combo_generalParam_resistanceUnit.get() == "KOhm":
-            self.resource.resistanceCoeff = 1e3
-
-        elif self.combo_generalParam_resistanceUnit.get() == "Ohm":
-            self.resource.resistanceCoeff = 1
-
-        elif self.combo_generalParam_resistanceUnit.get() == "mOhm":
-            self.resource.resistanceCoeff = 1e-3
 
     def combo_generalParam_autoExport_callback(self, args=""):
     #Callback method for combo_generalParam_powerUnit
-        if self.combo_generalParam_powerUnit.get() == "Yes":
+        if self.combo_generalParam_autoExport.get() == "Yes":
             self.resource.autoExport = True
 
         elif self.combo_generalParam_autoExport.get() == "No":

@@ -19,6 +19,7 @@ from tkinter import DoubleVar
 from tkinter import IntVar
 from tkinter import Entry
 from tkinter.ttk import Combobox
+from tkinter import messagebox
 
 from numpy import ones
 from numpy import linspace
@@ -50,7 +51,13 @@ class Cycling(Sequence):
 
     def __initGraphs(self):
     #This method instancitaes all the Graphs used by the Cycling test bench GUI
-        self.Graph = [Multilayer_Graph(self.frame, self.resource, "Voltage"), Multilayer_Graph(self.frame, self.resource, "Current"), Multilayer_Graph(self.frame, self.resource, "Resistance"), Multilayer_Graph(self.frame, self.resource, "Power"), Histogram_Graph(self.frame, self.resource, "Resistance")]
+        self.Graph = [Multilayer_Graph(self.frame, self.resource, "Voltage"),
+                      Multilayer_Graph(self.frame, self.resource, "Current"),
+                      Multilayer_Graph(self.frame, self.resource, "Resistance"),
+                      Multilayer_Graph(self.frame, self.resource, "Power"),
+                      Multilayer_Graph(self.frame, self.resource, "IV curve"),
+                      Multilayer_Graph(self.frame, self.resource, "Butterfly Curve"),
+                      Histogram_Graph(self.frame, self.resource, "Resistance")]
 
         self.graph_TL = self.Graph[0]
         self.graph_TR = self.Graph[1]
@@ -58,6 +65,8 @@ class Cycling(Sequence):
         self.graph_BR = self.Graph[3]
 
         self.Graph[4].frame.grid_forget()
+        self.Graph[5].frame.grid_forget()        
+        self.Graph[6].frame.grid_forget()
 
         self.graph_TL.frame.grid(column=2, row=0, rowspan=4)
         self.graph_TR.frame.grid(column=3, row=0, rowspan=4)
@@ -101,8 +110,11 @@ class Cycling(Sequence):
         self.button_measureResistance_callBack()
 
         self.param2result()
-        self.autoExport()
+        path=self.autoExport()
         self.loadResults()
+
+        if self.resource.autoExport == True:
+            messagebox.showinfo(title="Auto Export", message=("Result files have been exported to the following PATH :\n" + path))
         
     def button_actualizeSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
@@ -129,6 +141,9 @@ class Cycling(Sequence):
         self.Graph[1].clearGraph()
         self.Graph[2].clearGraph()
         self.Graph[3].clearGraph()
+        self.Graph[4].clearGraph()
+        self.Graph[5].clearGraph()       
+        self.Graph[6].clearGraph()
 
         if self.resource.Graph_compliance == True:
             self.compliance = concatenate((self.ramp_compliance*ones(len(self.ramp_time)),self.pulse_compliance*ones(len(self.pulse_time))))
@@ -226,19 +241,19 @@ class Cycling(Sequence):
         self.label_CBRAM_resistance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_CBRAM_resistance.grid(column=0, row=5)
 
-        self.label_graph_graph1 = Label(self.labelFrame_graph, text="Graph1 : ")
+        self.label_graph_graph1 = Label(self.labelFrame_graph, text="Graph TL : ")
         self.label_graph_graph1.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_graph_graph1.grid(column=0, row=0)
 
-        self.label_graph_graph2 = Label(self.labelFrame_graph, text="Graph2 : ")
+        self.label_graph_graph2 = Label(self.labelFrame_graph, text="Graph TR : ")
         self.label_graph_graph2.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_graph_graph2.grid(column=0, row=1)
 
-        self.label_graph_graph3 = Label(self.labelFrame_graph, text="Graph3 : ")
+        self.label_graph_graph3 = Label(self.labelFrame_graph, text="Graph BL : ")
         self.label_graph_graph3.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_graph_graph3.grid(column=0, row=2)
 
-        self.label_graph_graph4 = Label(self.labelFrame_graph, text="Graph4 : ")
+        self.label_graph_graph4 = Label(self.labelFrame_graph, text="Graph BR : ")
         self.label_graph_graph4.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_graph_graph4.grid(column=0, row=3)
 
@@ -252,25 +267,37 @@ class Cycling(Sequence):
 
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Single testbench GUI
-        self.combo_graph1 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "Resistance Histogram"])
+        self.combo_graph1 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration",
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "I/V curve", "Butterfly curve",
+                                                                                                "Resistance Histogram"])
         self.combo_graph1.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph1.configure(background=self.resource.bgColor)
         self.combo_graph1.grid(column=1, row=0, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
         self.combo_graph1.current(0)
 
-        self.combo_graph2 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "Resistance Histogram"])
+        self.combo_graph2 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration",
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "I/V curve", "Butterfly curve",
+                                                                                                "Resistance Histogram"])
         self.combo_graph2.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph2.configure(background=self.resource.bgColor)
         self.combo_graph2.grid(column=1, row=1, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
         self.combo_graph2.current(1)
 
-        self.combo_graph3 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "Resistance Histogram"])
+        self.combo_graph3 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration",
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "I/V curve", "Butterfly curve",
+                                                                                                "Resistance Histogram"])
         self.combo_graph3.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph3.configure(background=self.resource.bgColor)
         self.combo_graph3.grid(column=1, row=2, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
         self.combo_graph3.current(2)
 
-        self.combo_graph4 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration", "Resistance/iteration", "Power/iteration", "Resistance Histogram"])
+        self.combo_graph4 = Combobox(self.labelFrame_graph, state="readonly", width=25, values=["Voltage/iteration", "Current/iteration",
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "I/V curve", "Butterfly curve",
+                                                                                                "Resistance Histogram"])
         self.combo_graph4.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph4.configure(background=self.resource.bgColor)
         self.combo_graph4.grid(column=1, row=3, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -348,6 +375,8 @@ class Cycling(Sequence):
         self.Graph[2].clearGraph()
         self.Graph[3].clearGraph()
         self.Graph[4].clearGraph()
+        self.Graph[5].clearGraph()       
+        self.Graph[6].clearGraph()
 
         istart = self.combo_iterationStart.current()        
         istop = self.combo_iterationStop.current()
@@ -369,19 +398,39 @@ class Cycling(Sequence):
         length = len(source)   
         time = linspace(0, length*self.resource.stepDelay, length)
 
-        self.Graph[0].addStepGraph(x=time, xlabel="time", y=source / self.results.voltCoeff, ylabel=self.resource.source, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[1].addStepGraph(x=time, xlabel="time", y=sense / self.results.currCoeff, ylabel=self.resource.sense, color="orange", grid=self.resource.Graph_grid)
-        self.Graph[2].addLinGraph(x=time, xlabel="time", y=resistance / self.results.resistanceCoeff, ylabel="Resistance", yscale="log", color="orange", grid=self.resource.Graph_grid)
-        self.Graph[3].addStepGraph(x=time, xlabel="time", y=power / self.results.powerCoeff, ylabel="Power", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[0].addStepGraph(x=time, xlabel="time",
+                                   y=source / self.results.voltCoeff, ylabel=self.resource.source,
+                                   color="orange", grid=self.resource.Graph_grid)
+        self.Graph[1].addStepGraph(x=time, xlabel="time",
+                                   y=sense / self.results.currCoeff, ylabel=self.resource.sense,
+                                   color="orange", grid=self.resource.Graph_grid)
+
+        self.Graph[2].addLinGraph(x=time, xlabel="time",
+                                  y=resistance / self.results.resistanceCoeff, ylabel="Resistance",
+                                  yscale="log", color="orange", grid=self.resource.Graph_grid)
+        self.Graph[3].addStepGraph(x=time, xlabel="time",
+                                   y=power / self.results.powerCoeff, ylabel="Power",
+                                   color="orange", grid=self.resource.Graph_grid)
         
         resistance = [x/self.resource.resistanceCoeff for x in self.results.resistance]
-        
-        self.Graph[4].addGraph(x=resistance, xlabel="Resistance", ylabel="Iteration", xscale="log", color="orange", grid=self.resource.Graph_grid)
+
+        self.Graph[4].addLinGraph(x=source/self.resource.voltCoeff, xlabel="Voltage",
+                                  y=sense/self.resource.currCoeff, ylabel="Current",
+                                  color="orange", grid=self.resource.Graph_grid)
+        self.Graph[5].addLinGraph(x=source/self.resource.voltCoeff, xlabel="Voltage",
+                                  y=abs(sense)/self.resource.currCoeff, ylabel="Current",
+                                  yscale="log", color="orange", grid=self.resource.Graph_grid)
+
+        self.Graph[6].addGraph(x=resistance, xlabel="Resistance",
+                               ylabel="Iteration", xscale="log",
+                               color="orange", grid=self.resource.Graph_grid)
 
         self.Graph[0].setIteration(istart+1, istop+1)
         self.Graph[1].setIteration(istart+1, istop+1)
         self.Graph[2].setIteration(istart+1, istop+1)
         self.Graph[3].setIteration(istart+1, istop+1)
+        self.Graph[4].setIteration(istart+1, istop+1)
+        self.Graph[5].setIteration(istart+1, istop+1)
 
     def loadResults(self):
     #This methods loads results into the different widgets

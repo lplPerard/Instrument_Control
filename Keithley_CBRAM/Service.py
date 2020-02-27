@@ -83,14 +83,11 @@ class Service():
         Im = 0*Us
         while i < len(Us):
             self.instr.write('SOUR:VOLT ' + str(Us[i]))
-            self.instr.flush(mask=pyvisa.constants.VI_WRITE_BUF)
 
             self.instr.write('MEAS:CURR?')
-            self.instr.flush(mask=pyvisa.constants.VI_WRITE_BUF)
             Im[i] = float(self.instr.read())
 
             self.instr.write('MEAS:VOLT?')
-            self.instr.flush(mask=pyvisa.constants.VI_WRITE_BUF)
             Um[i] = float(self.instr.read())
 
             i+=1

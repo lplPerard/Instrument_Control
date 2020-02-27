@@ -77,6 +77,7 @@ class Sequence():
 
     def autoExport(self):
     #This method is used to automatically export results if needed
+        print(self.resource.autoExport)
         if self.resource.autoExport == True:
             today = str(date.today())
             path = self.resource.exportPath + "\\" + self.results.cell_ident[-14:-6]
@@ -174,3 +175,5 @@ class Sequence():
         
         elif self.resource.autoExport == False:
             pass
+
+        return(path + str(i))
