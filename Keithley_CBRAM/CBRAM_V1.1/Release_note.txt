@@ -1,0 +1,20 @@
+Copyright Grenoble-inp LCIS
+
+Developped by : Luc PERARD
+Version : 1.0
+Details : 
+    - 2020/01/09 Software creation 
+    - 2020/02/14 Executable version 0.4
+    - 2020/02/24 Implementation of I/V version 1.0
+
+Latest release : V1.0
+
+- Implementation of IV sequence. It is used to generate a triangular waveform and trace the IV characteristic of the cell.
+- Graph switching capabilities added to the single sequence.
+- IV Graph added to the single sequence.
+- Modification in the signal name of single sequence (SET low => Ramp; SET high => Pulse). The objective is to get a more general interface.
+- Modification of the ramp generator in Controller. A negative ramp can now be generated using a negative ramp parameter.
+- Modification of of the single voltage waveform generator, now all measurement are performed using 4-wire.
+- The new cell format has been implemented : 600:1000:600:ddmmyyss:00x00.
+- Default export PATH was modified.
+- Some modifications were made on the GUI.
