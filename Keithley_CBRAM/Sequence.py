@@ -15,13 +15,18 @@ from Results import Results
 
 from tkinter import LabelFrame
 from tkinter import Button
+from tkinter import Toplevel
+from tkinter import Text
+from tkinter import BOTH
+from tkinter import YES
+from tkinter import END
 
 class Sequence():
     """Superclass containing the GUI for a typical testbench.
 
     """
 
-    def __init__(self, root, resource):
+    def __init__(self, root, resource, terminal):
     #Constructor for the Sequence_view superclass
         self.state = ""
         self.signal = []
@@ -31,13 +36,17 @@ class Sequence():
 
         self.resource = resource
         self.controller = Controller(resource)
-        self.service = Service(resource)
+        self.service = Service(root, resource)
+
+        self.term_text = terminal
 
         self.frame = LabelFrame(root)
         self.button_startSequence = Button(self.frame, text="Start Sequence", command=self.button_startSequence_callBack, padx=5, pady=10)
         self.button_actualizeSequence = Button(self.frame, text="Actualize Sequence", command=self.button_actualizeSequence_callBack, padx=5, pady=10)
-        self.button_measureResistance = Button(self.frame, text="Measure", command=self.button_measureResistance_callBack, padx=5, pady=10)
+        self.button_measureResistance_pos = Button(self.frame, text="Measure +", command=self.button_measureResistance_pos_callBack, padx=5, pady=10)
+        self.button_measureResistance_neg = Button(self.frame, text="Measure -", command=self.button_measureResistance_neg_callBack, padx=5, pady=10)
         self.Graph = [] #Graph list containing all the figures linked to the test bench
+
 
     def button_startSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
@@ -47,7 +56,11 @@ class Sequence():
     #This method is a callBack funtion for button_startSequence
         print('Not implemented yet')
 
-    def button_measureResistance_callBack(self):
+    def button_measureResistance_pos_callBack(self):
+    #This method is a callBack funtion for button_startSequence
+        print('Not implemented yet')
+
+    def button_measureResistance_neg_callBack(self):
     #This method is a callBack funtion for button_startSequence
         print('Not implemented yet')
 
@@ -77,7 +90,7 @@ class Sequence():
 
     def autoExport(self):
     #This method is used to automatically export results if needed
-        print(self.resource.autoExport)
+        print(self.results.cell_ident[-5:])
         if self.resource.autoExport == True:
             today = str(date.today())
             path = self.resource.exportPath + "\\" + self.results.cell_ident[-14:-6]

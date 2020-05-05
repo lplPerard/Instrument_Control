@@ -6,8 +6,21 @@ Details :
     - 2020/01/09 Software creation 
     - 2020/02/14 Executable version 0.4
     - 2020/02/24 Implementation of I/V version 1.0
+    - 2020/02/25 Implementation of new graphs version 1.1
 
-Latest release : V1.0
+Latest release : V1.1
+
+- Implementation of info message after autoexport is done.
+- Modification of defaults parameters for IV sequence.
+- Butterfly curve, IV and Butterfly (command) curve added to all sequences.
+- R/V curve and R/V (command) curve added to all sequences.
+- Current compliance now appears on measurement Graph for IV and Single sequence.
+- Command voltage now appears on measurement graph for IV and Single sequence.
+- General improvements in code presentation and documentation.
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V1.0
 
 - Implementation of IV sequence. It is used to generate a triangular waveform and trace the IV characteristic of the cell.
 - Graph switching capabilities added to the single sequence.

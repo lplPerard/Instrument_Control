@@ -56,12 +56,12 @@ class Graph():
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
         self.canvas.get_tk_widget().configure(bg=self.resource.Graph_bgColor)
-        self.canvas.get_tk_widget().grid(column=0, columnspan=10, row=0)
+        self.canvas.get_tk_widget().grid(column=0, columnspan=5, row=0)
         self.canvas.draw()
 
-    def addStepGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
+    def addStepGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True, marker_pos=[]):
     #This method is called to add data to be plotted on self.fig    
-        self.plot.step(x, y, color=color)
+        self.plot.step(x, y, '-gD', color=color, markevery=marker_pos, markerfacecolor="green", markeredgecolor="black")
 
         self.plot.set_xlabel(xlabel)
         self.plot.set_xscale(xscale)
@@ -73,9 +73,9 @@ class Graph():
 
         self.canvas.draw()
         
-    def addLinGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
+    def addLinGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True, marker_pos=[]):
     #This method is called to add data to be plotted on self.fig    
-        self.plot.plot(x, y, color=color)
+        self.plot.plot(x, y, '-gD', color=color, markevery=marker_pos, markerfacecolor="green", markeredgecolor="black")
 
         self.plot.set_xlabel(xlabel)
         self.plot.set_xscale(xscale)

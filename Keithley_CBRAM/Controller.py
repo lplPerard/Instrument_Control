@@ -47,20 +47,29 @@ class Controller():
             
         return(pulse_time, pulse_signal)
 
-    def generateTriangularSequence(self, peakValue, ramp):
+    def generateTriangularSequence(self, peakValue_set, ramp_set, peakValue_reset, ramp_reset):
     #This method generates the IV sequence based on parameters extracted from the view
-        ramp_T_max = peakValue / abs(ramp)
+        if peakValue_reset == 0:
+            peakValue_reset = peakValue_set
+        if ramp_reset == 0:
+            ramp_reset = ramp_set
 
-        ramp_time = linspace(0, ramp_T_max, ramp_T_max/self.resource.stepDelay)
-        signal=[]
+        ramp_T_max_set = peakValue_set / abs(ramp_set)
+        ramp_time_set = linspace(0, ramp_T_max_set, ramp_T_max_set/self.resource.stepDelay)
+
+        ramp_T_max_reset = abs(peakValue_reset / ramp_reset)
+        ramp_time_reset = linspace(0, ramp_T_max_reset, ramp_T_max_reset/self.resource.stepDelay)
+
+        signal1=[]        
+        signal2=[]
         
-        signal = (ramp * ramp_time)
-        signal = concatenate((signal, peakValue - ramp * ramp_time))  
-        signal = concatenate((signal, -ramp * ramp_time))
-        signal = concatenate((signal, -peakValue  + ramp * ramp_time))
+        signal1 = (ramp_set * ramp_time_set)
+        signal1 = concatenate((signal1, peakValue_set - ramp_set * ramp_time_set))  
+        signal2 = concatenate((signal1, -abs(ramp_reset) * ramp_time_reset))
+        signal2 = concatenate((signal2, -abs(peakValue_reset)  + abs(ramp_reset) * ramp_time_reset))
 
-        time = linspace(0, 4*ramp_T_max, len(signal))
-        return(time, signal)
+        time = linspace(0, 2*ramp_T_max_set + 2*ramp_T_max_reset, len(signal2))
+        return(time, signal2, len(signal1))
 
     def generateMixedSequence(self, pulse_time, pulse_signal, ramp_time, ramp_signal):
     #This method override parent's method. It generates the single sequence based on parameters extracted from the view

@@ -39,7 +39,7 @@ class Multilayer_Graph(Graph):
         self.label_iterationFrom.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_iterationFrom.grid(column=0, row=1)
 
-        self.label_iterationTo = Label(self.frame, text="Iteration to : ")
+        self.label_iterationTo = Label(self.frame, text="to : ")
         self.label_iterationTo.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_iterationTo.grid(column=2, row=1)
 

@@ -8,6 +8,7 @@ File description : Class container for the application's view
 from Single import Single
 from Cycling import Cycling
 from IV import IV
+from Modelling import Modelling
 from Parameters import Parameters
 
 from Resources import Resource
@@ -16,6 +17,11 @@ from Controller import Controller
 from tkinter import Tk   
 from tkinter import Label
 from tkinter import Menu 
+from tkinter import Toplevel
+from tkinter import Text
+from tkinter import BOTH
+from tkinter import YES
+from tkinter import END
 
 class View(Tk):
     """Class containing the GUI for the CBRAM software according to the MCV model.
@@ -25,14 +31,26 @@ class View(Tk):
     def __init__(self):
     #Constructor for the View class
         Tk.__init__(self)
+        
+        self.topLevel_param = Toplevel(self)
+        self.topLevel_param.title("Parameters")
+        self.topLevel_param.protocol('WM_DELETE_WINDOW', self.topLevel_param.withdraw)
+        self.topLevel_param.withdraw()
+
+        self.topLevel_term =Toplevel(self)
+        self.topLevel_term.title("Terminal")
+        self.topLevel_term.protocol('WM_DELETE_WINDOW', self.topLevel_term.withdraw)
+        self.topLevel_term.transient()
+        self.term_text = Text(self.topLevel_term, height=30, width=70, bg="black", fg="green")
+        self.term_text.grid(column=0, row=0)
+        self.term_text.insert(END, "You are running CBRAM software\n")
 
         self.resource = Resource()
         self.controller = Controller(self.resource)
-        
-        self.parameters = Parameters(self, self.resource)
-        self.parameters.frame.grid(column=1, row=0)
+        self.parameters = Parameters(self.topLevel_param, self.resource)
+        self.parameters.frame.grid(column=0, row=0)
 
-        self.sequence = Single(self, self.resource)
+        self.sequence = Single(self, self.resource, self.term_text)
         self.sequence.initFrame(text="Single Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
         self.__initWidgets()
@@ -50,9 +68,8 @@ class View(Tk):
         self.menubar = Menu(self)
 
         self.menu1 = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Configuration", menu=self.menu1)
-        self.menu1.add_command(label="Save", command=self.menu1_save_callBack)
-        self.menu1.add_command(label="Load", command=self.menu1_load_callBack)
+        self.menubar.add_cascade(label="Display", menu=self.menu1)
+        self.menu1.add_command(label="Terminal", command=self.menu1_terminal_callBack)
         self.menu1.add_command(label="Parameters", command=self.menu1_parameters_callBack)
 
         self.menu2 = Menu(self.menubar, tearoff=0)
@@ -60,7 +77,7 @@ class View(Tk):
         self.menu2.add_command(label="Single", command=self.menu2_Single_callBack)
         self.menu2.add_command(label="Cycling", command=self.menu2_Cycling_callBack)     
         self.menu2.add_command(label="I/V Curve", command=self.menu2_IV_callBack)
-        self.menu2.add_command(label="Intermediate Value", command=self.menu2_Intermediate_callBack)        
+        self.menu2.add_command(label="Modelling", command=self.menu2_Modelling_callBack)        
 
         self.menu3 = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Results", menu=self.menu3)
@@ -69,45 +86,45 @@ class View(Tk):
 
         self.config(menu=self.menubar)
 
-    def menu1_save_callBack(self):
-    #Callback function for save config menu1 option
-        print('save')
-
-    def menu1_load_callBack(self):
+    def menu1_terminal_callBack(self):
     #Callback function for load config menu1 option
-        print('load')
+        if self.topLevel_term.state() == "withdrawn":
+            self.topLevel_term.deiconify()
+
+        elif self.topLevel_term.state() == "normal":
+            self.topLevel_term.withdraw()
 
     def menu1_parameters_callBack(self):
     #Callback function for load config menu1 option
-        if self.parameters.show == True:
-            self.parameters.frame.grid_forget()
-            self.parameters.show = False
+        if self.topLevel_param.state() == "withdrawn":
+            self.topLevel_param.deiconify()
 
-        elif self.parameters.show == False:
-            self.parameters.frame.grid(column=1, row=0)
-            self.parameters.show = True
+        elif self.topLevel_param.state() == "normal":
+            self.topLevel_param.withdraw()
 
     def menu2_Single_callBack(self):
     #Callback function for Single menu2 option
         self.sequence.clearFrame()
-        self.sequence = Single(self, self.resource)
+        self.sequence = Single(self, self.resource, self.term_text)
         self.sequence.initFrame(text="Single Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
     def menu2_Cycling_callBack(self):
     #Callback function for Cycling menu2 option
         self.sequence.clearFrame()
-        self.sequence = Cycling(self, self.resource)
+        self.sequence = Cycling(self, self.resource, self.term_text)
         self.sequence.initFrame(text="Cycling Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
     def menu2_IV_callBack(self):
     #Callback function for I/V menu2 option
         self.sequence.clearFrame()
-        self.sequence = IV(self, self.resource)
+        self.sequence = IV(self, self.resource, self.term_text)
         self.sequence.initFrame(text="IV Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
-    def menu2_Intermediate_callBack(self):
-    #Callback function for Intermediate menu2 option
-        print('Intermediate')
+    def menu2_Modelling_callBack(self):
+    #Callback function for Modelling menu2 option
+        self.sequence.clearFrame()
+        self.sequence = Modelling(self, self.resource, self.term_text)
+        self.sequence.initFrame(text="Modelling Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
     def menu3_export_callBack(self):
     #Callback function for Format .CSV menu3 option

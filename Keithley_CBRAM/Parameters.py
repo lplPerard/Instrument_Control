@@ -30,7 +30,7 @@ class Parameters():
         self.frame = LabelFrame(root, text="Parameters")
         self.frame.configure(bg=self.resource.bgColor)
         self.controller = Controller(resource)
-        self.service = Service(resource)
+        self.service = Service(root, resource)
         self.show = True
         #self.frame.initFrame(name="Parameters")
 
@@ -151,43 +151,43 @@ class Parameters():
 
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Parameters_view GUI
-        self.combo_generalParam_timeUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["hour", "mn", "s", "ms"],width=15)
+        self.combo_generalParam_timeUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["hour", "mn", "s", "ms"],width=5)
         self.combo_generalParam_timeUnit.bind("<<ComboboxSelected>>", self.combo_generalParam_timeUnit_callback)
         self.combo_generalParam_timeUnit.configure(background=self.resource.bgColor)
         self.combo_generalParam_timeUnit.grid(column=1, row=0, pady=self.resource.pady)
         self.combo_generalParam_timeUnit.current(2)
 
-        self.combo_generalParam_voltUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["V", "mV", "uV"],width=15)
+        self.combo_generalParam_voltUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["V", "mV", "uV"],width=5)
         self.combo_generalParam_voltUnit.bind("<<ComboboxSelected>>", self.combo_generalParam_voltUnit_callback)
         self.combo_generalParam_voltUnit.configure(background=self.resource.bgColor)
         self.combo_generalParam_voltUnit.grid(column=1, row=1, pady=self.resource.pady)
         self.combo_generalParam_voltUnit.current(0)
 
-        self.combo_generalParam_currUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["A", "mA", "uA", "nA"],width=15)
+        self.combo_generalParam_currUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["A", "mA", "uA", "nA"],width=5)
         self.combo_generalParam_currUnit.bind("<<ComboboxSelected>>", self.combo_generalParam_currUnit_callback)
         self.combo_generalParam_currUnit.configure(background=self.resource.bgColor)
         self.combo_generalParam_currUnit.grid(column=1, row=2, pady=self.resource.pady)
         self.combo_generalParam_currUnit.current(1)
 
-        self.combo_generalParam_resistanceUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["MOhm", "KOhm", "Ohm", "mOhm"],width=15)
+        self.combo_generalParam_resistanceUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["MOhm", "KOhm", "Ohm", "mOhm"],width=5)
         self.combo_generalParam_resistanceUnit.bind("<<ComboboxSelected>>", self.combo_generalParam_resistanceUnit_callback)
         self.combo_generalParam_resistanceUnit.configure(background=self.resource.bgColor)
         self.combo_generalParam_resistanceUnit.grid(column=1, row=3, pady=self.resource.pady)
         self.combo_generalParam_resistanceUnit.current(2)
 
-        self.combo_generalParam_powerUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["W", "mW", "uW", "nW"],width=15)
+        self.combo_generalParam_powerUnit = Combobox(self.labelFrame_generalParams, state="readonly", values=["W", "mW", "uW", "nW"],width=5)
         self.combo_generalParam_powerUnit.bind("<<ComboboxSelected>>", self.combo_generalParam_powerUnit_callback)
         self.combo_generalParam_powerUnit.configure(background=self.resource.bgColor)
         self.combo_generalParam_powerUnit.grid(column=1, row=4, pady=self.resource.pady)
         self.combo_generalParam_powerUnit.current(1)
 
-        self.combo_generalParam_autoExport = Combobox(self.labelFrame_generalParams, state="readonly", values=["Yes", "No"],width=15)
+        self.combo_generalParam_autoExport = Combobox(self.labelFrame_generalParams, state="readonly", values=["Yes", "No"],width=12)
         self.combo_generalParam_autoExport.bind("<<ComboboxSelected>>", self.combo_generalParam_autoExport_callback)
         self.combo_generalParam_autoExport.configure(background=self.resource.bgColor)
         self.combo_generalParam_autoExport.grid(column=1, row=5, pady=self.resource.pady)
-        self.combo_generalParam_autoExport.current(0)
+        self.combo_generalParam_autoExport.current(1)
 
-        self.combo_SMUParam_connectionMode = Combobox(self.labelFrame_SMUParams, state="readonly", values=["USB", "Ethernet", "GPIB"],width=15)
+        self.combo_SMUParam_connectionMode = Combobox(self.labelFrame_SMUParams, state="readonly", values=["USB", "Ethernet", "GPIB"],width=12)
         self.combo_SMUParam_connectionMode.bind("<<ComboboxSelected>>", self.combo_SMUParam_connectionMode_callback)
         self.combo_SMUParam_connectionMode.configure(background=self.resource.bgColor)
         self.combo_SMUParam_connectionMode.grid(column=1, row=0, pady=self.resource.pady)
@@ -199,31 +199,31 @@ class Parameters():
         self.combo_SMUParam_adress.grid(column=1, row=1, pady=self.resource.pady)
         self.combo_SMUParam_adress.current(0)
 
-        self.combo_SMUParam_source = Combobox(self.labelFrame_SMUParams, state="readonly", values=["VOLT", "CURR"],width=15)
+        self.combo_SMUParam_source = Combobox(self.labelFrame_SMUParams, state="readonly", values=["VOLT", "CURR"],width=12)
         self.combo_SMUParam_source.bind("<<ComboboxSelected>>", self.combo_SMUParam_source_callback)
         self.combo_SMUParam_source.configure(background=self.resource.bgColor)
         self.combo_SMUParam_source.grid(column=1, row=3, pady=self.resource.pady)
         self.combo_SMUParam_source.current(0)
 
-        self.combo_SMUParam_sense = Combobox(self.labelFrame_SMUParams, state="readonly", values=["VOLT", "CURR"],width=15)
+        self.combo_SMUParam_sense = Combobox(self.labelFrame_SMUParams, state="readonly", values=["VOLT", "CURR"],width=12)
         self.combo_SMUParam_sense.bind("<<ComboboxSelected>>", self.combo_SMUParam_sense_callback)
         self.combo_SMUParam_sense.configure(background=self.resource.bgColor)
         self.combo_SMUParam_sense.grid(column=1, row=4, pady=self.resource.pady)
         self.combo_SMUParam_sense.current(1)
 
-        self.combo_graphParam_grid = Combobox(self.labelFrame_graphParams, state="readonly", values=["Yes", "No"],width=15)
+        self.combo_graphParam_grid = Combobox(self.labelFrame_graphParams, state="readonly", values=["Yes", "No"],width=12)
         self.combo_graphParam_grid.bind("<<ComboboxSelected>>", self.combo_graphParam_grid_callback)
         self.combo_graphParam_grid.configure(background=self.resource.bgColor)
         self.combo_graphParam_grid.grid(column=1, row=0, pady=self.resource.pady)
         self.combo_graphParam_grid.current(0)
 
-        self.combo_graphParam_compliance = Combobox(self.labelFrame_graphParams, state="readonly", values=["Yes", "No"],width=15)
+        self.combo_graphParam_compliance = Combobox(self.labelFrame_graphParams, state="readonly", values=["Yes", "No"],width=12)
         self.combo_graphParam_compliance.bind("<<ComboboxSelected>>", self.combo_graphParam_compliance_callback)
         self.combo_graphParam_compliance.configure(background=self.resource.bgColor)
         self.combo_graphParam_compliance.grid(column=1, row=1, pady=self.resource.pady)
         self.combo_graphParam_compliance.current(0)
 
-        self.combo_graphParam_backgroundColor = Combobox(self.labelFrame_graphParams, state="readonly", values=["gainsboro", "white", "black", "grey", "blue", "yellow", "green"],width=15)
+        self.combo_graphParam_backgroundColor = Combobox(self.labelFrame_graphParams, state="readonly", values=["gainsboro", "white", "black", "grey", "blue", "yellow", "green"],width=12)
         self.combo_graphParam_backgroundColor.bind("<<ComboboxSelected>>", self.combo_graphParam_backgroundColor_callback)
         self.combo_graphParam_backgroundColor.configure(background=self.resource.bgColor)
         self.combo_graphParam_backgroundColor.grid(column=1, row=2, pady=self.resource.pady)
@@ -334,23 +334,23 @@ class Parameters():
         self.entry_generalParam_exportPath.bind("<Return>", self.entry_generalParam_exportPath_callback)
         self.entry_generalParam_exportPath.grid(column=1, row=6, padx=self.resource.padx, pady=self.resource.pady)
 
-        self.entry_SMUParam_NPLC = Entry(self.labelFrame_SMUParams, textvariable=self.doubleVar_SMUParam_NPLC, width=15)
+        self.entry_SMUParam_NPLC = Entry(self.labelFrame_SMUParams, textvariable=self.doubleVar_SMUParam_NPLC, width=12)
         self.entry_SMUParam_NPLC.bind("<Return>", self.entry_SMUParam_NPLC_callback)
         self.entry_SMUParam_NPLC.grid(column=1, row=5, pady=self.resource.pady)
 
-        self.entry_SMUParam_stepDelay = Entry(self.labelFrame_SMUParams, textvariable=self.doubleVar_SMUParam_stepDelay, width=15)
+        self.entry_SMUParam_stepDelay = Entry(self.labelFrame_SMUParams, textvariable=self.doubleVar_SMUParam_stepDelay, width=12)
         self.entry_SMUParam_stepDelay.bind("<Return>", self.entry_SMUParam_stepDelay_callback)
         self.entry_SMUParam_stepDelay.grid(column=1, row=6, pady=self.resource.pady)
 
-        self.entry_sequenceParam_R_low_lim = Entry(self.labelFrame_sequenceParams, textvariable=self.doubleVar_sequenceParam_R_low_lim, width=15)
+        self.entry_sequenceParam_R_low_lim = Entry(self.labelFrame_sequenceParams, textvariable=self.doubleVar_sequenceParam_R_low_lim, width=12)
         self.entry_sequenceParam_R_low_lim.bind("<Return>", self.entry_sequenceParam_R_low_lim_callback)
         self.entry_sequenceParam_R_low_lim.grid(column=1, row=0, pady=self.resource.pady)
 
-        self.entry_sequenceParam_R_high_lim = Entry(self.labelFrame_sequenceParams, textvariable=self.doubleVar_sequenceParam_R_high_lim, width=15)
+        self.entry_sequenceParam_R_high_lim = Entry(self.labelFrame_sequenceParams, textvariable=self.doubleVar_sequenceParam_R_high_lim, width=12)
         self.entry_sequenceParam_R_high_lim.bind("<Return>", self.entry_sequenceParam_R_high_lim_callback)
         self.entry_sequenceParam_R_high_lim.grid(column=1, row=1, pady=self.resource.pady)
 
-        self.entry_sequenceParam_nbTry = Entry(self.labelFrame_sequenceParams, textvariable=self.doubleVar_sequenceParam_nbTry, width=15)
+        self.entry_sequenceParam_nbTry = Entry(self.labelFrame_sequenceParams, textvariable=self.doubleVar_sequenceParam_nbTry, width=12)
         self.entry_sequenceParam_nbTry.bind("<Return>", self.entry_sequenceParam_nbTry_callback)
         self.entry_sequenceParam_nbTry.grid(column=1, row=2, pady=self.resource.pady)
 

@@ -6,6 +6,7 @@ Details :
     - 2020/01/09 Software creation 
     - 2020/02/14 Executable version 0.4
     - 2020/02/24 Implementation of I/V version 1.0
+    - 2020/05/05 Implementation of Modelling version 2.0
 
 File description : Application Launcher
 

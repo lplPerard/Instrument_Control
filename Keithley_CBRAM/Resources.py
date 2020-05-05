@@ -59,7 +59,7 @@ class Resource():
         self.powerCoeff = 1e-3
         self.resistanceCoeff = 1
 
-        self.autoExport = True
+        self.autoExport = False
         self.exportPath = 'C:\\Users\\perardl\\Desktop\\OneDrive\\Resultats\\CBRAM'
 
         #graphParameters
@@ -69,9 +69,9 @@ class Resource():
         self.Graph_size = 65
 
         #Sequence parameters
-        self.R_low_lim = 600
+        self.R_low_lim = 100
         self.R_high_lim = 1000
-        self.nbTry = 5
+        self.nbTry = 100
 
         #Non editable parameters
         self.pady=4
