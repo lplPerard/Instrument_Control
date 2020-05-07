@@ -59,14 +59,16 @@ class Modelling(Sequence):
     #This method instancitaes all the Graphs used by the Cycling test bench GUI
         self.Graph = [Graph(self.frame, self.resource, "Voltage"),
                       Graph(self.frame, self.resource, "Current"),
-                      Graph(self.frame, self.resource, "IV Curve"),
+                      Graph(self.frame, self.resource, "I/V Curve"),
                       Graph(self.frame, self.resource, "Butterfly Curve"),
-                      Graph(self.frame, self.resource, "IV Curve (Command)"),
+                      Graph(self.frame, self.resource, "I/V Curve (Command)"),
                       Graph(self.frame, self.resource, "Butterfly Curve(Command)"),
-                      Graph(self.frame, self.resource, "RV Curve"),
-                      Graph(self.frame, self.resource, "RV Curve (Command)"),
+                      Graph(self.frame, self.resource, "R/V Curve"),
+                      Graph(self.frame, self.resource, "R/V Curve (Command)"),
                       Graph(self.frame, self.resource, "Resistance"),
-                      Graph(self.frame, self.resource, "Power")]
+                      Graph(self.frame, self.resource, "Power"),
+                      Graph(self.frame, self.resource, "Temperature"),
+                      Graph(self.frame, self.resource, "T/V curve")]
        
         self.graph_TL = self.Graph[0]
         self.graph_TR = self.Graph[1]
@@ -79,6 +81,8 @@ class Modelling(Sequence):
         self.Graph[7].frame.grid_forget()
         self.Graph[8].frame.grid_forget()
         self.Graph[9].frame.grid_forget()
+        self.Graph[10].frame.grid_forget()
+        self.Graph[11].frame.grid_forget()
 
         self.graph_TL.frame.grid(column=2, row=0, rowspan=6)
         self.graph_TR.frame.grid(column=3, row=0, rowspan=6)
@@ -211,13 +215,13 @@ class Modelling(Sequence):
         self.results.pulse_compliance = self.doubleVar_compliance_reset.get()
 
         [self.time, self.signal, self.index_Ilim2] = self.controller.generateTriangularSequence(self.doubleVar_peakValue_set.get(), self.doubleVar_ramp_set.get(),self.doubleVar_peakValue_reset.get(), self.doubleVar_ramp_reset.get())
-        [signal, I, R, h, dh, r, dr, problem] = self.service.simulateVoltageWaveform(self.signal*self.resource.voltCoeff, self.doubleVar_compliance_set.get()*self.resource.currCoeff, self.doubleVar_compliance_reset.get()*self.resource.currCoeff, self.CBRAM)
+        [signal, I, R, h, dh, r, dr, T, problem] = self.service.simulateVoltageWaveform(self.signal*self.resource.voltCoeff, self.doubleVar_compliance_set.get()*self.resource.currCoeff, self.doubleVar_compliance_reset.get()*self.resource.currCoeff, self.CBRAM)
 
         if problem == 1:
             messagebox.showwarning(title = "Simulation error", message="Cannot solve compliance current.")
 
         else:
-            self.printSimulation(signal, I, R)
+            self.printSimulation(signal, I, R, T)
 
     def __initVars(self):
     #This methods instanciates all the Vars used by widgets in the Single test bench GUI
@@ -399,7 +403,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration"])
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "Temperature", "T/V curve"])
         self.combo_graph1.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph1.configure(background=self.resource.bgColor)
         self.combo_graph1.grid(column=1, row=0, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -409,7 +414,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration"])
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "Temperature", "T/V curve"])
         self.combo_graph2.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph2.configure(background=self.resource.bgColor)
         self.combo_graph2.grid(column=1, row=1, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -419,7 +425,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration"])
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "Temperature", "T/V curve"])
         self.combo_graph3.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph3.configure(background=self.resource.bgColor)
         self.combo_graph3.grid(column=1, row=2, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -429,7 +436,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration"])
+                                                                                                "Resistance/iteration", "Power/iteration",
+                                                                                                "Temperature", "T/V curve"])
         self.combo_graph4.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph4.configure(background=self.resource.bgColor)
         self.combo_graph4.grid(column=1, row=3, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -527,7 +535,7 @@ class Modelling(Sequence):
         self.entry_marker_position = Entry(self.labelFrame_graph, textvariable=self.intVar_marker_position, width=4)
         self.entry_marker_position.grid(column=1, row=4, pady=self.resource.pady)
     
-    def printSimulation(self, signal, I, R):
+    def printSimulation(self, signal, I, R, Temperature):
     #This method add results to Graphs
         self.Graph[0].clearGraph()
         self.Graph[1].clearGraph()
@@ -632,4 +640,11 @@ class Modelling(Sequence):
                                   yscale="log", color="red", grid=self.resource.Graph_grid, marker_pos=marker)
         self.Graph[9].addStepGraph(x=time, xlabel="time",
                                    y=asarray(signal*I)/self.resource.powerCoeff, ylabel="Power",
+                                   color="red", grid=self.resource.Graph_grid, marker_pos=marker)
+        
+        self.Graph[10].addLinGraph(x=time, xlabel="time",
+                                  y=Temperature, ylabel="Temperature (°K)",
+                                  yscale="log", color="red", grid=self.resource.Graph_grid, marker_pos=marker)
+        self.Graph[11].addStepGraph(x=asarray(signal)/self.resource.voltCoeff, xlabel="Voltage",
+                                   y=Temperature, ylabel="Temperature (°K)",
                                    color="red", grid=self.resource.Graph_grid, marker_pos=marker)

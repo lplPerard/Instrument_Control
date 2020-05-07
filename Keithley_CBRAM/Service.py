@@ -40,6 +40,7 @@ class Service():
 
     def measureResistance(self, output, negative = False):
     #This method measure the resistance using a 4 wire resistance measurement set-up.
+        error = 0
         self.instr = self.resourceManager.open_resource(self.resource.deviceAdress)
 
         self.instr.write('*RST')
@@ -54,17 +55,17 @@ class Service():
         self.instr.write('SOUR:FUNC CURR')
 
         if negative == True:
-            self.instr.write('SOUR:CURR ' + str(-10e-3))   
+            self.instr.write('SOUR:CURR ' + str(-1e-3))   
             output.insert(END, "Negative Resistance Measurement...\n")
             output.see(END)
             output.update_idletasks()
         else:
-            self.instr.write('SOUR:CURR ' + str(10e-3)) 
+            self.instr.write('SOUR:CURR ' + str(1e-3)) 
             output.insert(END, "Positive Resistance Measurement...\n")
             output.see(END)
             output.update_idletasks()
 
-        self.instr.write('SOUR:CURR:VLIM ' + str(1))     
+        self.instr.write('SOUR:CURR:VLIM ' + str(2))     
         self.instr.write('SOUR:CURR:READ:BACK ON')
         
         self.instr.write('OUTP ON')
@@ -77,14 +78,17 @@ class Service():
 
         R = Um/Im
 
+        if abs(R) > 1e20 :
+            error = 1
+
         self.instr.write('OUTP OFF')
         self.instr.close()
         
-        output.insert(END, "Measured Resistance is : " + str(abs(R)) + " Ohm\n")
+        output.insert(END, "Measured Resistance is : " + str(abs(R)) + " Ohm\n\n")
         output.see(END)
         output.update_idletasks()
 
-        return(abs(R))
+        return(abs(R), error)
 
     def generateSingleVoltageWaveform(self, output, Us, Ilim1, Ilim2=-1, index_Ilim2=-1):
     #This method generates a voltage waveform according to given parameter Us, using a 4 wire method
@@ -125,6 +129,7 @@ class Service():
         i = 0
         Um = 0*Us
         Im = 0*Us
+        error = 0
         while i < len(Us):
 
             if i == index_Ilim2:                
@@ -136,8 +141,14 @@ class Service():
             self.instr.write('MEAS:CURR?')
             Im[i] = float(self.instr.read())
 
+            if abs(Im[i]) > 1e10:
+                error = 1
+
             self.instr.write('MEAS:VOLT?')
             Um[i] = float(self.instr.read())
+
+            if abs(Um[i]) > 1e10:
+                error = 1
 
             i+=1
         
@@ -148,7 +159,7 @@ class Service():
         output.see(END)
         output.update_idletasks()
 
-        return(Um.tolist(), Im.tolist())
+        return(Um.tolist(), Im.tolist(), error)
 
     def generateCyclingVoltageWaveform(self, output, signal1, lim1, signal2, lim2):
         
@@ -164,7 +175,7 @@ class Service():
         Um = []
         Im = []
 
-        R = self.measureResistance(output)
+        [R, error] = self.measureResistance(output)
         if R > self.resource.R_high_lim:
             state = "HIGH"
             state_tpm = "HIGH"
@@ -179,6 +190,7 @@ class Service():
 
             output.insert(END, "Current State : " + state + " \n")
             output.insert(END, "Cycles : " + str(cycles) + " \n")
+            output.insert(END, "iteration : " + str(nbTry) + "/" + str(self.resource.nbTry) + "\n")
             output.see(END)
             output.update_idletasks()
 
@@ -186,18 +198,21 @@ class Service():
                 if (nbTry % 5) == 0:
                     output.insert(END, "Trying to Reset Cell\n")
                     output.see(END)
-                    [U, I] = self.generateSingleVoltageWaveform(output, signal2, lim2/10)            
+                    [U, I, error] = self.generateSingleVoltageWaveform(output, signal2, lim2/10)            
                     Um.append(U)
                     Im.append(I)
-                    R = self.measureResistance(output)
+                    [R, error] = self.measureResistance(output, negative=True)
                     Rm.append(R)
 
                 else:
-                    [U, I] = self.generateSingleVoltageWaveform(output, signal1, lim1)
+                    [U, I, error] = self.generateSingleVoltageWaveform(output, signal1, lim1)
                     Um.append(U)
                     Im.append(I)
-                    R = self.measureResistance(output)
+                    [R, error] = self.measureResistance(output)
                     Rm.append(R)
+
+                if error != 0:                    
+                     return(iteration, cycles, Rm, Um, Im, error)
 
                 if R > self.resource.R_low_lim:
                     state = "HIGH"
@@ -210,10 +225,10 @@ class Service():
                     nbTry_return.append(nbTry)
 
             elif state == "LOW":
-                [U, I] = self.generateSingleVoltageWaveform(output, signal2, lim2 + ((nbTry%5))*lim2/3)            
+                [U, I, error] = self.generateSingleVoltageWaveform(output, signal2, lim2 + ((nbTry%5))*lim2/3)            
                 Um.append(U)
                 Im.append(I)
-                R = self.measureResistance(output, negative=True)
+                [R, error] = self.measureResistance(output, negative=True)
                 Rm.append(R)
 
                 if R < self.resource.R_high_lim:
@@ -228,7 +243,7 @@ class Service():
                     
             iteration+=1
 
-        return(iteration, cycles, Rm, Um, Im)
+        return(iteration, cycles, Rm, Um, Im, error)
 
     def simulateVoltageWaveform(self, signal, lim, lim2, CBRAM):
     #This method simulate the behavior of a CBRAM cell based on parameters extracted from CBRAM param, upon the signal voltage.
@@ -349,4 +364,4 @@ class Service():
         else:
             problem = 0
 
-        return(signal, I, R, h, dh, r, dr, problem)
+        return(signal, I, R, h, dh, r, dr, T, problem)

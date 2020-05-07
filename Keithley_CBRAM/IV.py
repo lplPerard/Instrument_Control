@@ -350,13 +350,13 @@ class IV(Sequence):
         
     def button_measureResistance_neg_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        R = self.service.measureResistance(negative=True, output=self.term_text)
+        [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
         self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
         return(R)
         
     def button_measureResistance_pos_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        R = self.service.measureResistance(output=self.term_text)
+        [R, error] = self.service.measureResistance(output=self.term_text)
         self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
         return(R)
 

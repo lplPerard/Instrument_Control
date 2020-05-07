@@ -109,14 +109,18 @@ class Cycling(Sequence):
         self.button_actualizeSequence_callBack()
 
         self.results.cell_ident = self.stringVar_CBRAM_ident.get()
-        [self.results.iteration, self.results.nbTry, self.results.resistance, self.results.signal_1, self.results.signal_2] = self.service.generateCyclingVoltageWaveform(self.term_text, self.resource.voltCoeff*self.ramp_signal, self.resource.currCoeff*self.ramp_compliance, self.resource.voltCoeff*self.pulse_signal, self.resource.currCoeff*self.pulse_compliance)
+        [self.results.iteration, self.results.nbTry, self.results.resistance, self.results.signal_1, self.results.signal_2, error] = self.service.generateCyclingVoltageWaveform(self.term_text, self.resource.voltCoeff*self.ramp_signal, self.resource.currCoeff*self.ramp_compliance, self.resource.voltCoeff*self.pulse_signal, self.resource.currCoeff*self.pulse_compliance)
         self.button_measureResistance_pos_callBack()
 
         self.param2result()
         path=self.autoExport()
         self.loadResults()
 
-        messagebox.showinfo(title="End of Sequence", message=("CYCLING Sequence ended with : " + str(self.results.nbTry) + " cycles\n"))
+        if error != 0:
+            messagebox.showinfo(title="Sequence ERROR", message=("An error occured during Measurement.\n Sequence were ended."))
+
+        else :
+            messagebox.showinfo(title="End of Sequence", message=("CYCLING Sequence ended with : " + str(self.results.nbTry) + " cycles\n"))
 
         if self.resource.autoExport == True:
             messagebox.showinfo(title="Auto Export", message=("Result files have been exported to the following PATH :\n" + path))
@@ -155,25 +159,25 @@ class Cycling(Sequence):
 
         if self.resource.Graph_compliance == True:
             self.compliance = concatenate((self.ramp_compliance*ones(len(self.ramp_time)),self.pulse_compliance*ones(len(self.pulse_time))))
-            self.Graph[1].addStepGraph(x=self.time, y=self.compliance, color="red", grid=self.resource.Graph_grid, marker_pos=marker) 
-            self.Graph[1].addStepGraph(x=self.time, y=-1*self.compliance, color="red", grid=self.resource.Graph_grid, marker_pos=marker) 
+            self.Graph[1].addStepGraph(x=self.time, y=self.compliance, color="red", grid=self.resource.Graph_grid) 
+            self.Graph[1].addStepGraph(x=self.time, y=-1*self.compliance, color="red", grid=self.resource.Graph_grid) 
         
         elif self.resource.Graph_compliance == False:
-            self.Graph[1].addStepGraph(x=[], y=[], grid=self.resource.Graph_grid, marker_pos=marker) 
+            self.Graph[1].addStepGraph(x=[], y=[], grid=self.resource.Graph_grid) 
 
-        self.Graph[0].addStepGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid, marker_pos=marker) 
-        self.Graph[2].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid, marker_pos=marker) 
-        self.Graph[3].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid, marker_pos=marker) 
+        self.Graph[0].addStepGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid) 
+        self.Graph[2].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid) 
+        self.Graph[3].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid) 
         
     def button_measureResistance_pos_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        R = self.service.measureResistance(output=self.term_text)
+        [R, error] = self.service.measureResistance(output=self.term_text)
         self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
         self.results.cell_resistance = R
         
     def button_measureResistance_neg_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        R = self.service.measureResistance(negative=True, output=self.term_text)
+        [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
         self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
         self.results.cell_resistance = R
 
@@ -351,11 +355,6 @@ class Cycling(Sequence):
         self.graph_BL.frame.grid(column=2, row=4, rowspan=4)
         self.graph_BR.frame.grid(column=3, row=4, rowspan=4)
 
-        if self.intVar_marker_position.get() > len(self.signal):
-            self.intVar_marker_position.set(len(self.signal))
-        elif self.intVar_marker_position.get() < 0:
-            self.intVar_marker_position.set(0)
-
         self.printResult()
 
     def combo_iteration_callback(self, args=[]):
@@ -394,7 +393,7 @@ class Cycling(Sequence):
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12)
         self.entry_CBRAM_resistance.grid(column=1, row=5, padx=self.resource.padx, pady=self.resource.pady)
 
-        self.entry_marker_position = Entry(self.labelFrame_graph, textvariable=self.intVar_marker_position, width=4)
+        self.entry_marker_position = Entry(self.labelFrame_graph, textvariable=self.intVar_marker_position, width=15)
         self.entry_marker_position.grid(column=1, row=5, pady=self.resource.pady)
 
     def printResult(self):
@@ -425,7 +424,6 @@ class Cycling(Sequence):
         resistance = abs(asarray(source / sense))
         power = asarray(source * sense)
 
-        
         marker = [self.intVar_marker_position.get()]
         length = len(source)   
         time = linspace(0, length*self.resource.stepDelay, length)
@@ -438,8 +436,13 @@ class Cycling(Sequence):
                                    color="orange", grid=self.resource.Graph_grid, marker_pos=marker) 
 
         self.Graph[2].addLinGraph(x=time, xlabel="time",
+                                  y=self.resource.R_low_lim*ones(len(time)), color="red", grid=self.resource.Graph_grid, marker_pos=marker) 
+        self.Graph[2].addLinGraph(x=time, xlabel="time",
+                                  y=self.resource.R_high_lim*ones(len(time)), color="red", grid=self.resource.Graph_grid, marker_pos=marker) 
+        self.Graph[2].addLinGraph(x=time, xlabel="time",
                                   y=resistance / self.resource.resistanceCoeff, ylabel="Resistance",
                                   yscale="log", color="orange", grid=self.resource.Graph_grid, marker_pos=marker) 
+
         self.Graph[3].addStepGraph(x=time, xlabel="time",
                                    y=power / self.results.powerCoeff, ylabel="Power",
                                    color="orange", grid=self.resource.Graph_grid, marker_pos=marker) 

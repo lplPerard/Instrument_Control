@@ -90,7 +90,6 @@ class Sequence():
 
     def autoExport(self):
     #This method is used to automatically export results if needed
-        print(self.results.cell_ident[-5:])
         if self.resource.autoExport == True:
             today = str(date.today())
             path = self.resource.exportPath + "\\" + self.results.cell_ident[-14:-6]
@@ -185,8 +184,9 @@ class Sequence():
 
                         self.controller.autoSerialize(self.results, path + str(i))
             
-        
-        elif self.resource.autoExport == False:
-            pass
+            return(path + str(i))
 
-        return(path + str(i))
+        elif self.resource.autoExport == False:
+            return("")
+
+        

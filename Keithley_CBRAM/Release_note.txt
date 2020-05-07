@@ -9,6 +9,14 @@ Details :
     - 2020/02/24 Implementation of I/V version 1.0
     - 2020/02/25 Implementation of new graphs version 1.1
     - 2020/05/05 Implementation of Modelling and terminal version 2.0
+    - 2020/05/06 Implementation of temperature in Modelling version 2.1
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V2.1
+
+- Temperature and T/V curve Graphs added to Modelling sequence.
+- Visualizations of R_lim were added to graphs in Cycling sequence.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -23,7 +31,8 @@ Release : V2.0
 - The new cell format has been implemented : 35u:1000n:600n:ddmmyyss:00x00.
 - General improvements on the GUI especially for small screens.
 - Parameters can now be displayed on a seperated window.
-- A terminal has been added to dinamically follow tests.
+- A terminal has been added to dynamically follow tests.
+- A marker was added on Graphs.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 

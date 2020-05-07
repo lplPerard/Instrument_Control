@@ -291,9 +291,12 @@ class Single(Sequence):
     #This method is a callBack funtion for button_startSequence
         self.button_actualizeSequence_callBack()
 
-        [self.results.signal_1, self.results.signal_2] = self.service.generateSingleVoltageWaveform(self.term_text, self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.results.ramp_compliance)
+        [self.results.signal_1, self.results.signal_2, error] = self.service.generateSingleVoltageWaveform(self.term_text, self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.results.ramp_compliance)
 
-        self.results.cell_resistance = self.button_measureResistance_pos_callBack()       
+        if self.combo_aimingState.current() == 0:
+            self.results.cell_resistance = self.button_measureResistance_pos_callBack()  
+        else:     
+            self.results.cell_resistance = self.button_measureResistance_neg_callBack()  
 
         self.printResult()
         self.param2result()
@@ -343,13 +346,13 @@ class Single(Sequence):
         
     def button_measureResistance_pos_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        R = self.service.measureResistance(output=self.term_text)
+        [R, error] = self.service.measureResistance(output=self.term_text)
         self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
         return(R)
 
     def button_measureResistance_neg_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        R = self.service.measureResistance(negative=True, output=self.term_text)
+        [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
         self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
         return(R)
 
