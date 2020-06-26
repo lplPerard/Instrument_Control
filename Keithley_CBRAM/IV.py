@@ -293,7 +293,7 @@ class IV(Sequence):
     #This method is a callBack funtion for button_startSequence
         self.button_actualizeSequence_callBack()
 
-        [self.results.signal_1, self.results.signal_2] = self.service.generateSingleVoltageWaveform(self.term_text, self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.results.ramp_compliance, Ilim2=self.resource.currCoeff*self.results.pulse_compliance, index_Ilim2=self.index_Ilim2)
+        [self.results.signal_1, self.results.signal_2, error] = self.service.generateSingleVoltageWaveform(self.term_text, self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.results.ramp_compliance, Ilim2=self.resource.currCoeff*self.results.pulse_compliance, index_Ilim2=self.index_Ilim2)
 
         self.results.cell_resistance = self.button_measureResistance_pos_callBack()       
 

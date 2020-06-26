@@ -1,7 +1,7 @@
 Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 2.0
+Version : 2.2
 Details : 
 
     - 2020/01/09 Software creation 
@@ -10,6 +10,14 @@ Details :
     - 2020/02/25 Implementation of new graphs version 1.1
     - 2020/05/05 Implementation of Modelling and terminal version 2.0
     - 2020/05/06 Implementation of temperature in Modelling version 2.1
+    - 2020/06/26 Bug corrections and implementation of signal choice for Cycling
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V2.2
+
+- Bug correction in Ramp and Pulse signal generator in Controller
+- Implementation of signal choice in Cycling. The cycling signal can now be made of a mix of Pulses and Ramps.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 

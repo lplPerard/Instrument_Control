@@ -86,6 +86,20 @@ class Graph():
         self.plot.grid(grid)
 
         self.canvas.draw()
+        
+    def addScatteredGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
+    #This method is called to add data to be plotted on self.fig    
+        self.plot.scatter(x, y, color=color)
+
+        self.plot.set_xlabel(xlabel)
+        self.plot.set_xscale(xscale)
+
+        self.plot.set_ylabel(ylabel)
+        self.plot.set_yscale(yscale)
+
+        self.plot.grid(grid)
+
+        self.canvas.draw()
 
     def clearGraph(self):
     #This method is called to clear all data from a Graph

@@ -234,7 +234,7 @@ class Single(Sequence):
         elif self.combo_aimingState.current() == 1:
             self.stringVar_param.set("Pulse width : ")
             self.doubleVar_startValue.set(0)
-            self.doubleVar_stopValue.set(20)
+            self.doubleVar_stopValue.set(-20)
             self.doubleVar_param.set(1)
             self.doubleVar_compliance.set(150)
 

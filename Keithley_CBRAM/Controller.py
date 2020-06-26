@@ -12,6 +12,7 @@ File description : Class container for Model.
 from tkinter import filedialog
 
 from numpy import ones
+from numpy import sign
 from numpy import linspace
 from numpy import concatenate
 
@@ -30,16 +31,16 @@ class Controller():
     def generateRampSequence(self, ramp_startValue, ramp_stopValue, ramp_param):
     #This method override parent's method. It generates the single sequence based on parameters extracted from the view
         ramp_span = ramp_stopValue - ramp_startValue
-        ramp_T_max = ramp_span / abs(ramp_param)
+        ramp_T_max = abs(ramp_span) / abs(ramp_param)
 
         ramp_time = linspace(0, ramp_T_max, ramp_T_max/self.resource.stepDelay)
-        ramp_signal = ramp_param * ramp_time - ramp_startValue
+        ramp_signal = sign(ramp_span)*ramp_param * ramp_time + ramp_startValue
 
         return(ramp_time, ramp_signal)
 
     def generatePulseSequence(self, pulse_startValue, pulse_stopValue, pulse_param):
     #This method override parent's method. It generates the single sequence based on parameters extracted from the view
-        pulse_span = -abs(pulse_stopValue - pulse_startValue)
+        pulse_span = pulse_stopValue - pulse_startValue
         pulse_T_max = pulse_param
 
         pulse_time = linspace(0, pulse_T_max, pulse_T_max/self.resource.stepDelay)
@@ -81,7 +82,7 @@ class Controller():
 
     def serialize(self, object):
     #This method serialize an object result and write it into the specified file
-        path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("all files","*.*"), ("Binary results files","*.result"), ("Text results files","*.txt")))
+        path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("all files","*.*"), ("Binary results files","*.pickle"), ("Text results files","*.txt")))
         if path != "":
             File_pickle = open(path + ".pickle", 'wb')
             pickle.dump(object, File_pickle, pickle.HIGHEST_PROTOCOL)   
