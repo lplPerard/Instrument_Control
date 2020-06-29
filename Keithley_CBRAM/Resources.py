@@ -71,7 +71,7 @@ class Resource():
         #Sequence parameters
         self.R_low_lim = 100
         self.R_high_lim = 1000
-        self.nbTry = 100
+        self.nbTry = 25
 
         #Non editable parameters
         self.pady=4

@@ -283,8 +283,8 @@ class Service():
                 
                 if signal[i] < 0:
 
-                    if (signal[i] - signal[i-1]) < 0:
-                        dh = -1 * CBRAM.velocity_h * np.exp(-Ea*q / (k*T[i])) *  np.sinh(CBRAM.alpha*q*E/(2*k*T[i]))
+                    if (R[i-1] > 0.8*Rmax) & ((signal[i] - signal[i-1]) < 0):
+                        dh = -1*CBRAM.velocity_r * np.exp(-Ea*q / (k*T[i])) *  np.sinh(4*CBRAM.beta*q*signal[i]/(k*T[i]))
 
 
                     else:                

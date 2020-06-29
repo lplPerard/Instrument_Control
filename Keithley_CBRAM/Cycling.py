@@ -142,14 +142,14 @@ class Cycling(Sequence):
         self.results.pulse_compliance = self.doubleVar_signal2_compliance.get()
 
         if self.combo_signal1.current() == 0 :
-            [self.signal1_time, self.signal1_signal] = self.controller.generateRampSequence(self.doubleVar_signal1_startValue.get(), self.doubleVar_signal1_stopValue.get(), self.doubleVar_signal1_param.get())
-        else :
             [self.signal1_time, self.signal1_signal] = self.controller.generatePulseSequence(self.doubleVar_signal1_startValue.get(), self.doubleVar_signal1_stopValue.get(), self.doubleVar_signal1_param.get())
+        else :
+            [self.signal1_time, self.signal1_signal] = self.controller.generateRampSequence(self.doubleVar_signal1_startValue.get(), self.doubleVar_signal1_stopValue.get(), self.doubleVar_signal1_param.get())
        
         if self.combo_signal2.current() == 0 :
             [self.signal2_time, self.signal2_signal] = self.controller.generatePulseSequence(self.doubleVar_signal2_startValue.get(), self.doubleVar_signal2_stopValue.get(), self.doubleVar_signal2_param .get())
         else : 
-            [self.signal2_time, self.signal2_signal] = self.controller.generatePulseSequence(self.doubleVar_signal2_startValue.get(), self.doubleVar_signal2_stopValue.get(), self.doubleVar_signal2_param .get())
+            [self.signal2_time, self.signal2_signal] = self.controller.generateRampSequence(self.doubleVar_signal2_startValue.get(), self.doubleVar_signal2_stopValue.get(), self.doubleVar_signal2_param .get())
         
         self.signal1_compliance = self.doubleVar_signal1_compliance.get()
         self.signal2_compliance = self.doubleVar_signal2_compliance.get()
@@ -192,36 +192,36 @@ class Cycling(Sequence):
         self.results.cell_resistance = R
 
     def __initVars(self):
-    #This methods instanciates all the Vars used by widgets in the Single test bench GUI
+    #This methods instanciates all the Vars used by widgets in the Single test bench GUI            
+        self.stringVar_signal1_param = StringVar()
+        self.stringVar_signal1_param.set('Pulse')
+
         self.doubleVar_signal1_startValue = DoubleVar()
         self.doubleVar_signal1_startValue.set(0)
 
         self.doubleVar_signal1_stopValue = DoubleVar()
-        self.doubleVar_signal1_stopValue.set(15)        
-        
-        self.stringVar_signal1_param = StringVar()
-        self.stringVar_signal1_param.set('Ramp')
+        self.doubleVar_signal1_stopValue.set(20)    
 
         self.doubleVar_signal1_param = DoubleVar()
-        self.doubleVar_signal1_param.set(3)
+        self.doubleVar_signal1_param.set(0.5)
 
         self.doubleVar_signal1_compliance = DoubleVar()
-        self.doubleVar_signal1_compliance.set(0.5)
+        self.doubleVar_signal1_compliance.set(3)     
+        
+        self.stringVar_signal2_param = StringVar()
+        self.stringVar_signal2_param.set('Pulse')
 
         self.doubleVar_signal2_startValue = DoubleVar()
         self.doubleVar_signal2_startValue.set(0)
 
         self.doubleVar_signal2_stopValue = DoubleVar()
-        self.doubleVar_signal2_stopValue.set(-20)        
-        
-        self.stringVar_signal2_param = StringVar()
-        self.stringVar_signal2_param.set('Pulse')
+        self.doubleVar_signal2_stopValue.set(-20)   
 
         self.doubleVar_signal2_param  = DoubleVar()
-        self.doubleVar_signal2_param .set(1)
+        self.doubleVar_signal2_param .set(0.5)
 
         self.doubleVar_signal2_compliance = DoubleVar()
-        self.doubleVar_signal2_compliance.set(150)
+        self.doubleVar_signal2_compliance.set(300)
 
         self.stringVar_CBRAM_ident = StringVar()
         self.stringVar_CBRAM_ident.set("35u:1000n:600n:ddmmyyss:00x00")
@@ -308,7 +308,7 @@ class Cycling(Sequence):
 
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Single testbench GUI
-        self.combo_signal1 = Combobox(self.labelFrame_signal1, state="readonly", width=25, values=["Ramp", "Pulse"])
+        self.combo_signal1 = Combobox(self.labelFrame_signal1, state="readonly", width=25, values=["Pulse", "Ramp"])
         self.combo_signal1.bind("<<ComboboxSelected>>", self.combo_signal1_callback)
         self.combo_signal1.configure(background=self.resource.bgColor)
         self.combo_signal1.grid(column=0, row=0, columnspan=2, padx=self.resource.padx, pady=self.resource.pady)
@@ -371,20 +371,20 @@ class Cycling(Sequence):
         self.combo_iterationStop.grid(column=3, row=4, padx=self.resource.padx, pady=self.resource.pady)
 
     def combo_signal1_callback(self, args=[]):
-    #This method is called when an action is made on combo_signal1        
+    #This method is called when an action is made on combo_signal1  
         if self.combo_signal1.current() == 0:
+            self.stringVar_signal1_param.set("Pulse width : ")
+            self.doubleVar_signal1_startValue.set(0)
+            self.doubleVar_signal1_stopValue.set(20)
+            self.doubleVar_signal1_param.set(0.5)
+            self.doubleVar_signal1_compliance.set(3)    
+
+        elif self.combo_signal1.current() == 1:
             self.stringVar_signal1_param.set("Ramp : ")
             self.doubleVar_signal1_startValue.set(0)
             self.doubleVar_signal1_stopValue.set(15)
             self.doubleVar_signal1_param.set(3)
             self.doubleVar_signal1_compliance.set(0.5)
-
-        elif self.combo_signal1.current() == 1:
-            self.stringVar_signal1_param.set("Pulse width : ")
-            self.doubleVar_signal1_startValue.set(0)
-            self.doubleVar_signal1_stopValue.set(-20)
-            self.doubleVar_signal1_param.set(1)
-            self.doubleVar_signal1_compliance.set(150)
         
     def combo_signal2_callback(self, args=[]):
     #This method is called when an action is made on combo_signal2      
@@ -392,8 +392,8 @@ class Cycling(Sequence):
             self.stringVar_signal2_param.set("Pulse Width : ")
             self.doubleVar_signal2_startValue.set(0)
             self.doubleVar_signal2_stopValue.set(-20)
-            self.doubleVar_signal2_param.set(1)
-            self.doubleVar_signal2_compliance.set(150)
+            self.doubleVar_signal2_param.set(0.5)
+            self.doubleVar_signal2_compliance.set(300)
 
         elif self.combo_signal2.current() == 1:
             self.stringVar_signal2_param.set("Ramp : ")

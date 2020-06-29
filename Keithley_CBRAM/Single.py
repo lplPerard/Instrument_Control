@@ -235,8 +235,8 @@ class Single(Sequence):
             self.stringVar_param.set("Pulse width : ")
             self.doubleVar_startValue.set(0)
             self.doubleVar_stopValue.set(-20)
-            self.doubleVar_param.set(1)
-            self.doubleVar_compliance.set(150)
+            self.doubleVar_param.set(0.5)
+            self.doubleVar_compliance.set(300)
 
         self.button_actualizeSequence_callBack()
 
