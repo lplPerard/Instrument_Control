@@ -365,3 +365,24 @@ class Service():
             problem = 0
 
         return(signal, I, R, h, dh, r, dr, T, problem)
+        
+    def sendEmailNotification(self, tosend):
+    #This method sends an automatic email with results information after a sequence was terminated
+
+        Fromadd = "research.notification.lcis@gmail.com"
+        Toadd = "luc.perard@lcis.grenoble-inp.fr"    ##  Spécification des destinataires
+
+        message = MIMEMultipart()    ## Création de l'objet "message"
+        message['From'] = Fromadd    ## Spécification de l'expéditeur
+        message['To'] = Toadd    ## Attache du destinataire à l'objet "message"
+        message['Subject'] = "A Cycling test was terminated !"    ## Spécification de l'objet de votre mail
+
+        msg = tosend   ## Message à envoyer
+        message.attach(MIMEText(msg.encode('utf-8'), 'plain', 'utf-8'))    ## Attache du message à l'objet "message", et encodage en UTF-8
+        
+        serveur = smtplib.SMTP('smtp.gmail.com', 587)    ## Connexion au serveur sortant (en précisant son nom et son port)
+        serveur.starttls()    ## Spécification de la sécurisation
+        serveur.login(Fromadd, "13octobre1996")    ## Authentification
+        texte= message.as_string().encode('utf-8')    ## Conversion de l'objet "message" en chaine de caractère et encodage en UTF-8
+        serveur.sendmail(Fromadd, Toadd, texte)    ## Envoi du mail
+        serveur.quit()    ## Déconnexion du serveur

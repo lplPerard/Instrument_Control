@@ -26,6 +26,10 @@ from numpy import linspace
 from numpy import concatenate
 from numpy import asarray
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 class Cycling(Sequence):
     """Class containing the Cycling testbench.
 
@@ -121,11 +125,19 @@ class Cycling(Sequence):
         if error != 0:
             messagebox.showinfo(title="Sequence ERROR", message=("An error occured during Measurement.\n Sequence were ended."))
 
+            if self.resource.mailNotification == True :            
+                message = "A cycling test was terminated with an error on your computer."
+                self.service.sendEmailNotification(message)
+
         else :
             messagebox.showinfo(title="End of Sequence", message=("CYCLING Sequence ended with : " + str(self.results.nbTry) + " cycles\n"))
 
-        if self.resource.autoExport == True:
-            messagebox.showinfo(title="Auto Export", message=("Result files have been exported to the following PATH :\n" + path))
+            if self.resource.mailNotification == True :
+                message = "A cycling test was succesfully terminated on your computer.\n\n A total of " + str(self.results.nbTry) + " cycles were achieved, and data were saved at :\n\n" + path 
+                self.service.sendEmailNotification(message)
+
+            if self.resource.autoExport == True:
+                messagebox.showinfo(title="Auto Export", message=("Result files have been exported to the following PATH :\n" + path))
         
     def button_actualizeSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence

@@ -60,6 +60,8 @@ class Resource():
         self.resistanceCoeff = 1
 
         self.autoExport = False
+        self.mailNotification = False
+        self.mailTo = "luc.perard@lcis.grenoble-inp.fr"
         self.exportPath = 'C:\\Users\\perardl\\Desktop\\OneDrive\\Resultats\\CBRAM'
 
         #graphParameters

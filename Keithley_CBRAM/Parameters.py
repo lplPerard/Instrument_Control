@@ -77,11 +77,17 @@ class Parameters():
         self.label_generalParam_powerUnit = Label(self.labelFrame_generalParams, text="Power unit : ", bg=self.resource.bgColor)
         self.label_generalParam_powerUnit.grid(column=0, row=4)
 
+        self.label_generalParam_mailNotification = Label(self.labelFrame_generalParams, text="Mail Notification : ", bg=self.resource.bgColor)
+        self.label_generalParam_mailNotification.grid(column=0, row=5)
+
+        self.label_generalParam_mailTo = Label(self.labelFrame_generalParams, text="Mail To : ", bg=self.resource.bgColor)
+        self.label_generalParam_mailTo.grid(column=0, row=6)
+
         self.label_generalParam_autoExport = Label(self.labelFrame_generalParams, text="Auto export : ", bg=self.resource.bgColor)
-        self.label_generalParam_autoExport.grid(column=0, row=5)
+        self.label_generalParam_autoExport.grid(column=0, row=7)
 
         self.label_generalParam_exportPath = Label(self.labelFrame_generalParams, text="Export Path : ", bg=self.resource.bgColor)
-        self.label_generalParam_exportPath.grid(column=0, row=6)
+        self.label_generalParam_exportPath.grid(column=0, row=8)
 
         self.label_SMUParam_connectionMode = Label(self.labelFrame_SMUParams, text="Connection Mode : ", bg=self.resource.bgColor)
         self.label_SMUParam_connectionMode.grid(column=0, row=0)
@@ -131,6 +137,9 @@ class Parameters():
 
     def __initVars(self):
     #This methods instanciates all the Vars used by widgets in the Parameters_view GUI
+        self.stringVar_generalParam_mailTo = StringVar()
+        self.stringVar_generalParam_mailTo.set(self.resource.mailTo)
+
         self.stringVar_generalParam_exportPath = StringVar()
         self.stringVar_generalParam_exportPath.set(self.resource.exportPath)
 
@@ -181,10 +190,16 @@ class Parameters():
         self.combo_generalParam_powerUnit.grid(column=1, row=4, pady=self.resource.pady)
         self.combo_generalParam_powerUnit.current(1)
 
+        self.combo_generalParam_mailNotification = Combobox(self.labelFrame_generalParams, state="readonly", values=["Yes", "No"],width=12)
+        self.combo_generalParam_mailNotification.bind("<<ComboboxSelected>>", self.combo_generalParam_autoExport_callback)
+        self.combo_generalParam_mailNotification.configure(background=self.resource.bgColor)
+        self.combo_generalParam_mailNotification.grid(column=1, row=5, pady=self.resource.pady)
+        self.combo_generalParam_mailNotification.current(1)
+
         self.combo_generalParam_autoExport = Combobox(self.labelFrame_generalParams, state="readonly", values=["Yes", "No"],width=12)
         self.combo_generalParam_autoExport.bind("<<ComboboxSelected>>", self.combo_generalParam_autoExport_callback)
         self.combo_generalParam_autoExport.configure(background=self.resource.bgColor)
-        self.combo_generalParam_autoExport.grid(column=1, row=5, pady=self.resource.pady)
+        self.combo_generalParam_autoExport.grid(column=1, row=7, pady=self.resource.pady)
         self.combo_generalParam_autoExport.current(1)
 
         self.combo_SMUParam_connectionMode = Combobox(self.labelFrame_SMUParams, state="readonly", values=["USB", "Ethernet", "GPIB"],width=12)
@@ -286,6 +301,14 @@ class Parameters():
         elif self.combo_generalParam_powerUnit.get() == "nW":
             self.resource.powerCoeff = 1e-9
 
+    def combo_generalParam_mailNotification_callback(self, args=""):
+    #Callback method for combo_generalParam_powerUnit
+        if self.combo_generalParam_mailNotification.get() == "Yes":
+            self.resource.mailNotification = True
+
+        elif self.combo_generalParam_mailNotification.get() == "No":
+            self.resource.mailNotification = False
+
     def combo_generalParam_autoExport_callback(self, args=""):
     #Callback method for combo_generalParam_powerUnit
         if self.combo_generalParam_autoExport.get() == "Yes":
@@ -330,9 +353,13 @@ class Parameters():
 
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the parameters_view GUI
+        self.entry_generalParam_mailTo= Entry(self.labelFrame_generalParams, textvariable=self.stringVar_generalParam_mailTo, width=30)
+        self.entry_generalParam_mailTo.bind("<Return>", self.entry_generalParam_exportPath_callback)
+        self.entry_generalParam_mailTo.grid(column=1, row=6, padx=self.resource.padx, pady=self.resource.pady)
+
         self.entry_generalParam_exportPath = Entry(self.labelFrame_generalParams, textvariable=self.stringVar_generalParam_exportPath, width=30)
         self.entry_generalParam_exportPath.bind("<Return>", self.entry_generalParam_exportPath_callback)
-        self.entry_generalParam_exportPath.grid(column=1, row=6, padx=self.resource.padx, pady=self.resource.pady)
+        self.entry_generalParam_exportPath.grid(column=1, row=8, padx=self.resource.padx, pady=self.resource.pady)
 
         self.entry_SMUParam_NPLC = Entry(self.labelFrame_SMUParams, textvariable=self.doubleVar_SMUParam_NPLC, width=12)
         self.entry_SMUParam_NPLC.bind("<Return>", self.entry_SMUParam_NPLC_callback)
@@ -374,6 +401,10 @@ class Parameters():
     #Callback method for entry_SMUParam_NPLC
         self.resource.nbTry = self.doubleVar_sequenceParam_nbTry.get()
         self.resource.R_high_lim = self.doubleVar_sequenceParam_R_high_lim.get()
+
+    def entry_generalParam_mailTo_callback(self, args=""):
+    #Callback method for entry_SMUParam_NPLC
+        self.resource.mailTo= self.stringVar_generalParam_mailTo.get()
 
     def entry_generalParam_exportPath_callback(self, args=""):
     #Callback method for entry_SMUParam_NPLC
