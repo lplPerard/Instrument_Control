@@ -463,7 +463,7 @@ class Cycling(Sequence):
         self.entry_pulse_compliance = Entry(self.labelFrame_signal2, textvariable=self.doubleVar_signal2_compliance, width=12)
         self.entry_pulse_compliance.grid(column=1, row=4, padx=self.resource.padx, pady=self.resource.pady)
 
-        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=25)
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=30)
         self.entry_CBRAM_ident.grid(column=1, row=4, pady=self.resource.pady, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12)

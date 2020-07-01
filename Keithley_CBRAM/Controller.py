@@ -14,6 +14,8 @@ from tkinter import filedialog
 from numpy import ones
 from numpy import sign
 from numpy import linspace
+from numpy import geomspace
+from numpy import logspace
 from numpy import concatenate
 
 import pickle
@@ -80,6 +82,19 @@ class Controller():
             
         return(total_time, total_signal)
 
+    def generateTimeBase(self, measurementType, duration, nbMeasurement):
+    #This method creates the time base for resistance measurement in stability analysis
+        if measurementType == "Linear":
+            delay = linspace(0, duration, nbMeasurement)
+
+        elif measurementType == "Geometric":
+            delay = geomspace(0, duration, nbMeasurement)
+
+        elif measurementType == "Logarithmic":
+            delay = logspace(0, duration, nbMeasurement)
+
+        return(delay)
+    
     def serialize(self, object):
     #This method serialize an object result and write it into the specified file
         path = filedialog.asksaveasfilename(title = "Select file",filetypes = (("all files","*.*"), ("Binary results files","*.pickle"), ("Text results files","*.txt")))

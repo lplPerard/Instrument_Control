@@ -12,7 +12,7 @@ class Results():
     """
 
     def __init__(self):
-    #Constructor for the CBRAM class
+    #Constructor for the Results class
 
         self.source = "VOLT"
         self.sense = "CURR"
@@ -45,3 +45,6 @@ class Results():
         self.signal_1 = []
         self.signal_2 = []
         self.resistance = []
+
+        self.duration = 0
+        self.measurementType = "Linear"

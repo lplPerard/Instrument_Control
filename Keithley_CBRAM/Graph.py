@@ -59,6 +59,18 @@ class Graph():
         self.canvas.get_tk_widget().grid(column=0, columnspan=5, row=0)
         self.canvas.draw()
 
+    def modifyFigure(self, Graph_size=65, format=(9,6)):
+    #This method can modify the size of a graph
+        self.fig = Figure(figsize=format, dpi=Graph_size)
+
+        self.plot = self.fig.add_subplot(111)
+        self.plot.set_facecolor(self.resource.Graph_bgColor)
+
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
+        self.canvas.get_tk_widget().configure(bg=self.resource.Graph_bgColor)
+        self.canvas.get_tk_widget().grid(column=0, columnspan=5, row=0)
+        self.canvas.draw()
+
     def addStepGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True, marker_pos=[]):
     #This method is called to add data to be plotted on self.fig    
         self.plot.step(x, y, '-gD', color=color, markevery=marker_pos, markerfacecolor="green", markeredgecolor="black")

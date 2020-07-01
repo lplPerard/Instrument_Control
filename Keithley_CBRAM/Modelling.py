@@ -469,7 +469,7 @@ class Modelling(Sequence):
 
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the Single testbench GUI
-        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=25)
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=30)
         self.entry_CBRAM_ident.grid(column=1, row=1, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12, state="readonly")

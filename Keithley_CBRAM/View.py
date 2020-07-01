@@ -10,6 +10,7 @@ from Cycling import Cycling
 from IV import IV
 from Modelling import Modelling
 from Parameters import Parameters
+from Stability import Stability
 
 from Resources import Resource
 from Controller import Controller
@@ -41,6 +42,7 @@ class View(Tk):
         self.topLevel_term.title("Terminal")
         self.topLevel_term.protocol('WM_DELETE_WINDOW', self.topLevel_term.withdraw)
         self.topLevel_term.transient()
+        self.topLevel_term.withdraw()
         self.term_text = Text(self.topLevel_term, height=30, width=70, bg="black", fg="green")
         self.term_text.grid(column=0, row=0)
         self.term_text.insert(END, "You are running CBRAM software\n")
@@ -76,7 +78,8 @@ class View(Tk):
         self.menubar.add_cascade(label="Sequence", menu=self.menu2)        
         self.menu2.add_command(label="Single", command=self.menu2_Single_callBack)
         self.menu2.add_command(label="Cycling", command=self.menu2_Cycling_callBack)     
-        self.menu2.add_command(label="I/V Curve", command=self.menu2_IV_callBack)
+        self.menu2.add_command(label="I/V Curve", command=self.menu2_IV_callBack)  
+        self.menu2.add_command(label="Stability", command=self.menu2_Stability_callBack)
         self.menu2.add_command(label="Modelling", command=self.menu2_Modelling_callBack)        
 
         self.menu3 = Menu(self.menubar, tearoff=0)
@@ -114,6 +117,12 @@ class View(Tk):
         self.sequence = Cycling(self, self.resource, self.term_text)
         self.sequence.initFrame(text="Cycling Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
 
+    def menu2_Stability_callBack(self):
+    #Callback function for I/V menu2 option
+        self.sequence.clearFrame()
+        self.sequence = Stability(self, self.resource, self.term_text)
+        self.sequence.initFrame(text="Stability Sequence", column=0, row=0, rowspan=10, bg=self.resource.bgColor)
+
     def menu2_IV_callBack(self):
     #Callback function for I/V menu2 option
         self.sequence.clearFrame()
@@ -140,6 +149,8 @@ class View(Tk):
             self.menu2_Cycling_callBack()
         elif state == 'IV':
             self.menu2_IV_callBack()
+        elif state == 'STABILITY':
+            self.menu2_Stability_callBack()
 
         self.sequence.results = results
         self.parameters.update(results)

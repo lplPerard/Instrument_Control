@@ -280,7 +280,7 @@ class IV(Sequence):
         self.entry_compliance_reset = Entry(self.labelFrame_ResetSignal, textvariable=self.doubleVar_compliance_reset, width=12)
         self.entry_compliance_reset.grid(column=1, row=2, pady=self.resource.pady)
 
-        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=25)
+        self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=30)
         self.entry_CBRAM_ident.grid(column=1, row=4, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12, state="readonly")
