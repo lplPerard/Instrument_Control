@@ -22,7 +22,8 @@ import pickle
 import json
 
 class Controller():
-    """Class containing the Controller for the CBRAM software
+    """Class containing the Controller for the CBRAM software. The goal of Controller is to provide calculation of signals
+    and manage result files
 
     """
 
@@ -85,13 +86,13 @@ class Controller():
     def generateTimeBase(self, measurementType, duration, nbMeasurement):
     #This method creates the time base for resistance measurement in stability analysis
         if measurementType == "Linear":
-            delay = linspace(0, duration, nbMeasurement)
+            delay = linspace(1, duration+1, nbMeasurement)
 
         elif measurementType == "Geometric":
-            delay = geomspace(0, duration, nbMeasurement)
+            delay = geomspace(1, duration+1, nbMeasurement)
 
         elif measurementType == "Logarithmic":
-            delay = logspace(0, duration, nbMeasurement)
+            delay = logspace(1, duration+2, nbMeasurement)
 
         return(delay)
     

@@ -46,5 +46,4 @@ class Results():
         self.signal_2 = []
         self.resistance = []
 
-        self.duration = 0
-        self.measurementType = "Linear"
+        self.delay = []

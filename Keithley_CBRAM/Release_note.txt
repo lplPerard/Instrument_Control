@@ -1,7 +1,7 @@
 Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 2.2
+Version : 3.0
 Details : 
 
     - 2020/01/09 Software creation 
@@ -10,15 +10,23 @@ Details :
     - 2020/02/25 Implementation of new graphs version 1.1
     - 2020/05/05 Implementation of Modelling and terminal version 2.0
     - 2020/05/06 Implementation of temperature in Modelling version 2.1
-    - 2020/06/26 Bug corrections and implementation of signal choice for Cycling and auto mailing
+    - 2020/06/26 Bug corrections and implementation of signal choice for Cycling and auto mailing version 2.2
+    - 2020/07/02 Implementation of Stability version 3.0
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V3.0
+
+- Implementation of Stability Sequence. It is used to monitor the evolution of the resistance through time.
+- Terminal is not shown by default anymore.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 Release : V2.2
 
-- Bug correction in Ramp and Pulse signal generator in Controller
+- Bug correction in Ramp and Pulse signal generator in Controller.
 - Implementation of signal choice in Cycling. The cycling signal can now be made of a mix of Pulses and Ramps.
-- Implementation of auto mailing option after a sequence was terminated
+- Implementation of auto mailing option after a sequence was terminated.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -31,7 +39,7 @@ Release : V2.1
 
 Release : V2.0
 
-- Implementation of Modelling Sequence. It is used to generate a numerical model of the CBRAM behavior and dynamiccaly compare it with an imported result file.
+- Implementation of Modelling Sequence. It is used to generate a numerical model of the CBRAM behavior and dynamicaly compare it with an imported result file.
 - Modification In IV Sequence. Set and reset signals can now be modified separatly.
 - Modification in Service, output has now be added to redirect logs to a terminal widget.
 - Modification in Serive, the possibility to change Ilim during a sequence has been added.

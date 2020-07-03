@@ -6,6 +6,7 @@ File description : Class container for Service.
 
 """
 import pyvisa
+import time
 
 import numpy as np
 
@@ -14,7 +15,7 @@ from tkinter import Label
 from tkinter import END
 
 class Service():
-    """Class containing the Service for the CBRAM software
+    """Class containing the Service for the CBRAM software. The goal of service is to manage the connection and communication with external device.
 
     """
 
@@ -38,7 +39,7 @@ class Service():
         except:
             self.instrList = []
 
-    def measureResistance(self, output, negative = False):
+    def measureResistance(self, output, current = 1e-3, v_lim = 2, negative = False):
     #This method measure the resistance using a 4 wire resistance measurement set-up.
         error = 0
         self.instr = self.resourceManager.open_resource(self.resource.deviceAdress)
@@ -55,17 +56,17 @@ class Service():
         self.instr.write('SOUR:FUNC CURR')
 
         if negative == True:
-            self.instr.write('SOUR:CURR ' + str(-1e-3))   
+            self.instr.write('SOUR:CURR ' + str(-1*current))   
             output.insert(END, "Negative Resistance Measurement...\n")
             output.see(END)
             output.update_idletasks()
         else:
-            self.instr.write('SOUR:CURR ' + str(1e-3)) 
+            self.instr.write('SOUR:CURR ' + str(current)) 
             output.insert(END, "Positive Resistance Measurement...\n")
             output.see(END)
             output.update_idletasks()
 
-        self.instr.write('SOUR:CURR:VLIM ' + str(2))     
+        self.instr.write('SOUR:CURR:VLIM ' + str(v_lim))     
         self.instr.write('SOUR:CURR:READ:BACK ON')
         
         self.instr.write('OUTP ON')
@@ -81,6 +82,9 @@ class Service():
         if abs(R) > 1e20 :
             error = 1
 
+        if abs(R) < 1e-10 :
+            error = 1
+
         self.instr.write('OUTP OFF')
         self.instr.close()
         
@@ -89,6 +93,36 @@ class Service():
         output.update_idletasks()
 
         return(abs(R), error)
+
+    def measureStability(self, output, delay, negative = False):
+    #This method is used to automatically measure resistance at different time interval, using the measureResitance method.
+        output.insert(END, "Starting a Stability measurement\n\n")
+        output.see(END)
+        output.update_idletasks()
+
+        i = 0
+        R = 0*delay
+        error = 0*delay
+
+        while i < len(delay) - 1:
+
+            output.insert(END, "Current advancement : " + str((i+1)*100/len(delay)) + " %\n")
+            output.see(END)
+            output.update_idletasks()
+
+            [R[i], error[i]] = self.measureResistance(output, negative=negative)
+            time.sleep(delay[i+1] - delay[i])
+
+            i = i+1
+
+        output.insert(END, "Current advancement : " + str((i+1)*100/len(delay)) + " %\n")
+        output.see(END)
+        output.update_idletasks()
+
+        [R[i], error[i]] = self.measureResistance(output, negative=negative)
+
+        return(R, error)
+
 
     def generateSingleVoltageWaveform(self, output, Us, Ilim1, Ilim2=-1, index_Ilim2=-1):
     #This method generates a voltage waveform according to given parameter Us, using a 4 wire method

@@ -24,6 +24,7 @@ from numpy import ones
 from numpy import linspace
 from numpy import asarray
 from numpy import concatenate
+from numpy import any
 
 class Stability(Sequence):
     """Class containing the Stability testbench.
@@ -79,7 +80,7 @@ class Stability(Sequence):
         self.doubleVar_CBRAM_resistance.set(1e6)
 
         self.doubleVar_nb_measurement = DoubleVar()
-        self.doubleVar_nb_measurement.set(1000)
+        self.doubleVar_nb_measurement.set(25)
         
     def __initLabels(self):
     #This methods instanciates all the Labels displayed in the Single testbench GUI
@@ -113,7 +114,7 @@ class Stability(Sequence):
 
     def __initCombobox(self):
     #This methods instanciates all the combobox displayed in the Single testbench GUI
-        self.combo_measurementType = Combobox(self.labelFrame_MeasurementSetup, state="readonly", width=20, values=["Linear", "Geometric", "Logarithmic"])
+        self.combo_measurementType = Combobox(self.labelFrame_MeasurementSetup, state="readonly", width=20, values=["Linear", "Geometric"])
         self.combo_measurementType.bind("<<ComboboxSelected>>", self.combo_measurementType_callback)
         self.combo_measurementType.configure(background=self.resource.bgColor)
         self.combo_measurementType.grid(column=1, row=0, padx=3*self.resource.padx, pady=self.resource.pady)
@@ -133,18 +134,15 @@ class Stability(Sequence):
 
     def combo_measurementType_callback(self, args=[]):
     #This method is called when an action is made on combo_aimingState
-        if self.combo_measurementType.current() == 0:
-            print("bla")
+        self.button_actualizeSequence_callBack()
 
     def combo_measurementMethod_callback(self, args=[]):
     #This method is called when an action is made on combo_aimingState
-        if self.combo_measurementMethod.current() == 0:
-            print("bla")
+        self.button_actualizeSequence_callBack()
 
     def combo_duration_callback(self, args=[]):
     #This method is called when an action is made on combo_aimingState
-        if self.combo_duration.current() == 0:
-            print("bla")
+        self.button_actualizeSequence_callBack()
 
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the Single testbench GUI
@@ -161,23 +159,62 @@ class Stability(Sequence):
     #This method is a callBack funtion for button_startSequence
         self.results.cell_ident = self.stringVar_CBRAM_ident.get()
 
-        self.Graph[0].clearGraph()
-        self.Graph[0].addStepGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid)
+        if self.combo_duration.current() == 0:
+            duration = 900
+        elif self.combo_duration.current() == 1:
+            duration = 1800
+        elif self.combo_duration.current() == 2:
+            duration = 3600
+        elif self.combo_duration.current() == 3:
+            duration = 7200
+        elif self.combo_duration.current() == 4:
+            duration = 10800
+        elif self.combo_duration.current() == 5:
+            duration = 18000
+        elif self.combo_duration.current() == 6:
+            duration = 28800
+        elif self.combo_duration.current() == 7:
+            duration = 43200
 
-        self.printResult()
+        self.time = linspace(0, self.doubleVar_nb_measurement.get(), self.doubleVar_nb_measurement.get())
+        self.results.delay = self.controller.generateTimeBase(self.combo_measurementType.get(), duration, self.doubleVar_nb_measurement.get())
+
+        self.Graph[0].clearGraph()
+        self.Graph[0].addStepGraph(x=self.time, xlabel="Iteration", y=self.results.delay, ylabel="Time (s)", grid=self.resource.Graph_grid)
 
     def button_startSequence_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        [self.results.signal_1, self.results.signal_2, error] = self.service.generateSingleVoltageWaveform(self.term_text, self.resource.voltCoeff*self.signal, self.resource.currCoeff*self.results.ramp_compliance, Ilim2=self.resource.currCoeff*self.results.pulse_compliance, index_Ilim2=self.index_Ilim2)
+        self.button_actualizeSequence_callBack()
 
-        self.results.cell_resistance = self.button_measureResistance_pos_callBack()       
+        if self.combo_measurementMethod.get() == "Positive":
+            negative = False
+        elif self.combo_measurementMethod.get() == "Negative":
+            negative = True
+
+        [self.results.resistance, error] = self.service.measureStability(self.term_text, self.results.delay, negative=negative)
+
+        self.results.cell_resistance = self.results.resistance[-1]     
 
         self.printResult()
         self.param2result()
         path=self.autoExport()
-        
-        if self.resource.autoExport == True:
-            messagebox.showinfo(title="Auto Export", message=("Result files have been exported to the following PATH :\n" + path))
+
+        if any(error) == True:
+            messagebox.showinfo(title="Sequence ERROR", message=("An error occured during Measurement.\n Sequence was ended without export."))
+
+            if self.resource.mailNotification == True :            
+                message = "A Stability test was terminated with an error on your computer."
+                self.service.sendEmailNotification(message)
+
+        else :
+            messagebox.showinfo(title="End of Sequence", message=("Stability Sequence ended succesfully.\n"))
+
+            if self.resource.mailNotification == True :
+                message = "A Stability test was succesfully terminated on your computer.\n\n Data were saved at :\n\n" + path 
+                self.service.sendEmailNotification(message)
+
+            if self.resource.autoExport == True:
+                messagebox.showinfo(title="Auto Export", message=("Result files have been exported to the following PATH :\n" + path))
                 
     def button_measureResistance_neg_callBack(self):
     #This method is a callBack funtion for button_startSequence
@@ -194,6 +231,9 @@ class Stability(Sequence):
     def printResult(self):
     #This method add results to Graphs
         self.Graph[0].clearGraph()
+
+        self.Graph[0].addLinGraph(x=self.time, xlabel="Iteration", y=self.results.resistance/self.resource.resistanceCoeff, ylabel="Resistance",
+                                  yscale="log", color="orange", grid=self.resource.Graph_grid)
 
     def loadResults(self):
     #This methods load results in the different widgets  

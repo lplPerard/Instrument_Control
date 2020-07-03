@@ -47,7 +47,6 @@ class Single(Sequence):
         self.__initLabels()
         self.__initCombobox()
         self.__initEntries()
-
         
     def __initGraphs(self):
     #This method instancitaes all the Graphs used by the Cycling test bench GUI

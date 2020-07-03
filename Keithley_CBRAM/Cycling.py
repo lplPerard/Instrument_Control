@@ -123,7 +123,7 @@ class Cycling(Sequence):
         self.loadResults()
 
         if error != 0:
-            messagebox.showinfo(title="Sequence ERROR", message=("An error occured during Measurement.\n Sequence were ended."))
+            messagebox.showinfo(title="Sequence ERROR", message=("An error occured during Measurement.\n Sequence was ended without export."))
 
             if self.resource.mailNotification == True :            
                 message = "A cycling test was terminated with an error on your computer."

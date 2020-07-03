@@ -1,7 +1,7 @@
 """Copyright Grenoble-inp LCIS
 
 Developped by : Luc PERARD
-Version : 2.2
+Version : 3.0
 Details : 
     - 2020/01/09 Software creation 
     - 2020/02/14 Executable version 0.4
@@ -9,6 +9,7 @@ Details :
     - 2020/05/05 Implementation of Modelling version 2.0
     - 2020/05/06 Implementation of temperature in Modelling version 2.1
     - 2020/06/26 Bug corrections and implementation of signal choice for Cycling and auto mailing
+    - 2020/07/02 Implementation of Stability version 3.0
 
 File description : Application Launcher
 
