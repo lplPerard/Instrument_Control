@@ -14,14 +14,21 @@ class Results():
     def __init__(self):
     #Constructor for the Results class
 
+        #SMU parameters
+
         self.source = "VOLT"
         self.sense = "CURR"
         self.stepDelay = 0.0093
         self.NPLC= 0.01
+
+        # Display parameters
+
         self.voltCoeff = 1
         self.currCoeff = 1e-3
         self.powerCoeff = 1e-3
         self.resistanceCoeff = 1
+
+        # Cycling parameters
         
         self.R_low_lim = 1e2
         self.R_high_lim = 1e3
@@ -46,4 +53,9 @@ class Results():
         self.signal_2 = []
         self.resistance = []
 
+        # Stability parameters
+
         self.delay = []
+        self.duration = "15mn"
+        self.measurementType = "Linear"
+        self.measurementMethod = "positive"

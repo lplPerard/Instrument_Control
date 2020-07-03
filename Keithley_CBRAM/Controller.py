@@ -94,7 +94,7 @@ class Controller():
         elif measurementType == "Logarithmic":
             delay = logspace(1, duration+2, nbMeasurement)
 
-        return(delay)
+        return(delay.tolist())
     
     def serialize(self, object):
     #This method serialize an object result and write it into the specified file
@@ -135,5 +135,7 @@ class Controller():
                 state = 'CYCLING'
             elif path.find('IV') != -1:
                 state = 'IV'
+            elif path.find('STABILITY') != -1:
+                state = 'STABILITY'
 
             return(state, object)

@@ -177,7 +177,11 @@ class Stability(Sequence):
             duration = 43200
 
         self.time = linspace(0, self.doubleVar_nb_measurement.get(), self.doubleVar_nb_measurement.get())
+
         self.results.delay = self.controller.generateTimeBase(self.combo_measurementType.get(), duration, self.doubleVar_nb_measurement.get())
+        self.results.duration = self.combo_duration.get()
+        self.results.measurementMethod = self.combo_measurementMethod.get()
+        self.results.measurementType = self.combo_measurementType.get()
 
         self.Graph[0].clearGraph()
         self.Graph[0].addStepGraph(x=self.time, xlabel="Iteration", y=self.results.delay, ylabel="Time (s)", grid=self.resource.Graph_grid)
@@ -230,31 +234,47 @@ class Stability(Sequence):
 
     def printResult(self):
     #This method add results to Graphs
+        self.doubleVar_CBRAM_resistance.set(self.results.resistance[-1])
+
         self.Graph[0].clearGraph()
 
-        self.Graph[0].addLinGraph(x=self.time, xlabel="Iteration", y=self.results.resistance/self.resource.resistanceCoeff, ylabel="Resistance",
+        resistance = asarray(self.results.resistance)
+
+        self.Graph[0].addLinGraph(x=self.results.delay, xlabel="Time (s)", y=resistance/self.resource.resistanceCoeff, ylabel="Resistance",
                                   yscale="log", color="orange", grid=self.resource.Graph_grid)
 
     def loadResults(self):
     #This methods load results in the different widgets  
-        self.doubleVar_peakValue_set.set(self.results.ramp_stop_value)
-        self.doubleVar_ramp_set.set(self.results.ramp_param)
-
-        try:
-         self.doubleVar_peakValue_reset.set(self.results.pulse_stop_value)
-         self.doubleVar_ramp_reset.set(self.results.pulse_param)
-         self.doubleVar_compliance_set.set(self.results.ramp_compliance)
-         self.doubleVar_compliance_reset.set(self.results.pulse_compliance)
-
-        except :
-            
-         self.doubleVar_peakValue_reset.set(self.doubleVar_peakValue_reset.get())
-         self.doubleVar_ramp_reset.set(self.doubleVar_ramp_reset.get())
-         self.doubleVar_compliance_set.set(self.doubleVar_compliance_set.get())
-         self.doubleVar_compliance_reset.set(self.doubleVar_compliance_reset.get())
-
         self.stringVar_CBRAM_ident.set(self.results.cell_ident)
         self.doubleVar_CBRAM_resistance.set(self.results.cell_resistance)
 
-        self.button_actualizeSequence_callBack()
+        if self.results.duration == "15mn":
+            self.combo_duration.current(0)
+        elif self.results.duration == "30mn":
+            self.combo_duration.current(1)
+        elif self.results.duration == "1h":
+            self.combo_duration.current(2)
+        elif self.results.duration == "2h":
+            self.combo_duration.current(3)
+        elif self.results.duration == "3h":
+            self.combo_duration.current(4)
+        elif self.results.duration == "5h":
+            self.combo_duration.current(5)
+        elif self.results.duration == "8h":
+            self.combo_duration.current(6)
+        elif self.results.duration == "12h":
+            self.combo_duration.current(7)
+
+        if self.results.measurementType == "Linear":
+            self.combo_measurementType.current(0)
+        elif self.results.measurementType == "Geometric":
+            self.combo_measurementType.current(1)
+
+        if self.results.measurementMethod == "positive":
+            self.combo_measurementMethod.current(0)
+        elif self.results.measurementMethod == "negative":
+            self.combo_measurementMethod.current(1)
+
+        self.doubleVar_nb_measurement.set(len(self.results.resistance))
+
         self.printResult()

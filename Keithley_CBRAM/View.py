@@ -31,6 +31,17 @@ class View(Tk):
 
     def __init__(self):
     #Constructor for the View class
+        """
+            Constructor for the class View. The class inherits from Tk from GUI management.
+            The following attributes are  created :
+
+            - self.topLevel_param : Toplevel window used to display the parameters of the software. Hidden by default.
+            - self.topLevel_term : Toplevel window used to display a terminal. Hidden by default
+            - self.term_text : 
+
+
+
+        """
         Tk.__init__(self)
         
         self.topLevel_param = Toplevel(self)

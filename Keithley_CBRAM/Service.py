@@ -100,6 +100,8 @@ class Service():
         output.see(END)
         output.update_idletasks()
 
+        delay = np.asarray(delay)
+
         i = 0
         R = 0*delay
         error = 0*delay
@@ -121,8 +123,7 @@ class Service():
 
         [R[i], error[i]] = self.measureResistance(output, negative=negative)
 
-        return(R, error)
-
+        return(R.tolist(), error)
 
     def generateSingleVoltageWaveform(self, output, Us, Ilim1, Ilim2=-1, index_Ilim2=-1):
     #This method generates a voltage waveform according to given parameter Us, using a 4 wire method
