@@ -41,10 +41,13 @@ class Sequence():
         self.term_text = terminal
 
         self.frame = LabelFrame(root)
+
         self.button_startSequence = Button(self.frame, text="Start Sequence", command=self.button_startSequence_callBack, padx=5, pady=10)
         self.button_actualizeSequence = Button(self.frame, text="Actualize Sequence", command=self.button_actualizeSequence_callBack, padx=5, pady=10)
         self.button_measureResistance_pos = Button(self.frame, text="Measure +", command=self.button_measureResistance_pos_callBack, padx=5, pady=10)
         self.button_measureResistance_neg = Button(self.frame, text="Measure -", command=self.button_measureResistance_neg_callBack, padx=5, pady=10)
+        self.button_measureImpedance = Button(self.frame, text="Measure RLC", command=self.button_measureImpedance_callBack, padx=5, pady=10)
+
         self.Graph = [] #Graph list containing all the figures linked to the test bench
 
     def button_startSequence_callBack(self):
@@ -55,13 +58,24 @@ class Sequence():
     #This method is a callBack funtion for button_startSequence
         print('Not implemented yet')
 
-    def button_measureResistance_pos_callBack(self):
-    #This method is a callBack funtion for button_startSequence
-        print('Not implemented yet')
-
     def button_measureResistance_neg_callBack(self):
     #This method is a callBack funtion for button_startSequence
-        print('Not implemented yet')
+        [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
+        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
+        self.results.cell_resistance = R
+        return(R)
+        
+    def button_measureResistance_pos_callBack(self):
+    #This method is a callBack funtion for button_startSequence
+        [R, error] = self.service.measureResistance(output=self.term_text)
+        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
+        return(R)
+
+    def button_measureImpedance_callBack(self):
+    #This method is a callBack funtion for button_startSequence
+        [Z, error] = self.service.measureImpedance(output=self.term_text)
+        self.doubleVar_CBRAM_resistance.set(Z)
+        return(Z)
 
     def initFrame(self, text="",column=0, columnspan=1, row=0, rowspan=1, padx=15, pady=15, bg=""):
     #This method generates the Frame's parameters for the sequence
@@ -82,10 +96,6 @@ class Sequence():
         self.results.currCoeff = self.resource.currCoeff
         self.results.powerCoeff = self.resource.powerCoeff
         self.results.resistanceCoeff = self.resource.resistanceCoeff
-        
-        self.results.R_low_lim = self.resource.R_low_lim
-        self.results.R_high_lim = self.resource.R_high_lim
-        self.results.nbTry_max = self.resource.nbTry
 
     def autoExport(self):
     #This method is used to automatically export results if needed

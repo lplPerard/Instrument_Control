@@ -42,7 +42,7 @@ class Service():
     def measureResistance(self, output, current = 1e-3, v_lim = 2, negative = False):
     #This method measure the resistance using a 4 wire resistance measurement set-up.
         error = 0
-        self.instr = self.resourceManager.open_resource(self.resource.deviceAdress)
+        self.instr = self.resourceManager.open_resource(self.resource.SMUAdress)
 
         self.instr.write('*RST')
         self.instr.write('TRAC:CLE "defbuffer1"')
@@ -94,41 +94,36 @@ class Service():
 
         return(abs(R), error)
 
-    def measureStability(self, output, delay, negative = False):
-    #This method is used to automatically measure resistance at different time interval, using the measureResitance method.
-        output.insert(END, "Starting a Stability measurement\n\n")
+    def measureImpedance(self, output, voltage = 2, frequency = 1e2, func1 = "Cp", func2="Rp"):
+    #This method measure the resistance using a 4 wire resistance measurement set-up.  
+        output.insert(END, "RLC Impedance Measurement...\n")
         output.see(END)
         output.update_idletasks()
 
-        delay = np.asarray(delay)
+        error = 0
 
-        i = 0
-        R = 0*delay
-        error = 0*delay
+        self.instr = self.resourceManager.open_resource(self.resource.RLCAdress)
 
-        while i < len(delay) - 1:
+        self.instr.write('*RST')
+        self.instr.write('CALC1:FORM Cp')
+        self.instr.write('CALC2:FORM Rp')
+        
+        #self.instr.write(':SOUR:VOLT:AMP ' + str(voltage) +"V")
+        #self.instr.write(':SOUR:VOLT:MODE SYNC')
+        #self.instr.write(':SOUR:FREQ ' + str(frequency))
 
-            output.insert(END, "Current advancement : " + str((i+1)*100/len(delay)) + " %\n")
-            output.see(END)
-            output.update_idletasks()
-
-            [R[i], error[i]] = self.measureResistance(output, negative=negative)
-            time.sleep(delay[i+1] - delay[i])
-
-            i = i+1
-
-        output.insert(END, "Current advancement : " + str((i+1)*100/len(delay)) + " %\n")
+        self.instr.close()
+        
+        output.insert(END, "Measured Impedance is : " )
         output.see(END)
         output.update_idletasks()
 
-        [R[i], error[i]] = self.measureResistance(output, negative=negative)
-
-        return(R.tolist(), error)
-
+        return(0, error)
+        
     def generateSingleVoltageWaveform(self, output, Us, Ilim1, Ilim2=-1, index_Ilim2=-1):
     #This method generates a voltage waveform according to given parameter Us, using a 4 wire method
 
-        self.instr = self.resourceManager.open_resource(self.resource.deviceAdress)
+        self.instr = self.resourceManager.open_resource(self.resource.SMUAdress)
 
         if max(Us) > 0:            
             output.insert(END, "Positive Waveform is generated...\n")
@@ -196,7 +191,38 @@ class Service():
 
         return(Um.tolist(), Im.tolist(), error)
 
-    def generateCyclingVoltageWaveform(self, output, signal1, lim1, signal2, lim2):
+    def measureStability(self, output, delay, negative = False):
+    #This method is used to automatically measure resistance at different time interval, using the measureResitance method.
+        output.insert(END, "Starting a Stability measurement\n\n")
+        output.see(END)
+        output.update_idletasks()
+
+        delay = np.asarray(delay)
+
+        i = 0
+        R = 0*delay
+        error = 0*delay
+
+        while i < len(delay) - 1:
+
+            output.insert(END, "Current advancement : " + str((i+1)*100/len(delay)) + " %\n")
+            output.see(END)
+            output.update_idletasks()
+
+            [R[i], error[i]] = self.measureResistance(output, negative=negative)
+            time.sleep(delay[i+1] - delay[i])
+
+            i = i+1
+
+        output.insert(END, "Current advancement : " + str((i+1)*100/len(delay)) + " %\n")
+        output.see(END)
+        output.update_idletasks()
+
+        [R[i], error[i]] = self.measureResistance(output, negative=negative)
+
+        return(R.tolist(), error)
+
+    def generateCyclingVoltageWaveform(self, output, signal1, lim1, signal2, lim2, R_low_lim, R_high_lim, nbTry_max):
         
         output.insert(END, "Starting a new CYCLING sequence\n")
         output.see(END)
@@ -211,21 +237,21 @@ class Service():
         Im = []
 
         [R, error] = self.measureResistance(output)
-        if R > self.resource.R_high_lim:
+        if R > R_high_lim:
             state = "HIGH"
             state_tpm = "HIGH"
         else:
             state = "LOW"
             state_tpm = "LOW"
 
-        while nbTry <= self.resource.nbTry:
+        while nbTry <= nbTry_max:
             if state_tpm != state:
                 state_tpm = state
                 cycles += 1
 
             output.insert(END, "Current State : " + state + " \n")
             output.insert(END, "Cycles : " + str(cycles) + " \n")
-            output.insert(END, "iteration : " + str(nbTry) + "/" + str(self.resource.nbTry) + "\n")
+            output.insert(END, "iteration : " + str(nbTry) + "/" + str(nbTry_max) + "\n")
             output.see(END)
             output.update_idletasks()
 
@@ -249,7 +275,7 @@ class Service():
                 if error != 0:                    
                      return(iteration, cycles, Rm, Um, Im, error)
 
-                if R > self.resource.R_low_lim:
+                if R > R_low_lim:
                     state = "HIGH"
                     nbTry += 1
                     nbTry_return.append(nbTry)
@@ -266,7 +292,7 @@ class Service():
                 [R, error] = self.measureResistance(output, negative=True)
                 Rm.append(R)
 
-                if R < self.resource.R_high_lim:
+                if R < R_high_lim:
                     state = "LOW"
                     nbTry += 1
                     nbTry_return.append(nbTry)

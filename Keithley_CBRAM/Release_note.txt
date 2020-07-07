@@ -19,6 +19,8 @@ Release : V3.0
 
 - Implementation of Stability Sequence. It is used to monitor the evolution of the resistance through time.
 - Terminal is not shown by default anymore.
+- Sequence parameters were removed from Parameters window and reinserted in the Cycling Sequence
+- General improvements in parameters window
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -78,8 +78,8 @@ class Cycling(Sequence):
 
         self.graph_TL.frame.grid(column=2, row=0, rowspan=4)
         self.graph_TR.frame.grid(column=3, row=0, rowspan=4)
-        self.graph_BL.frame.grid(column=2, row=4, rowspan=4)
-        self.graph_BR.frame.grid(column=3, row=4, rowspan=4)
+        self.graph_BL.frame.grid(column=2, row=4, rowspan=5)
+        self.graph_BR.frame.grid(column=3, row=4, rowspan=5)
 
     def __initLabelFrames(self):
     #This method instanciates all the LabelFrames used in the Cycling test bench GUI
@@ -91,19 +91,23 @@ class Cycling(Sequence):
         self.labelFrame_signal2.configure(bg=self.resource.bgColor)
         self.labelFrame_signal2.grid(column=0, columnspan=2, row=2, padx=self.resource.padx, pady=self.resource.pady)
 
+        self.labelFrame_cyclingParameters = LabelFrame(self.frame, text="Cycling Parameters")
+        self.labelFrame_cyclingParameters.configure(bg=self.resource.bgColor)
+        self.labelFrame_cyclingParameters.grid(column=0, columnspan=2, row=3, padx=self.resource.padx, pady=self.resource.pady)
+
         self.labelFrame_graph = LabelFrame(self.frame, text="Graphs")
         self.labelFrame_graph.configure(bg=self.resource.bgColor)
-        self.labelFrame_graph.grid(column=0, columnspan=2, row=7, padx=self.resource.padx, pady=self.resource.pady)
+        self.labelFrame_graph.grid(column=0, columnspan=2, row=8, padx=self.resource.padx, pady=self.resource.pady)
 
     def __initButtons(self):
     #This method instanciates all the buttons used by the Cycling test bench GUI
         self.button_graph_actualizeGraphs = Button(self.labelFrame_graph, text="Actualize Graphs", command=self.button_graph_actualizeGraphs_callBack, padx=5, pady=10)
         self.button_graph_actualizeGraphs.grid(column=1, columnspan=2, row=7, padx=self.resource.padx, pady=self.resource.pady)
 
-        self.button_actualizeSequence.grid(column=0, row=3, rowspan=1, padx=10, pady=5)
-        self.button_startSequence.grid(column=1, row=3, rowspan=1, padx=10, pady=5)
-        self.button_measureResistance_pos.grid(column=0, row=6, rowspan=1, padx=10, pady=5)
-        self.button_measureResistance_neg.grid(column=1, row=6, rowspan=1, padx=10, pady=5)
+        self.button_actualizeSequence.grid(column=0, row=4, rowspan=1, padx=10, pady=5)
+        self.button_startSequence.grid(column=1, row=4, rowspan=1, padx=10, pady=5)
+        self.button_measureResistance_pos.grid(column=0, row=7, rowspan=1, padx=10, pady=5)
+        self.button_measureResistance_neg.grid(column=1, row=7, rowspan=1, padx=10, pady=5)
 
     def button_graph_actualizeGraphs_callBack(self):
     #Callback method for actualizeGraphs buttons
@@ -115,10 +119,18 @@ class Cycling(Sequence):
         self.button_actualizeSequence_callBack()
 
         self.results.cell_ident = self.stringVar_CBRAM_ident.get()
-        [self.results.iteration, self.results.nbTry, self.results.resistance, self.results.signal_1, self.results.signal_2, error] = self.service.generateCyclingVoltageWaveform(self.term_text, self.resource.voltCoeff*self.signal1_signal, self.resource.currCoeff*self.signal1_compliance, self.resource.voltCoeff*self.signal2_signal, self.resource.currCoeff*self.signal2_compliance)
+        [self.results.iteration, self.results.nbTry, self.results.resistance, self.results.signal_1, self.results.signal_2, error] = self.service.generateCyclingVoltageWaveform(self.term_text,
+                                                                                                                                                                                 self.resource.voltCoeff*self.signal1_signal, self.resource.currCoeff*self.signal1_compliance,
+                                                                                                                                                                                 self.resource.voltCoeff*self.signal2_signal, self.resource.currCoeff*self.signal2_compliance,
+                                                                                                                                                                                 self.doubleVar_R_low_lim.get(), self.doubleVar_R_high_lim.get(), self.doubleVar_nbTry.get())
+        
         self.button_measureResistance_pos_callBack()
 
         self.param2result()
+        self.results.R_high_lim = self.doubleVar_R_high_lim.get()
+        self.results.R_low_lim = self.doubleVar_R_low_lim.get()
+        self.results.nbTry_max = self.entry_nbTry.get()
+
         path=self.autoExport()
         self.loadResults()
 
@@ -190,18 +202,6 @@ class Cycling(Sequence):
         self.Graph[0].addStepGraph(x=self.time, xlabel="time", y=self.signal, ylabel=self.resource.source, grid=self.resource.Graph_grid) 
         self.Graph[2].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid) 
         self.Graph[3].addStepGraph(x=[], y=[], color="red", grid=self.resource.Graph_grid) 
-        
-    def button_measureResistance_pos_callBack(self):
-    #This method is a callBack funtion for button_startSequence
-        [R, error] = self.service.measureResistance(output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
-        self.results.cell_resistance = R
-        
-    def button_measureResistance_neg_callBack(self):
-    #This method is a callBack funtion for button_startSequence
-        [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
-        self.results.cell_resistance = R
 
     def __initVars(self):
     #This methods instanciates all the Vars used by widgets in the Single test bench GUI            
@@ -235,6 +235,15 @@ class Cycling(Sequence):
         self.doubleVar_signal2_compliance = DoubleVar()
         self.doubleVar_signal2_compliance.set(300)
 
+        self.doubleVar_R_low_lim = DoubleVar()
+        self.doubleVar_R_low_lim.set(100)
+
+        self.doubleVar_R_high_lim = DoubleVar()
+        self.doubleVar_R_high_lim.set(1000)
+
+        self.doubleVar_nbTry= DoubleVar()
+        self.doubleVar_nbTry.set(25)
+
         self.stringVar_CBRAM_ident = StringVar()
         self.stringVar_CBRAM_ident.set("35u:1000n:600n:ddmmyyss:00x00")
 
@@ -246,7 +255,7 @@ class Cycling(Sequence):
         
     def __initLabels(self):
     #This methods instanciates all the Labels displayed in the Single testbench GUI
-        self.label_description = Label(self.frame, text="This test bench is made to determine \nthe maximum number of cycles that can be reached \nby a single cell.", padx=self.resource.padx, pady=self.resource.pady)
+        self.label_description = Label(self.frame, text="This test bench is made to determine the maximum number \nof cycles that can be reached by a single cell.", padx=self.resource.padx, pady=self.resource.pady)
         self.label_description.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_description.grid(column=0, columnspan=2, row=0)
 
@@ -282,13 +291,22 @@ class Cycling(Sequence):
         self.label_pulse_compliance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_pulse_compliance.grid(column=0, row=4)
 
+        self.label_R_low_lim = Label(self.labelFrame_cyclingParameters, text="Low Resistance limit : ", bg=self.resource.bgColor)
+        self.label_R_low_lim .grid(column=0, row=0)
+
+        self.label_R_high_lim  = Label(self.labelFrame_cyclingParameters, text="High Resitance limit : ", bg=self.resource.bgColor)
+        self.label_R_high_lim .grid(column=0, row=1)
+
+        self.label_nbTry = Label(self.labelFrame_cyclingParameters, text="Maximum try number : ", bg=self.resource.bgColor)
+        self.label_nbTry.grid(column=0, row=2)
+
         self.label_CBRAM_ident = Label(self.frame, text="CBRAM cell's identifier : ")
         self.label_CBRAM_ident.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_CBRAM_ident.grid(column=0, row=4)
+        self.label_CBRAM_ident.grid(column=0, row=5)
 
         self.label_CBRAM_resistance = Label(self.frame, text="CBRAM cell's resistance : ")
         self.label_CBRAM_resistance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_CBRAM_resistance.grid(column=0, row=5)
+        self.label_CBRAM_resistance.grid(column=0, row=6)
 
         self.label_graph_graph1 = Label(self.labelFrame_graph, text="Graph TL : ")
         self.label_graph_graph1.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
@@ -428,8 +446,8 @@ class Cycling(Sequence):
 
         self.graph_TL.frame.grid(column=2, row=0, rowspan=4)
         self.graph_TR.frame.grid(column=3, row=0, rowspan=4)
-        self.graph_BL.frame.grid(column=2, row=4, rowspan=4)
-        self.graph_BR.frame.grid(column=3, row=4, rowspan=4)
+        self.graph_BL.frame.grid(column=2, row=4, rowspan=5)
+        self.graph_BR.frame.grid(column=3, row=4, rowspan=5)
 
         self.printResult()
 
@@ -463,11 +481,20 @@ class Cycling(Sequence):
         self.entry_pulse_compliance = Entry(self.labelFrame_signal2, textvariable=self.doubleVar_signal2_compliance, width=12)
         self.entry_pulse_compliance.grid(column=1, row=4, padx=self.resource.padx, pady=self.resource.pady)
 
+        self.entry_R_low_lim = Entry(self.labelFrame_cyclingParameters, textvariable=self.doubleVar_R_low_lim, width=12)
+        self.entry_R_low_lim.grid(column=1, row=0, pady=self.resource.pady)
+
+        self.entry_R_high_lim = Entry(self.labelFrame_cyclingParameters, textvariable=self.doubleVar_R_high_lim, width=12)
+        self.entry_R_high_lim.grid(column=1, row=1, pady=self.resource.pady)
+
+        self.entry_nbTry = Entry(self.labelFrame_cyclingParameters, textvariable=self.doubleVar_nbTry, width=12)
+        self.entry_nbTry.grid(column=1, row=2, pady=self.resource.pady)
+
         self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=30)
-        self.entry_CBRAM_ident.grid(column=1, row=4, pady=self.resource.pady, padx=self.resource.padx)
+        self.entry_CBRAM_ident.grid(column=1, row=5, pady=self.resource.pady, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12)
-        self.entry_CBRAM_resistance.grid(column=1, row=5, padx=self.resource.padx, pady=self.resource.pady)
+        self.entry_CBRAM_resistance.grid(column=1, row=6, padx=self.resource.padx, pady=self.resource.pady)
 
         self.entry_marker_position = Entry(self.labelFrame_graph, textvariable=self.intVar_marker_position, width=15)
         self.entry_marker_position.grid(column=1, row=5, pady=self.resource.pady)
@@ -560,6 +587,20 @@ class Cycling(Sequence):
 
     def loadResults(self):
     #This methods loads results into the different widgets
+        try :
+            if self.results.signal_1_type == "Pulse":
+                self.combo_signal1.current(0)
+            elif self.results.signal_1_type == "Ramp":
+                self.combo_signal2.current(1)
+                
+            if self.results.signal_2_type == "Pulse":
+                self.combo_signal1.current(0)
+            elif self.results.signal_2_type == "Ramp":
+                self.combo_signal2.current(1)
+
+        except AttributeError:            
+                self.combo_signal1.current(1)
+
         self.doubleVar_signal1_startValue.set(self.results.ramp_start_value)
         self.doubleVar_signal1_stopValue.set(self.results.ramp_stop_value)
         self.doubleVar_signal1_param.set(self.results.ramp_param)
@@ -569,6 +610,10 @@ class Cycling(Sequence):
         self.doubleVar_signal2_stopValue.set(self.results.pulse_stop_value)
         self.doubleVar_signal2_param .set(self.results.pulse_param)
         self.doubleVar_signal2_compliance.set(self.results.pulse_compliance)
+
+        self.doubleVar_R_low_lim.set(self.results.R_low_lim)
+        self.doubleVar_R_high_lim.set(self.results.R_high_lim)
+        self.doubleVar_nbTry.set(self.results.nbTry_max)
 
         self.stringVar_CBRAM_ident.set(self.results.cell_ident)
         self.doubleVar_CBRAM_resistance.set(self.results.cell_resistance)

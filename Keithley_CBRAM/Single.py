@@ -343,18 +343,6 @@ class Single(Sequence):
 
         self.printResult()
         
-    def button_measureResistance_pos_callBack(self):
-    #This method is a callBack funtion for button_startSequence
-        [R, error] = self.service.measureResistance(output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
-        return(R)
-
-    def button_measureResistance_neg_callBack(self):
-    #This method is a callBack funtion for button_startSequence
-        [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
-        return(R)
-
     def printResult(self):
     #This method add results to Graphs
         self.Graph[0].clearGraph()

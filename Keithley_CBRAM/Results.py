@@ -2,7 +2,7 @@
 
 Developped by : Luc PERARD
 
-File description : Class container for Results. Results is a class containing data coming back from the SMU.
+File description : Class container for Results. Results is a class containing data coming back from the measurement device.
 
 """
 
@@ -49,7 +49,9 @@ class Results():
 
         self.iteration = 0
         self.nbTry = []
+        self.signal_1_type = "Pulse"
         self.signal_1 = []
+        self.signal_2_type = "Pulse"
         self.signal_2 = []
         self.resistance = []
 

@@ -55,21 +55,22 @@ class Stability(Sequence):
        
         self.graph_TL = self.Graph[0]
         self.graph_TL.modifyFigure(Graph_size=100)
-        self.graph_TL.frame.grid(column=2, row=0, rowspan=8)
+        self.graph_TL.frame.grid(column=3, row=0, rowspan=8)
 
     def __initLabelFrames(self):
     #This method instanciates all the LabelFrames used in the Cycling test bench GUI
         self.labelFrame_MeasurementSetup = LabelFrame(self.frame, text="Measurement Setup")
         self.labelFrame_MeasurementSetup.configure(bg=self.resource.bgColor)
-        self.labelFrame_MeasurementSetup.grid(column=0, columnspan=2, row=3, padx=self.resource.padx, pady=self.resource.pady)
+        self.labelFrame_MeasurementSetup.grid(column=0, columnspan=3, row=3, padx=self.resource.padx, pady=self.resource.pady)
         
     def __initButtons(self):
     #This method instanciates all the buttons used by the Cycling test bench GUI
-        self.button_actualizeSequence.grid(column=0, row=4, padx=10, pady=5)
-        self.button_startSequence.grid(column=1, columnspan=1, row=4, padx=10, pady=5)
+        self.button_actualizeSequence.grid(column=0, columnspan=2, row=4, padx=10, pady=5)
+        self.button_startSequence.grid(column=1, columnspan=2, row=4, padx=10, pady=5)
 
         self.button_measureResistance_pos.grid(column=0, row=5, rowspan=1, padx=10, pady=5)
         self.button_measureResistance_neg.grid(column=1, row=5, rowspan=1, padx=10, pady=5)
+        self.button_measureImpedance.grid(column=2, row=5, rowspan=1, padx=10, pady=5)
 
     def __initVars(self):
     #This methods instanciates all the Vars used by widgets in the Single test bench GUI
@@ -86,7 +87,7 @@ class Stability(Sequence):
     #This methods instanciates all the Labels displayed in the Single testbench GUI
         self.label_description = Label(self.frame, text="This test bench provides resistance measurement configuration for\nstability study of a CBRAM cell", padx=10, pady=20)
         self.label_description.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_description.grid(column=0, columnspan=2, row=0)
+        self.label_description.grid(column=0, columnspan=3, row=0)
 
         self.label_CBRAM_ident = Label(self.frame, text="CBRAM cell's identifier : ")
         self.label_CBRAM_ident.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
@@ -120,7 +121,7 @@ class Stability(Sequence):
         self.combo_measurementType.grid(column=1, row=0, padx=3*self.resource.padx, pady=self.resource.pady)
         self.combo_measurementType.current(0)
         
-        self.combo_measurementMethod = Combobox(self.labelFrame_MeasurementSetup, state="readonly", width=20, values=["Positive", "Negative"])
+        self.combo_measurementMethod = Combobox(self.labelFrame_MeasurementSetup, state="readonly", width=20, values=["Positive", "Negative", "Impedance"])
         self.combo_measurementMethod.bind("<<ComboboxSelected>>", self.combo_measurementMethod_callback)
         self.combo_measurementMethod.configure(background=self.resource.bgColor)
         self.combo_measurementMethod.grid(column=1, row=1, padx=3*self.resource.padx, pady=self.resource.pady)
@@ -147,10 +148,10 @@ class Stability(Sequence):
     def __initEntries(self):
     #This methods instanciates all the Entries displayed in the Single testbench GUI
         self.entry_CBRAM_ident = Entry(self.frame, textvariable=self.stringVar_CBRAM_ident, width=30)
-        self.entry_CBRAM_ident.grid(column=1, row=1, padx=self.resource.padx)
+        self.entry_CBRAM_ident.grid(column=1, columnspan=2, row=1, padx=self.resource.padx)
 
         self.entry_CBRAM_resistance = Entry(self.frame, textvariable=self.doubleVar_CBRAM_resistance, width=12, state="readonly")
-        self.entry_CBRAM_resistance.grid(column=1, row=2, pady=self.resource.pady)
+        self.entry_CBRAM_resistance.grid(column=1, columnspan=2, row=2, pady=self.resource.pady)
 
         self.entry_nb_measurement = Entry(self.labelFrame_MeasurementSetup, textvariable=self.doubleVar_nb_measurement, width=12)
         self.entry_nb_measurement.grid(column=1, row=2, pady=self.resource.pady)    
@@ -194,7 +195,7 @@ class Stability(Sequence):
             negative = False
         elif self.combo_measurementMethod.get() == "Negative":
             negative = True
-
+            
         [self.results.resistance, error] = self.service.measureStability(self.term_text, self.results.delay, negative=negative)
 
         self.results.cell_resistance = self.results.resistance[-1]     
@@ -220,18 +221,6 @@ class Stability(Sequence):
             if self.resource.autoExport == True:
                 messagebox.showinfo(title="Auto Export", message=("Result files have been exported to the following PATH :\n" + path))
                 
-    def button_measureResistance_neg_callBack(self):
-    #This method is a callBack funtion for button_startSequence
-        [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
-        return(R)
-        
-    def button_measureResistance_pos_callBack(self):
-    #This method is a callBack funtion for button_startSequence
-        [R, error] = self.service.measureResistance(output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
-        return(R)
-
     def printResult(self):
     #This method add results to Graphs
         self.doubleVar_CBRAM_resistance.set(self.results.resistance[-1])

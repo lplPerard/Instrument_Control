@@ -43,13 +43,16 @@ class Resource():
     #Constructor for the Parameters superclass
 
         #SMUParameters
+        self.SMUAdress = ""
         self.stepDelay = 0.0116
         self.NPLC= 0.01
         self.source = "VOLT"
         self.sense = "CURR"
 
+        #RLCParameters
+        self.RLCAdress = ""
+
         #generalParameters
-        self.deviceAdress = ""
         self.bgColor = "gainsboro"
         self.textColor = "black"
 
