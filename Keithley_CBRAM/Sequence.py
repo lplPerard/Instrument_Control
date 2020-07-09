@@ -43,7 +43,8 @@ class Sequence():
         self.frame = LabelFrame(root)
 
         self.button_startSequence = Button(self.frame, text="Start Sequence", command=self.button_startSequence_callBack, padx=5, pady=10)
-        self.button_actualizeSequence = Button(self.frame, text="Actualize Sequence", command=self.button_actualizeSequence_callBack, padx=5, pady=10)
+        self.button_actualizeSequence = Button(self.frame, text="Refresh Sequence", command=self.button_actualizeSequence_callBack, padx=5, pady=10)
+        
         self.button_measureResistance_pos = Button(self.frame, text="Measure +", command=self.button_measureResistance_pos_callBack, padx=5, pady=10)
         self.button_measureResistance_neg = Button(self.frame, text="Measure -", command=self.button_measureResistance_neg_callBack, padx=5, pady=10)
         self.button_measureImpedance = Button(self.frame, text="Measure RLC", command=self.button_measureImpedance_callBack, padx=5, pady=10)

@@ -45,6 +45,7 @@ class Service():
         self.instr = self.resourceManager.open_resource(self.resource.SMUAdress)
 
         self.instr.write('*RST')
+        self.instr.write('*CLS')
         self.instr.write('TRAC:CLE "defbuffer1"')
 
         self.instr.write('SENS:FUNC "VOLT"')
@@ -105,20 +106,26 @@ class Service():
         self.instr = self.resourceManager.open_resource(self.resource.RLCAdress)
 
         self.instr.write('*RST')
-        self.instr.write('CALC1:FORM Cp')
-        self.instr.write('CALC2:FORM Rp')
+        self.instr.write('*CLS')
+        self.instr.write(':MEM:CLE')
+        self.instr.write(':FORM REAL')
+        self.instr.write(':TRIG:SOUR BUS')
+        self.instr.write(':FUNC:IMP ' + str(func1) + str(func2))
         
-        #self.instr.write(':SOUR:VOLT:AMP ' + str(voltage) +"V")
-        #self.instr.write(':SOUR:VOLT:MODE SYNC')
-        #self.instr.write(':SOUR:FREQ ' + str(frequency))
+        self.instr.write(':VOLT ' + str(voltage))
+        self.instr.write(':FREQ ' + str(frequency))
+
+        self.instr.write(':TRIG:IMM')
+        Z = self.instr.query_binary_values(':FETCH:IMP:FORM?')[:3]
+        #Z = self.instr.read()
 
         self.instr.close()
         
-        output.insert(END, "Measured Impedance is : " )
+        output.insert(END, "Measured Impedance is : " + str(Z) + "\n")
         output.see(END)
         output.update_idletasks()
 
-        return(0, error)
+        return(Z, error)
         
     def generateSingleVoltageWaveform(self, output, Us, Ilim1, Ilim2=-1, index_Ilim2=-1):
     #This method generates a voltage waveform according to given parameter Us, using a 4 wire method
@@ -137,6 +144,7 @@ class Service():
 
 
         self.instr.write('*RST')
+        self.instr.write('*CLS')
         self.instr.write('TRAC:CLE "defbuffer1"')
 
         self.instr.write('SOUR:FUNC VOLT')
