@@ -99,9 +99,9 @@ class Graph():
 
         self.canvas.draw()
         
-    def addScatteredGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True):
+    def addScatteredGraph(self, x=[], y=[], xlabel="", ylabel="", title="", xscale="linear", yscale='linear', color="blue", grid=True, marker_pos=[]):
     #This method is called to add data to be plotted on self.fig    
-        self.plot.scatter(x, y, color=color)
+        self.plot.scatter(x, y, s=10, color=color)
 
         self.plot.set_xlabel(xlabel)
         self.plot.set_xscale(xscale)

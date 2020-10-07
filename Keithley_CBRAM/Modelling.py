@@ -62,10 +62,11 @@ class Modelling(Sequence):
                       Graph(self.frame, self.resource, "I/V Curve"),
                       Graph(self.frame, self.resource, "Butterfly Curve"),
                       Graph(self.frame, self.resource, "I/V Curve (Command)"),
-                      Graph(self.frame, self.resource, "Butterfly Curve(Command)"),
+                      Graph(self.frame, self.resource, "Butterfly Curve (Command)"),
                       Graph(self.frame, self.resource, "R/V Curve"),
                       Graph(self.frame, self.resource, "R/V Curve (Command)"),
                       Graph(self.frame, self.resource, "Resistance"),
+                      Graph(self.frame, self.resource, "Resistance (Command)"),
                       Graph(self.frame, self.resource, "Power"),
                       Graph(self.frame, self.resource, "Temperature"),
                       Graph(self.frame, self.resource, "T/V curve")]
@@ -83,6 +84,7 @@ class Modelling(Sequence):
         self.Graph[9].frame.grid_forget()
         self.Graph[10].frame.grid_forget()
         self.Graph[11].frame.grid_forget()
+        self.Graph[12].frame.grid_forget()
 
         self.graph_TL.frame.grid(column=2, row=0, rowspan=6)
         self.graph_TR.frame.grid(column=3, row=0, rowspan=6)
@@ -126,7 +128,7 @@ class Modelling(Sequence):
         self.button_simulate = Button(self.frame, text="Simulate", command=self.button_simulate_callBack, padx=5, pady=10)
         self.button_simulate.grid(column=1, row=7, padx=self.resource.padx, pady=self.resource.pady)
         
-    def button_graph_actualizeGraphs_callBack(self):
+    def button_graph_actualizeGraphs_callBack(self, args=[]):
     #Callback method for actualizeGraphs buttons
         self.button_simulate_callBack()
         self.combo_graph_callback()
@@ -165,15 +167,15 @@ class Modelling(Sequence):
             value = float(tampon[2][:-1])
             self.doubleVar_Al_th.set(format(value * 1e-9, '.4g'))
 
-        Rmax = max(abs(asarray(self.results.signal_1) / asarray(self.results.signal_2)))
-        print("Rmax = " + str(Rmax))
-        Rmin = min(abs(asarray(self.results.signal_1) / asarray(self.results.signal_2)))
-        print("Rmin = " + str(Rmin))
+        Fresistance = self.controller.filterResultSignal(asarray(self.results.signal_1) / asarray(self.results.signal_2))
+
+        Rmax = max(abs(Fresistance))
+        Rmin = min(abs(Fresistance))
 
         rho_off = abs(Rmax) * (np.pi * (self.doubleVar_ext_radius.get())**2) / self.doubleVar_Nafion_th.get()
-        rho_on = abs(Rmin) * (np.pi * 3* (self.doubleVar_CF_radius.get())**2) / self.doubleVar_Nafion_th.get()
+        rho_on = abs(Rmin) * (np.pi * (self.doubleVar_CF_radius.get()*3)**2) / self.doubleVar_Nafion_th.get()
 
-        self.doubleVar_resistivity_off.set(format(rho_off, '.4g'))
+        self.doubleVar_resistivity_off_ohm.set(format(rho_off, '.4g'))
         self.doubleVar_resistivity_on.set(format(rho_on, '.4g'))
 
         self.doubleVar_peakValue_set.set(self.results.ramp_stop_value)
@@ -187,9 +189,14 @@ class Modelling(Sequence):
         except :
             print("exception")
 
+        if self.results.pulse_compliance == 0:
+            self.doubleVar_peakValue_reset.set(self.results.ramp_stop_value)
+            self.doubleVar_ramp_reset.set(self.results.ramp_param)                    
+            self.doubleVar_compliance_reset.set(self.results.ramp_compliance )
+
         self.button_simulate_callBack()
         
-    def button_simulate_callBack(self):
+    def button_simulate_callBack(self, args=[]):
     #This method is a callBack funtion for button_simulate
         self.CBRAM.Al_th = float(self.entry_Al_th.get())
         self.CBRAM.Cu_th = float(self.entry_Cu_th.get())
@@ -200,10 +207,15 @@ class Modelling(Sequence):
         self.CBRAM.alpha = float(self.entry_alpha.get())
         self.CBRAM.velocity_r = float(self.entry_velocity_r.get())
         self.CBRAM.beta = float(self.entry_beta.get())
+        self.CBRAM.sigmaPF = float(self.entry_sigmaPF.get())
+        self.CBRAM.phiPF = float(self.entry_phiPF.get())
         self.CBRAM.temperature = float(self.entry_temperature.get())
         self.CBRAM.thermal_resistance = float(self.entry_thermal_resistance.get())
         self.CBRAM.resistivity_on = float(self.entry_resistivity_on.get())
-        self.CBRAM.resistivity_off = float(self.entry_resistivity_off.get())
+        self.CBRAM.resistivity_off_ohm = float(self.entry_resistivity_off_ohm.get())
+        self.CBRAM.resistivity_off_PF = float(self.entry_resistivity_off_PF.get())
+        self.CBRAM.negative_offset = float(self.entry_negative_offset.get())
+        self.CBRAM.negative_offset_threshold = float(self.entry_negative_offset_threshold.get())
 
         self.results.cell_ident = self.stringVar_CBRAM_ident.get()
 
@@ -255,17 +267,32 @@ class Modelling(Sequence):
         self.doubleVar_beta = DoubleVar()
         self.doubleVar_beta.set(0.012)
 
+        self.doubleVar_sigmaPF = DoubleVar()
+        self.doubleVar_sigmaPF.set(150)
+
+        self.doubleVar_phiPF = DoubleVar()
+        self.doubleVar_phiPF.set(0.015)
+
         self.doubleVar_temperature = DoubleVar()
         self.doubleVar_temperature.set(300)
 
         self.doubleVar_thermal_resistance = DoubleVar()
-        self.doubleVar_thermal_resistance.set(1e5)
+        self.doubleVar_thermal_resistance.set(format(1e5, '.4g'))
+
+        self.doubleVar_negative_offset= DoubleVar()
+        self.doubleVar_negative_offset.set(0)
+
+        self.doubleVar_negative_offset_threshold = DoubleVar()
+        self.doubleVar_negative_offset_threshold.set(0)
 
         self.doubleVar_resistivity_on = DoubleVar()
         self.doubleVar_resistivity_on.set(7e-6)
 
-        self.doubleVar_resistivity_off = DoubleVar()
-        self.doubleVar_resistivity_off.set(3e7)
+        self.doubleVar_resistivity_off_ohm = DoubleVar()
+        self.doubleVar_resistivity_off_ohm.set(format(3e7, '.4g'))
+
+        self.doubleVar_resistivity_off_PF = DoubleVar()
+        self.doubleVar_resistivity_off_PF.set(format(1e8, '.4g'))
 
         self.doubleVar_peakValue_set = DoubleVar()
         self.doubleVar_peakValue_set.set(5)
@@ -337,21 +364,41 @@ class Modelling(Sequence):
         self.label_beta.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_beta.grid(column=2, row=1)
 
+        self.label_sigmaPF = Label(self.labelFrame_fitting, text = "Sigma PF : ")
+        self.label_sigmaPF.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_sigmaPF.grid(column=0, row=2)
+
+        self.label_phiPF = Label(self.labelFrame_fitting, text = "Phi PF : ")
+        self.label_phiPF.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_phiPF.grid(column=2, row=2)
+
         self.label_temperature = Label(self.labelFrame_fitting, text = "Temperature (K) : ")
         self.label_temperature.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_temperature.grid(column=0, row=2)
+        self.label_temperature.grid(column=0, row=3)
 
         self.label_thermal_resistance = Label(self.labelFrame_fitting, text = "Rth : ")
         self.label_thermal_resistance.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_thermal_resistance.grid(column=0, row=3)
+        self.label_thermal_resistance.grid(column=2, row=3)
+
+        self.label_negative_offset = Label(self.labelFrame_fitting, text = "Negative Offset (V): ")
+        self.label_negative_offset.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_negative_offset.grid(column=0, row=4)
+
+        self.label_negative_offset_threshold = Label(self.labelFrame_fitting, text = "Threshold (V) : ")
+        self.label_negative_offset_threshold .configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_negative_offset_threshold .grid(column=2, row=4)
 
         self.label_resistivity_on = Label(self.labelFrame_physical, text = "ON Resistivity (Ohm/m) : ")
         self.label_resistivity_on.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
         self.label_resistivity_on.grid(column=0, row=0)
 
-        self.label_resistivity_off = Label(self.labelFrame_physical, text = "OFF Resistivity (Ohm/m) : ")
-        self.label_resistivity_off.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
-        self.label_resistivity_off.grid(column=0, row=1)
+        self.label_resistivity_off_ohm = Label(self.labelFrame_physical, text = "Ohm OFF Resistivity (Ohm/m) : ")
+        self.label_resistivity_off_ohm.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_resistivity_off_ohm.grid(column=0, row=1)
+
+        self.label_resistivity_off_PF = Label(self.labelFrame_physical, text = "PF OFF Resistivity (Ohm/m) : ")
+        self.label_resistivity_off_PF.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
+        self.label_resistivity_off_PF.grid(column=0, row=2)
 
         self.label_peakValue_set = Label(self.labelFrame_signal_set, text = "Peak Value : ")
         self.label_peakValue_set.configure(bg=self.resource.bgColor, fg=self.resource.textColor)
@@ -403,8 +450,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration",
-                                                                                                "Temperature", "T/V curve"])
+                                                                                                "Resistance/iteration", "Resistance/iteration (Command)",
+                                                                                                "Power/iteration", "Temperature", "T/V curve"])
         self.combo_graph1.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph1.configure(background=self.resource.bgColor)
         self.combo_graph1.grid(column=1, row=0, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -414,8 +461,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration",
-                                                                                                "Temperature", "T/V curve"])
+                                                                                                "Resistance/iteration", "Resistance/iteration (Command)",
+                                                                                                "Power/iteration", "Temperature", "T/V curve"])
         self.combo_graph2.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph2.configure(background=self.resource.bgColor)
         self.combo_graph2.grid(column=1, row=1, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -425,8 +472,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration",
-                                                                                                "Temperature", "T/V curve"])
+                                                                                                "Resistance/iteration", "Resistance/iteration (Command)",
+                                                                                                "Power/iteration", "Temperature", "T/V curve"])
         self.combo_graph3.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph3.configure(background=self.resource.bgColor)
         self.combo_graph3.grid(column=1, row=2, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -436,8 +483,8 @@ class Modelling(Sequence):
                                                                                                 "I/V curve", "Butterfly curve",
                                                                                                 "I/V curve (Command)", "Butterfly curve (Command)",
                                                                                                 "R/V curve", "R/V curve (Command)",
-                                                                                                "Resistance/iteration", "Power/iteration",
-                                                                                                "Temperature", "T/V curve"])
+                                                                                                "Resistance/iteration", "Resistance/iteration (Command)",
+                                                                                                "Power/iteration", "Temperature", "T/V curve"])
         self.combo_graph4.bind("<<ComboboxSelected>>", self.combo_graph_callback)
         self.combo_graph4.configure(background=self.resource.bgColor)
         self.combo_graph4.grid(column=1, row=3, columnspan=3, padx=self.resource.padx, pady=self.resource.pady)
@@ -477,63 +524,103 @@ class Modelling(Sequence):
 
         self.entry_Nafion_th = Entry(self.labelFrame_geometry, textvariable=self.doubleVar_Nafion_th, width=10)
         self.entry_Nafion_th.grid(column=1, row=0, padx=self.resource.padx)
+        self.entry_Nafion_th.bind("<Return>", self.button_simulate_callBack)        
 
         self.entry_Cu_th = Entry(self.labelFrame_geometry, textvariable=self.doubleVar_Cu_th,width=10)
         self.entry_Cu_th.grid(column=1, row=1, padx=self.resource.padx)
+        self.entry_Cu_th.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_Al_th = Entry(self.labelFrame_geometry, textvariable=self.doubleVar_Al_th, width=10)
         self.entry_Al_th.grid(column=1, row=2, padx=self.resource.padx)
+        self.entry_Al_th.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_ext_radius = Entry(self.labelFrame_geometry, textvariable=self.doubleVar_ext_radius, width=10)
         self.entry_ext_radius.grid(column=1, row=3, padx=self.resource.padx)
+        self.entry_ext_radius.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_CF_radius = Entry(self.labelFrame_geometry, textvariable=self.doubleVar_CF_radius, width=10)
         self.entry_CF_radius.grid(column=1, row=4, padx=self.resource.padx)
+        self.entry_CF_radius.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_velocity_h = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_velocity_h, width=7)
         self.entry_velocity_h.grid(column=1, row=0, padx=self.resource.padx)
+        self.entry_velocity_h.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_alpha = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_alpha, width=7)
         self.entry_alpha.grid(column=3, row=0, padx=self.resource.padx)
+        self.entry_alpha.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_velocity_r = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_velocity_r, width=7)
         self.entry_velocity_r.grid(column=1, row=1, padx=self.resource.padx)
+        self.entry_velocity_r.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_beta = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_beta, width=7)
         self.entry_beta.grid(column=3, row=1, padx=self.resource.padx)
+        self.entry_beta.bind("<Return>", self.button_simulate_callBack)
 
-        self.entry_temperature = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_temperature, width=10)
-        self.entry_temperature.grid(column=1, row=2, padx=self.resource.padx)
+        self.entry_sigmaPF = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_sigmaPF, width=7)
+        self.entry_sigmaPF.grid(column=1, row=2, padx=self.resource.padx)
+        self.entry_sigmaPF.bind("<Return>", self.button_simulate_callBack)
 
-        self.entry_thermal_resistance = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_thermal_resistance, width=10)
-        self.entry_thermal_resistance.grid(column=1, row=3, padx=self.resource.padx)
+        self.entry_phiPF = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_phiPF, width=7)
+        self.entry_phiPF.grid(column=3, row=2, padx=self.resource.padx)
+        self.entry_phiPF.bind("<Return>", self.button_simulate_callBack)
+
+        self.entry_temperature = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_temperature, width=5)
+        self.entry_temperature.grid(column=1, row=3, padx=self.resource.padx)
+        self.entry_temperature.bind("<Return>", self.button_simulate_callBack)
+
+        self.entry_thermal_resistance = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_thermal_resistance, width=8)
+        self.entry_thermal_resistance.grid(column=3, row=3, padx=self.resource.padx)
+        self.entry_thermal_resistance.bind("<Return>", self.button_simulate_callBack)
+
+        self.entry_negative_offset = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_negative_offset, width=5)
+        self.entry_negative_offset.grid(column=1, row=4, padx=self.resource.padx)
+        self.entry_negative_offset.bind("<Return>", self.button_simulate_callBack)
+
+        self.entry_negative_offset_threshold = Entry(self.labelFrame_fitting, textvariable=self.doubleVar_negative_offset_threshold, width=5)
+        self.entry_negative_offset_threshold.grid(column=3, row=4, padx=self.resource.padx)
+        self.entry_negative_offset_threshold.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_resistivity_on = Entry(self.labelFrame_physical, textvariable=self.doubleVar_resistivity_on, width=10)
         self.entry_resistivity_on.grid(column=1, row=0, padx=self.resource.padx)
+        self.entry_resistivity_on.bind("<Return>", self.button_simulate_callBack)
 
-        self.entry_resistivity_off = Entry(self.labelFrame_physical, textvariable=self.doubleVar_resistivity_off, width=10)
-        self.entry_resistivity_off.grid(column=1, row=1, padx=self.resource.padx)
+        self.entry_resistivity_off_ohm = Entry(self.labelFrame_physical, textvariable=self.doubleVar_resistivity_off_ohm, width=10)
+        self.entry_resistivity_off_ohm.grid(column=1, row=1, padx=self.resource.padx)
+        self.entry_resistivity_off_ohm.bind("<Return>", self.button_simulate_callBack)
+
+        self.entry_resistivity_off_PF = Entry(self.labelFrame_physical, textvariable=self.doubleVar_resistivity_off_PF, width=10)
+        self.entry_resistivity_off_PF.grid(column=1, row=2, padx=self.resource.padx)
+        self.entry_resistivity_off_PF.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_peakValue_set = Entry(self.labelFrame_signal_set, textvariable=self.doubleVar_peakValue_set, width=6)
         self.entry_peakValue_set.grid(column=1, row=0, pady=self.resource.pady)
+        self.entry_peakValue_set.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_ramp_set = Entry(self.labelFrame_signal_set, textvariable=self.doubleVar_ramp_set, width=6)
         self.entry_ramp_set.grid(column=1, row=1, pady=self.resource.pady)
+        self.entry_ramp_set.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_compliance_set = Entry(self.labelFrame_signal_set, textvariable=self.doubleVar_compliance_set, width=6)
         self.entry_compliance_set.grid(column=1, row=2, pady=self.resource.pady)
+        self.entry_compliance_set.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_peakValue_reset = Entry(self.labelFrame_signal_reset, textvariable=self.doubleVar_peakValue_reset, width=6)
         self.entry_peakValue_reset.grid(column=1, row=0, pady=self.resource.pady)
+        self.entry_peakValue_reset.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_ramp_reset = Entry(self.labelFrame_signal_reset, textvariable=self.doubleVar_ramp_reset, width=6)
         self.entry_ramp_reset.grid(column=1, row=1, pady=self.resource.pady)
+        self.entry_ramp_reset.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_compliance_reset = Entry(self.labelFrame_signal_reset, textvariable=self.doubleVar_compliance_reset, width=6)
         self.entry_compliance_reset.grid(column=1, row=2, pady=self.resource.pady)
+        self.entry_compliance_reset.bind("<Return>", self.button_simulate_callBack)
 
         self.entry_marker_position = Entry(self.labelFrame_graph, textvariable=self.intVar_marker_position, width=4)
         self.entry_marker_position.grid(column=1, row=4, pady=self.resource.pady)
+        self.entry_marker_position.bind("<Return>", self.button_graph_actualizeGraphs_callBack)
     
     def printSimulation(self, signal, I, R, Temperature):
     #This method add results to Graphs
@@ -547,6 +634,9 @@ class Modelling(Sequence):
         self.Graph[7].clearGraph()
         self.Graph[8].clearGraph()
         self.Graph[9].clearGraph()
+        self.Graph[10].clearGraph()
+        self.Graph[11].clearGraph()
+        self.Graph[12].clearGraph()
         
         marker = [self.intVar_marker_position.get()]
         time = linspace(0, len(signal)*self.resource.stepDelay, len(signal))
@@ -585,7 +675,10 @@ class Modelling(Sequence):
             self.Graph[8].addLinGraph(x=time, xlabel="time",
                                     y=abs((asarray(self.results.signal_1)/self.results.signal_2))/self.resource.resistanceCoeff, ylabel="Resistance",
                                     yscale="log", color="orange", grid=self.resource.Graph_grid, marker_pos=marker)
-            self.Graph[9].addStepGraph(x=time, xlabel="time",
+            self.Graph[9].addLinGraph(x=time, xlabel="time",
+                                    y=abs((asarray(self.results.signal_1)/self.results.signal_2))/self.resource.resistanceCoeff, ylabel="Resistance (Command)",
+                                    yscale="log", color="orange", grid=self.resource.Graph_grid, marker_pos=marker)
+            self.Graph[10].addStepGraph(x=time, xlabel="time",
                                     y=(asarray(self.results.signal_1)*self.results.signal_2)/self.resource.powerCoeff, ylabel="Power",
                                     color="orange", grid=self.resource.Graph_grid, marker_pos=marker)
 
@@ -637,14 +730,17 @@ class Modelling(Sequence):
         
         self.Graph[8].addLinGraph(x=time, xlabel="time",
                                   y=abs(asarray(R))/self.resource.resistanceCoeff, ylabel="Resistance",
-                                  yscale="log", color="red", grid=self.resource.Graph_grid, marker_pos=marker)
-        self.Graph[9].addStepGraph(x=time, xlabel="time",
+                                  yscale="log", color="red", grid=self.resource.Graph_grid, marker_pos=marker)        
+        self.Graph[9].addLinGraph(x=time, xlabel="time",
+                                    y=abs((asarray(self.signal)/I))/self.resource.resistanceCoeff, ylabel="Resistance (Command)",
+                                    yscale="log", color="red", grid=self.resource.Graph_grid, marker_pos=marker)
+        self.Graph[10].addStepGraph(x=time, xlabel="time",
                                    y=asarray(signal*I)/self.resource.powerCoeff, ylabel="Power",
                                    color="red", grid=self.resource.Graph_grid, marker_pos=marker)
         
-        self.Graph[10].addLinGraph(x=time, xlabel="time",
+        self.Graph[11].addLinGraph(x=time, xlabel="time",
                                   y=Temperature, ylabel="Temperature (°K)",
                                   yscale="log", color="red", grid=self.resource.Graph_grid, marker_pos=marker)
-        self.Graph[11].addStepGraph(x=asarray(signal)/self.resource.voltCoeff, xlabel="Voltage",
+        self.Graph[12].addStepGraph(x=asarray(signal)/self.resource.voltCoeff, xlabel="Voltage",
                                    y=Temperature, ylabel="Temperature (°K)",
                                    color="red", grid=self.resource.Graph_grid, marker_pos=marker)

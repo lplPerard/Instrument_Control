@@ -316,65 +316,105 @@ class Service():
 
     def simulateVoltageWaveform(self, signal, lim, lim2, CBRAM):
     #This method simulate the behavior of a CBRAM cell based on parameters extracted from CBRAM param, upon the signal voltage.
-        Ea = 0.5
-        k = 1.3e-23
-        q = 1.6e-19
-
-        T = 0*signal
-        dh = 0
-        h = 0
-        r = 0
-        dr = 0
-        R = 0*signal
-        I = 0*signal
-        state = "off"
-
-        Rmax = CBRAM.resistivity_off * CBRAM.nafion_th / (np.pi * (CBRAM.ext_radius)**2)
-
-        R[0] = Rmax
 
 
-        i=1
-        j=0
+        """
+            A method to simulate the behaviour of a CBRAM cell and compare it to importe I/V result test
+
+            Parameters
+            ----------
+
+            signal : double vector
+                Voltage command signal that would be applied to the real cell
+
+            lim : double
+                Current compliance for positive part of the signal
+
+            lim2 : double
+                Current compliance for the negative part of the signal
+
+            CBRAM : CBRAM
+                CBRAM object that describes the simulated cell's caracteristics
+
+    """
+
+        Ea = 0.5                #Activation energy
+        k = 1.3e-23             #Boltzmann
+        q = 1.6e-19             #Charge energy
+        eps0 = 8.85418782e-12   #Void permittivity
+        epsR = 3                #Nafion's permittivity
+
+        dh = 0          #Filament's length growth rate
+        h = 0           #Filament's current length
+        r = 0           #Filament's current radius
+        dr = 0          #Filament's radial growth rate
+        
+        T = 0*signal    #Temperature vector initialized to zero
+        R = 0*signal    #Resistance vector initialized to zero
+        I = 0*signal    #Current vector initialized to zero
+        IPF = 0         #Poole-Frenkel current initialized to zero
+        F = 0
+        state = "off"   #Current state initialized to off
+
+        tampon = signal
+
+        Rmax = CBRAM.resistivity_off_ohm * CBRAM.nafion_th / (np.pi * (CBRAM.ext_radius)**2)    #Maximum resistance calculation based on cell's caracteristics (Pristine State)
+
+        R[0] = Rmax #First resistance point initialized to maximum resistance (Pristine State)
+
+
+        i=1     #To calculate iterations on the signal
+        j=0     #To calculate iterations on current limiting process, work as a watchdog
+        done=False
         problem = 0
 
         while (i < len(signal)) and j < 100:
-            T[i] = CBRAM.temperature + signal[i]**2 * CBRAM.thermal_resistance / R[i-1]
-            E = signal[i] * CBRAM.resistivity_off * (CBRAM.nafion_th - h) / (CBRAM.resistivity_on * h  + CBRAM.resistivity_off  * (CBRAM.nafion_th - h))
+            T[i] = CBRAM.temperature + signal[i]**2 * CBRAM.thermal_resistance / R[i-1] #Temperature calculation
             
+            if (signal[i] < CBRAM.negative_offset_threshold) and (tampon[i] -  tampon[i-1] > 0) and (done == False):  #A threshold is added to YU's model to fit our results in LRS to HRS part
+                signal[i:] = signal[i:] + CBRAM.negative_offset
+                done=True
+            
+            
+            E = signal[i] * CBRAM.resistivity_off_ohm * (CBRAM.nafion_th - h) / (CBRAM.resistivity_on * h  + CBRAM.resistivity_off_ohm  * (CBRAM.nafion_th - h))    #Electric field calculation based upon signal
+ 
             if E == 0:
-                E = signal[i]
+                E = signal[i]  #To avoid E always equals 0 since h is initialized to zero
             
             if state == 'off' :
             
-                dh = CBRAM.velocity_h * np.exp(-Ea*q / (k*T[i])) * np.sinh(CBRAM.alpha * q * E / (2*k*T[i]))
-                h = h + dh * self.resource.stepDelay
-                
-                if signal[i] < 0:
+                dh = CBRAM.velocity_h * np.exp(-Ea*q / (k*T[i])) * np.sinh(CBRAM.alpha * q * E / (2*k*T[i])) #dh calculation based upon Mott-Gurney's law
+                h = h + dh * self.resource.stepDelay #h calculation as integration of dh
 
-                    if (R[i-1] > 0.8*Rmax) & ((signal[i] - signal[i-1]) < 0):
-                        dh = -1*CBRAM.velocity_r * np.exp(-Ea*q / (k*T[i])) *  np.sinh(4*CBRAM.beta*q*signal[i]/(k*T[i]))
-
-
-                    else:                
-                        dh = CBRAM.velocity_r * np.exp(-Ea*q / (k*T[i])) *  np.sinh(2*CBRAM.beta*q*signal[i]/(k*T[i]))
-                        
-                    h = h + dh * self.resource.stepDelay
-
-                if h >= CBRAM.nafion_th:
-                    h = CBRAM.nafion_th      
-                    state = 'on'
+                if h >= CBRAM.nafion_th :
+                    h = CBRAM.nafion_th     #Maximum filament length limited to electrolyte thickness      
+                    state = 'on'            #State is on because filament is touching
 
                 elif h <= 0 : 
-                    h = 0
+                    h = 0       #Minimum filament length limited to zero
                 
-                R[i] = abs(CBRAM.resistivity_on * h / (np.pi * ((CBRAM.CF_radius+r)**2)) + CBRAM.resistivity_off * (CBRAM.nafion_th - h) / (np.pi * (CBRAM.ext_radius**2)))
-                I[i] = signal[i]/R[i]
+                R[i] = abs(CBRAM.resistivity_on * h / (np.pi * ((CBRAM.CF_radius+r)**2)) + CBRAM.resistivity_off_ohm * (CBRAM.nafion_th - h) / (np.pi * (CBRAM.ext_radius**2))) #Resistance calculation based upon cell's geometry using Ohmic conductivity
+
+                if signal[i] < 0:                    
+                    R[i] = abs(CBRAM.resistivity_on * h / (np.pi * ((CBRAM.CF_radius+r)**2)) + CBRAM.resistivity_off_PF * (CBRAM.nafion_th - h) / (np.pi * (CBRAM.ext_radius**2)))  #Resistance calculation based upon cell's geometry using Poole-Frenkel conductivity
+
+
+                I[i] = signal[i]/R[i] #Current calculation based upon signal and calculated resistance
+
+                if (signal[i] < 0) and (tampon[i] -  tampon[i-1] > 0):
+                    F = E/(CBRAM.nafion_th - h)
+                    IPF = (np.pi * ((CBRAM.CF_radius+r)**2))*CBRAM.sigmaPF*F*np.exp(-1./k/T[i]*(CBRAM.phiPF*q-(q**3/np.pi/eps0/epsR*abs(F))**0.5))
+                    print(IPF)
+                    I[i] = IPF
+                    R[i] = signal[i]/I[i]
+
+                ### The following section aimsa calculate the applied voltage signal according to current compliance. The signal is recalculated as the product of current compliance and calculated resistance.
+                ### After recalculation, i is decremented and the iteration is recalculated based upon the new voltage.
 
                 if signal[i] >= 0:
 
                     if abs(I[i]) > lim:
-                        signal[i] = np.sign(signal[i]) * R[i] * lim/1.01
+                        signal[i] = np.sign(signal[i]) * R[i] * lim/1.01    #1% overshoot is tolerated (the simulation fails otherwise in most cases)
                         i = i-1
                         j = j+1
 
@@ -391,21 +431,28 @@ class Service():
                     else:
                         j = 0
 
-            elif state == 'on':
+            elif state == 'on':     #When reaching on state, we consider radial growth of the filament
             
-                dr = CBRAM.velocity_r * np.exp(-Ea*q/(k*T[i])) * np.sinh(CBRAM.beta*q*signal[i]/(k*T[i]))
-                r = r + dr * self.resource.stepDelay   
+                dr = CBRAM.velocity_r * np.exp(-Ea*q/(k*T[i])) * np.sinh(CBRAM.beta*q*signal[i]/(k*T[i]))   #dr calculation based upon Mott-Gurney's law
+                r = r + dr * self.resource.stepDelay   #r calculation as integration of dr
 
-                if CBRAM.CF_radius + r <= CBRAM.CF_radius: 
+                if CBRAM.CF_radius + r <= CBRAM.CF_radius:  #if the radius becomes thinner than the original radius, we go back to off state
                     r = 0                
-                    state = 'off'       
+                    state = 'off' 
 
-                if r > 6*CBRAM.CF_radius: 
-                    r = 6*CBRAM.CF_radius
+                if r > 3*CBRAM.CF_radius: #Maximum radius size limitation. Arbitrary factor
+                    r = 3*CBRAM.CF_radius
 
-                R[i] = abs(CBRAM.resistivity_on * h / (np.pi * ((CBRAM.CF_radius+r)**2)) + CBRAM.resistivity_off * (CBRAM.nafion_th - h) / (np.pi * (CBRAM.ext_radius**2)))
-                I[i] = signal[i]/R[i]
+                R[i] = abs(CBRAM.resistivity_on * h / (np.pi * ((CBRAM.CF_radius+r)**2)) + CBRAM.resistivity_off_ohm * (CBRAM.nafion_th - h) / (np.pi * (CBRAM.ext_radius**2))) #Resistance calculation based upon cell's geometry using Ohmic conductivity
+
+                if signal[i] < 0:                    
+                    R[i] = abs(CBRAM.resistivity_on * h / (np.pi * ((CBRAM.CF_radius+r)**2)) + CBRAM.resistivity_off_PF * (CBRAM.nafion_th - h) / (np.pi * (CBRAM.ext_radius**2)))  #Resistance calculation based upon cell's geometry using Poole-Frenkel conductivity
+                    
+                I[i] = signal[i]/R[i]   #Current calculation
                 
+                ### The following section aims at calculate the applied voltage signal according to current compliance. The signal is recalculated as the product of current compliance and calculated resistance.
+                ### After recalculation, i is decremented and the iteration is recalculated based upon the new voltage.
+
                 if signal[i] >= 0:
 
                     if abs(I[i]) > lim:
@@ -429,9 +476,9 @@ class Service():
             i = i+1
 
         if j == 100:
-            problem = 1
+            problem = 1     #Cannot solve current limitation, add error to results
         else:
-            problem = 0
+            problem = 0     #Current limitation solved, no problem
 
         return(signal, I, R, h, dh, r, dr, T, problem)
         

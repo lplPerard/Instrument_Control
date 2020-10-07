@@ -26,6 +26,12 @@ class CBRAM ():
         self.thermal_resistance = 1e5
         self.alpha = 2.4
         self.beta = 70
+        self.sigmaPF = 300
+        self.phiPF = 0.017
+
+        self.negative_offset = 0
+        self.negative_offset_threshold = 0
 
         self.resistivity_on = 4e-7
-        self.resistivity_off = 3e8
+        self.resistivity_off_ohm = 3e8
+        self.resistivity_off_PF = 1e8

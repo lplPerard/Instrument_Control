@@ -62,14 +62,14 @@ class Sequence():
     def button_measureResistance_neg_callBack(self):
     #This method is a callBack funtion for button_startSequence
         [R, error] = self.service.measureResistance(negative=True, output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
+        self.doubleVar_CBRAM_resistance.set(format(R/self.resource.resistanceCoeff, '.4g'))
         self.results.cell_resistance = R
         return(R)
         
     def button_measureResistance_pos_callBack(self):
     #This method is a callBack funtion for button_startSequence
         [R, error] = self.service.measureResistance(output=self.term_text)
-        self.doubleVar_CBRAM_resistance.set(R/self.resource.resistanceCoeff)
+        self.doubleVar_CBRAM_resistance.set(format(R/self.resource.resistanceCoeff, '.4g'))
         return(R)
 
     def button_measureImpedance_callBack(self):

@@ -1,0 +1,81 @@
+Copyright Grenoble-inp LCIS
+
+Developped by : Luc PERARD
+Version : 3.0
+Details : 
+
+    - 2020/01/09 Software creation 
+    - 2020/02/14 Executable version 0.4
+    - 2020/02/24 Implementation of I/V version 1.0
+    - 2020/02/25 Implementation of new graphs version 1.1
+    - 2020/05/05 Implementation of Modelling and terminal version 2.0
+    - 2020/05/06 Implementation of temperature in Modelling version 2.1
+    - 2020/06/26 Bug corrections and implementation of signal choice for Cycling and auto mailing version 2.2
+    - 2020/07/02 Implementation of Stability version 3.0
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V3.0
+
+- Implementation of Stability Sequence. It is used to monitor the evolution of the resistance through time.
+- Terminal is not shown by default anymore.
+- Sequence parameters were removed from Parameters window and reinserted in the Cycling Sequence
+- General improvements in parameters window
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V2.2
+
+- Bug correction in Ramp and Pulse signal generator in Controller.
+- Implementation of signal choice in Cycling. The cycling signal can now be made of a mix of Pulses and Ramps.
+- Implementation of auto mailing option after a sequence was terminated.
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V2.1
+
+- Temperature and T/V curve Graphs added to Modelling sequence.
+- Visualizations of R_lim were added to graphs in Cycling sequence.
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V2.0
+
+- Implementation of Modelling Sequence. It is used to generate a numerical model of the CBRAM behavior and dynamicaly compare it with an imported result file.
+- Modification In IV Sequence. Set and reset signals can now be modified separatly.
+- Modification in Service, output has now be added to redirect logs to a terminal widget.
+- Modification in Serive, the possibility to change Ilim during a sequence has been added.
+- Modification in Cycling Sequence, Smart programming were modified based on modulo.
+- Modification of the single voltage waveform generator, now all measurement are performed using 2-wire. 4-wire seems to introduce errors during the tests and will be re-implemented after further evaluation.
+- The new cell format has been implemented : 35u:1000n:600n:ddmmyyss:00x00.
+- General improvements on the GUI especially for small screens.
+- Parameters can now be displayed on a seperated window.
+- A terminal has been added to dynamically follow tests.
+- A marker was added on Graphs.
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Latest release : V1.1
+
+- Implementation of info message after autoexport is done.
+- Modification of defaults parameters for IV sequence.
+- Butterfly curve, IV and Butterfly (command) curve added to all sequences.
+- R/V curve and R/V (command) curve added to all sequences.
+- Current compliance now appears on measurement Graph for IV and Single sequence.
+- Command voltage now appears on measurement graph for IV and Single sequence.
+- General improvements in code presentation and documentation.
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Release : V1.0
+
+- Implementation of IV sequence. It is used to generate a triangular waveform and trace the IV characteristic of the cell.
+- Graph switching capabilities added to the single sequence.
+- IV Graph added to the single sequence.
+- Modification in the signal name of single sequence (SET low => Ramp; SET high => Pulse). The objective is to get a more general interface.
+- Modification of the ramp generator in Controller. A negative ramp can now be generated using a negative ramp parameter.
+- Modification of the single voltage waveform generator, now all measurement are performed using 4-wire.
+- The new cell format has been implemented : 600:1000:600:ddmmyyss:00x00.
+- Default export PATH was modified.
+- Some modifications were made on the GUI.

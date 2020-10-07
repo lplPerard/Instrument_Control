@@ -83,6 +83,25 @@ class Controller():
             
         return(total_time, total_signal)
 
+    def filterResultSignal(self, signal, ratio=5):
+    #This methods filters a result signal to eliminate nonsense data
+        i= 0
+
+        while (i < len(signal)-2):
+
+            if signal[i+1] / signal[i] > ratio :
+                if signal[i+1] / signal[i+2] > ratio :
+
+                    signal[i+1] = (signal[i+2] + signal[i+1])/2
+
+            elif signal[i] / signal[i+1] > ratio :
+                if signal[i+2] / signal[i+1] > ratio :
+
+                    signal[i+1] = (signal[i+2] + signal[i+1])/2
+            i = i+1
+
+        return(signal)
+
     def generateTimeBase(self, measurementType, duration, nbMeasurement):
     #This method creates the time base for resistance measurement in stability analysis
         if measurementType == "Linear":
